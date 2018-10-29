@@ -1,5 +1,5 @@
-# nnode-red-contrib-wirenboard
-Node-Red Nodes for WirenBoard connectivity..gitignore
+# node-red-contrib-wirenboard
+Node-Red Nodes for WirenBoard connectivity.
 
 Available nodes are:
 * wb-input: A node to subscribe to wirenboard mqtt topics
