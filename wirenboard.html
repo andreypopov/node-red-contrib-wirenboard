@@ -1,0 +1,471 @@
+<!--
+
+//
+//     Copyright (C) 2018  Andrey Popov
+//
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+
+<!-- *************** Input Node *************** -->
+<script type="text/javascript">
+    $.getScript('wirenboard/static/bootstrap-multiselect/bootstrap-multiselect.js');
+    RED.nodes.registerType('wb-input', {
+        category: 'WirenBoard',
+        color: '#5fb408',
+        defaults: {
+            name: {
+                value: ""
+            },
+            server: {
+                type: "wb-server",
+                required: true
+            },
+            filter: {
+                value: null,
+                required: true
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        outputLabels: ["event"],
+        paletteLabel: 'in',
+        icon: "wirenboard.png",
+        label: function () {
+            var label = 'wb-input';
+            if (typeof(this.filter) == 'string' && this.filter.length) {
+                label = (this.filter).split('/').slice(-1)[0];
+            }
+            return label;
+        },
+        oneditprepare: function () {
+            var node = this;
+            setTimeout(function(){
+                getItemList(node.filter, '#node-input-filter', false, true);
+            }, 100); //we need small timeout, too fire change event for server select
+        },
+        oneditsave: function () {
+            var selectedOptions = $('#node-input-filter option:selected');
+            if (selectedOptions) {
+                this.filter = selectedOptions.map(function () {
+                    return $(this).val();
+                });
+            } else {
+                this.filter = null;
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="wb-input">
+    <style type="text/css">
+        .multiselect {
+            width: 100% !important;
+        }
+
+        .form-row input.multiselect-search {
+            width: 100%;
+        }
+
+        .multiselect-clear-filter {
+            display: none;
+        }
+
+        .dropdown-menu {
+            width: 100% !important;
+        }
+        .multiselect-container {
+            font-size: 10px !important;
+        }
+        .multiselect.dropdown-toggle input[type='button'] {
+            width: 100% !important;
+        }
+
+        .multiselect-container input[type='checkbox'] {
+            display: none;
+        }
+
+        .multiselect-container > li > a > label.radio {
+            margin: 5px;
+            width: 90%;
+            height: 100%;
+            cursor: pointer;
+            font-weight: 400;
+            padding: 3px 20px 3px 20px;
+        }
+
+        .multiselect-container label.radio input[type='radio'] {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="wirenboard/static/bootstrap-multiselect/bootstrap-multiselect.css" type="text/css" />
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Device</label>
+        <select id="node-input-filter">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="wb-input">
+    <p>This node listens for mqtt messages sent from your wirenboard.</p>
+
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the wirenboard server instance to use.</li>
+        <li><b>Device:</b> Select the device to listen to.</li>
+    </ul>
+    <b>Output</b><br>
+    <ul>
+        <li>The <code>msg.payload</code> contains message</li>
+    </ul>
+    <b>Status</b><br>
+    <ul>
+        <li>The node indicates the connection status to wirenboard via a status indicator.</li>
+    </ul>
+
+</script>
+
+
+<!-- *************** Output Node *************** -->
+<script type="text/javascript">
+    RED.nodes.registerType('wb-output', {
+        category: 'WirenBoard',
+        color: '#5fb408',
+        align: 'right',
+        defaults: {
+            name: {
+                value: ""
+            },
+            server: {
+                type: "wb-server",
+                required: true
+            },
+            filter: {
+                value: "",
+                required: true
+            },
+            command: {
+                value: '/on',
+            },
+            commandType: {
+                value: 'wb_cmd',
+            },
+            payload: {
+                value: 'payload',
+            },
+            payloadType: {
+                value: 'msg',
+            }
+        },
+        inputLabels: "event",
+        paletteLabel: 'out',
+        inputs: 1,
+        outputs: 0,
+        icon: "wirenboard.png",
+        label: function() {
+            var label = 'wb-output';
+            if (typeof(this.filter) == 'string' && this.filter.length) {
+                label = (this.filter).split('/').slice(-1)[0];
+            }
+            return label;
+        },
+        oneditprepare: function() {
+            var node = this;
+
+            var WbTypes = {
+                value: 'wb_cmd',
+                label: 'WB',
+                icon: 'icons/node-red-contrib-wirenboard/wirenboard-color.png',
+                options: ['/on']
+            };
+            $('#node-input-command').typedInput({
+                types: [WbTypes, 'str', 'msg'],
+                default: 'msg',
+                value: 'topic',
+                typeField: $('#node-input-commandType'),
+            });
+            $('#node-input-payload').typedInput({
+                types: ['msg', 'flow', 'global', 'str', 'num', 'date'],
+                default: 'msg',
+                value: 'payload',
+                typeField: $('#node-input-payloadType'),
+            });
+            $('#node-input-commandType').val(node.commandType);
+            $('#node-input-payloadType').val(node.payloadType);
+
+
+            setTimeout(function(){
+                getItemList(node.filter, '#node-input-filter', false, true);
+            }, 100); //we need small timeout, too fire change event for server select
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="wb-output">
+    <style type="text/css">
+            .multiselect {
+                width: 100% !important;
+            }
+
+            .form-row input.multiselect-search {
+                width: 100%;
+            }
+
+            .multiselect-clear-filter {
+                display: none;
+            }
+
+            .dropdown-menu {
+                width: 100% !important;
+            }
+            .multiselect-container {
+                font-size: 10px !important;
+            }
+            .multiselect.dropdown-toggle input[type='button'] {
+                width: 100% !important;
+            }
+
+            .multiselect-container input[type='checkbox'] {
+                display: none;
+            }
+
+            .multiselect-container > li > a > label.radio {
+                margin: 5px;
+                width: 90%;
+                height: 100%;
+                cursor: pointer;
+                font-weight: 400;
+                padding: 3px 20px 3px 20px;
+            }
+
+            .multiselect-container label.radio input[type='radio'] {
+                display: none;
+            }
+    </style>
+    <link rel="stylesheet" href="wirenboard/static/bootstrap-multiselect/bootstrap-multiselect.css" type="text/css" />
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Device</label>
+        <select id="node-input-filter">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+	</div>
+    <div class="form-row">
+        <label for="node-input-command"><i class="fa fa-tasks"></i> Command</label>
+        <input type="text" id="node-input-command" style="width:70%">
+        <input type="hidden" id="node-input-commandType">
+    </div>
+	<div class="form-row">
+        <label for="node-input-payload"><i class="fa fa-envelope"></i> Payload</label>
+        <input type="text" id="node-input-payload" style="width:70%">
+        <input type="hidden" id="node-input-payloadType">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="wb-output">
+    <p>This node sends mqtt message to device.</p>
+
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the wirenboard server instance to use.</li>
+        <li><b>Device:</b> Select the name of the device to send your message.</li>
+    </ul>
+    <b>Input</b><br>
+    <ul>
+        <li>The <code>msg.payload</code> of your message is used as message.</li>
+    </ul>
+</script>
+
+
+
+
+<!-- *************** Server Node *************** -->
+<script type="text/javascript">
+    RED.nodes.registerType('wb-server', {
+        category: 'config',
+        defaults: {
+            name: {
+                value: null,
+                required: false
+            },
+            url: {
+                value: null,
+                required: true
+            },
+            allowuntrusted: {
+                value: false,
+                required: true
+            }
+
+        },
+        label: function() {
+            return this.name ||  this.url;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="wb-server">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-url"><i class="icon-bookmark"></i> URL or IP</label>
+        <input type="text" id="node-config-input-url">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-allowuntrusted"><i class="icon-tag"></i> SSL</label>
+        <input type="checkbox" id="node-config-input-allowuntrusted" style="display: inline-block; width: auto; vertical-align: top;"> Do not validate SSL Server Certificate</input>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="wb-server">
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your server.</li>
+        <li><b>URL:</b> The URL to the REST-API of your wirenboard instance. Make sure to include the trailing slash in your URL. Example: <code>http://localhost:8080/rest/</code></li>
+        <li><b>SSL:</b> Activate to disable SSL Certificate validation. e.g. for using a self signed certificate</li>
+    </ul>
+</script>
+
+
+
+
+
+<script type='text/javascript'>
+    function getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false) {
+        function updateItemList(controller, selectedItemElement, itemName, refresh = false) {
+            // Remove all previous and/or static (if any) elements from 'select' input element
+            selectedItemElement.children().remove();
+
+
+            if (controller) {
+                $.getJSON('/wirenboard/itemlist', {
+                    controllerID: controller.id,
+                    forceRefresh: refresh
+                })
+                    .done(function (data, textStatus, jqXHR) {
+                        try {
+
+                            if (allowEmpty) {
+                                selectedItemElement.html('<option value="">--Select device</option>');
+                            }
+
+                            var optgroup = '';
+                            // var selected = false;
+                            var groupHtml = '';
+                            $.each(data, function(index, value) {
+
+                                // selected = typeof(itemName) == 'string' && value.topic == itemName;
+
+                                if (optgroup != value.device_name) {
+                                    groupHtml = $('<optgroup/>', { label: value.device_name});
+                                    groupHtml.appendTo(selectedItemElement);
+                                    optgroup = value.device_name;
+                                }
+
+                                // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
+                                $('<option value="' + value.topic +'">' + value.control_name + '</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
+                            });
+
+                            // Enable item selection
+                            selectedItemElement.multiselect('enable');
+                            // Finally, set the value of the input select to the selected value
+                            selectedItemElement.val(itemName);
+                            // // Rebuild bootstrap multiselect form
+                            selectedItemElement.multiselect('rebuild');
+                            // // Trim selected item string length with elipsis
+                            var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
+                            var sHTML = selectItemSpanElement.html();
+                            selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
+
+                        } catch (error) {
+                            console.error(`Error: ${error}`);
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        // Disable item selection if no items were retrieved
+                        selectedItemElement.multiselect('disable');
+                        selectedItemElement.multiselect('refresh');
+                        //console.error(`Error: ${errorThrown}`);
+                    });
+
+            } else {
+                // Disable item selection if no (valid) controller was selected
+                selectedItemElement.multiselect('disable');
+                selectedItemElement.multiselect('refresh');
+            }
+        }
+
+
+
+
+        var WbServerElement = $('#node-input-server');
+        var refreshListElement = $('#force-refresh');
+        var selectedItemElement = $(selectedItemElementName);
+
+
+        // Initialize bootstrap multiselect form
+        selectedItemElement.multiselect({
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            filterPlaceholder: 'Filter items...',
+            includeResetOption: true,
+            includeResetDivider: true,
+            numberDisplayed: 1,
+            maxHeight: 300,
+            disableIfEmpty: true,
+            nSelectedText: 'selected',
+            nonSelectedText: 'None selected',
+            buttonWidth: '70%',
+        });
+
+        // Initial call to populate item list
+        updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
+        // onChange event handler in case a new controller gets selected
+        WbServerElement.change(function (event) {
+            updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+        });
+        refreshListElement.click(function (event) {
+            // Force a refresh of the item list
+            updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+        });
+    }
+
+</script>
