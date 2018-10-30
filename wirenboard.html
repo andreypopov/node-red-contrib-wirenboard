@@ -407,7 +407,7 @@
                                 }
 
                                 // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-                                $('<option value="' + value.topic +'">' + value.control_name + '</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
+                                $('<option value="' + value.topic +'">' +value.device_name +'/'+ value.control_name + '</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
                             });
 
                             // Enable item selection
@@ -438,8 +438,6 @@
                 selectedItemElement.multiselect('refresh');
             }
         }
-
-
 
 
         var WbServerElement = $('#node-input-server');
