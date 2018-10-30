@@ -20,8 +20,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard"
+    "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
+  "bugs": {
+    "url": "https://github.com/andreypopov/node-red-contrib-wirenboard/issues/"
+  },
+  "homepage": "https://github.com/andreypopov/node-red-contrib-wirenboard",
   "node-red": {
     "nodes": {
       "server": "wirenboard.js"
