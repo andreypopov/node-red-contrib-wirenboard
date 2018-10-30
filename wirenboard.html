@@ -52,7 +52,6 @@
         },
         oneditprepare: function () {
             var node = this;
-            console.log('oneditprepare');
             setTimeout(function(){
                 WB_getItemList(node.filter, '#node-input-filter', false, true);
             }, 100); //we need small timeout, too fire change event for server select
@@ -371,7 +370,6 @@
 
 <script type='text/javascript'>
     function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false) {
-        console.log('in WB_getItemList');
         function WB_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
             // Remove all previous and/or static (if any) elements from 'select' input element
             selectedItemElement.children().remove();
@@ -442,7 +440,6 @@
         var refreshListElement = $('#force-refresh');
         var selectedItemElement = $(selectedItemElementName);
 
-        console.log('multiselect');
 
         // Initialize bootstrap multiselect form
         selectedItemElement.multiselect({
@@ -467,7 +464,6 @@
         });
         refreshListElement.click(function (event) {
             // Force a refresh of the item list
-            console.log('CLICK');
             WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
         });
     }
