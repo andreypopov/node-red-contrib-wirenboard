@@ -45,7 +45,9 @@
         icon: "wirenboard.png",
         label: function () {
             var label = 'wb-input';
-            if (typeof(this.filter) == 'string' && this.filter.length) {
+            if (this.name) {
+                label = this.name;
+            } else if (typeof(this.filter) == 'string' && this.filter.length) {
                 var device_name = (this.filter).split('/').slice(1)[1];
                 var control_name = (this.filter).split('/').slice(-1)[0];
 
@@ -192,7 +194,9 @@
         icon: "wirenboard.png",
         label: function() {
             var label = 'wb-output';
-            if (typeof(this.filter) == 'string' && this.filter.length) {
+            if (this.name) {
+                label = this.name;
+            } else if (typeof(this.filter) == 'string' && this.filter.length) {
                 var device_name = (this.filter).split('/').slice(1)[1];
                 var control_name = (this.filter).split('/').slice(-1)[0];
 
