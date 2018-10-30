@@ -113,8 +113,60 @@ module.exports = function(RED) {
             client.end();
         });
     }
+    RED.nodes.registerType("wb-input", WirenBoardItemIn);
 
-  RED.nodes.registerType("wb-input", WirenBoardItemIn);
+
+    //*************** Input Node ***************
+    function WirenBoardItemGet(config) {
+        RED.nodes.createNode(this, config);
+        var node = this;
+        node.server = RED.nodes.getNode(config.server);
+        var filter = config.filter;
+
+
+
+        this.on('input', function (message) {
+            if (typeof(filter) == 'string') {
+                var client = mqtt.connect('mqtt://' + node.server.getUrl())
+
+                client.on('connect', function () {
+                    client.subscribe(filter, function (err) {
+                        if (err) {
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: 'Subscribe to "' + filter + '" error'
+                            });
+                        }
+                    })
+                })
+
+                client.on('message', function (topic, message) {
+                    node.status({
+                        fill: "green",
+                        shape: "dot",
+                        text: message.toString()
+                    });
+
+                    client.unsubscribe(filter, function (err) {})
+                    client.end()
+
+                    var event = {topic: topic, message_in: node.payload,payload: message.toString()};
+                    node.send(event);
+                })
+            } else {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: 'Device not set'
+                });
+            }
+        })
+
+    }
+
+    RED.nodes.registerType("wb-get", WirenBoardItemGet);
+
 
 
     //*************** State Output Node ***************

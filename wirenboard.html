@@ -156,6 +156,12 @@
 </script>
 
 
+
+
+
+
+
+
 <!-- *************** Output Node *************** -->
 <script type="text/javascript">
     RED.nodes.registerType('wb-output', {
@@ -190,7 +196,7 @@
         inputLabels: "event",
         paletteLabel: 'out',
         inputs: 1,
-        outputs: 0,
+        outputs: 1,
         icon: "wirenboard.png",
         label: function() {
             var label = 'wb-output';
@@ -321,6 +327,148 @@
         <li>The <code>msg.payload</code> of your message is used as message.</li>
     </ul>
 </script>
+
+
+
+
+
+
+<!-- *************** Input Node *************** -->
+<script type="text/javascript">
+    $.getScript('wirenboard/static/bootstrap-multiselect/bootstrap-multiselect.js');
+    RED.nodes.registerType('wb-get', {
+        category: 'Wiren Board',
+        color: '#5fb408',
+        defaults: {
+            name: {
+                value: ""
+            },
+            server: {
+                type: "wb-server",
+                required: true
+            },
+            filter: {
+                value: null,
+                required: true
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        outputLabels: ["event"],
+        paletteLabel: 'get',
+        icon: "wirenboard.png",
+        label: function () {
+            var label = 'wb-get';
+            if (this.name) {
+                label = this.name;
+            } else if (typeof(this.filter) == 'string' && this.filter.length) {
+                var device_name = (this.filter).split('/').slice(1)[1];
+                var control_name = (this.filter).split('/').slice(-1)[0];
+
+                label = device_name+'/'+control_name;
+            }
+            return label;
+        },
+        oneditprepare: function () {
+            var node = this;
+            setTimeout(function(){
+                WB_getItemList(node.filter, '#node-input-filter', false, true);
+            }, 100); //we need small timeout, too fire change event for server select
+        },
+        oneditsave: function () {
+            var selectedOptions = $('#node-input-filter option:selected');
+            if (selectedOptions) {
+                this.filter = selectedOptions.map(function () {
+                    return $(this).val();
+                });
+            } else {
+                this.filter = null;
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="wb-get">
+    <style type="text/css">
+        .multiselect {
+            width: 100% !important;
+        }
+
+        .form-row input.multiselect-search {
+            width: 100%;
+        }
+
+        .multiselect-clear-filter {
+            display: none;
+        }
+
+        .dropdown-menu {
+            width: 100% !important;
+        }
+        .multiselect-container {
+            font-size: 10px !important;
+        }
+        .multiselect.dropdown-toggle input[type='button'] {
+            width: 100% !important;
+        }
+
+        .multiselect-container input[type='checkbox'] {
+            display: none;
+        }
+
+        .multiselect-container > li > a > label.radio {
+            margin: 5px;
+            width: 90%;
+            height: 100%;
+            cursor: pointer;
+            font-weight: 400;
+            padding: 3px 20px 3px 20px;
+        }
+
+        .multiselect-container label.radio input[type='radio'] {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="wirenboard/static/bootstrap-multiselect/bootstrap-multiselect.css" type="text/css" />
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Channel</label>
+        <select id="node-input-filter">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh channels list</button>
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="wb-get">
+    <p>This reads mqtt message from defined channel.</p>
+
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the wirenboard server instance to use.</li>
+        <li><b>Channel:</b> Select channel to listen to.</li>
+    </ul>
+    <b>Output</b><br>
+    <ul>
+        <li>The <code>msg.payload</code> contains message</li>
+    </ul>
+    <b>Status</b><br>
+    <ul>
+        <li>The node indicates the connection status to wirenboard via a status indicator.</li>
+    </ul>
+
+</script>
+
 
 
 
