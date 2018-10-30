@@ -103,7 +103,7 @@ module.exports = function(RED) {
                 text: message.toString()
             });
 
-            var event = {topic: topic, payload: message};
+            var event = {topic: topic, payload: message.toString()};
             node.send(event);
         })
 
