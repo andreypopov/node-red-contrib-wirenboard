@@ -23,7 +23,7 @@
 <script type="text/javascript">
     $.getScript('wirenboard/static/bootstrap-multiselect/bootstrap-multiselect.js');
     RED.nodes.registerType('wb-input', {
-        category: 'WirenBoard',
+        category: 'Wiren Board',
         color: '#5fb408',
         defaults: {
             name: {
@@ -46,7 +46,10 @@
         label: function () {
             var label = 'wb-input';
             if (typeof(this.filter) == 'string' && this.filter.length) {
-                label = (this.filter).split('/').slice(-1)[0];
+                var device_name = (this.filter).split('/').slice(1)[1];
+                var control_name = (this.filter).split('/').slice(-1)[0];
+
+                label = device_name+'/'+control_name;
             }
             return label;
         },
@@ -120,13 +123,13 @@
         <input type="text" id="node-input-server">
     </div>
     <div class="form-row">
-        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Device</label>
+        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Channel</label>
         <select id="node-input-filter">
         </select>
     </div>
     <div class="form-row">
         <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh channels list</button>
 	</div>
 </script>
 
@@ -137,7 +140,7 @@
     <ul>
         <li><b>Name:</b> Choose any name to identify your node.</li>
         <li><b>Server:</b> Choose the wirenboard server instance to use.</li>
-        <li><b>Device:</b> Select the device to listen to.</li>
+        <li><b>Channel:</b> Select channel to listen to.</li>
     </ul>
     <b>Output</b><br>
     <ul>
@@ -154,7 +157,7 @@
 <!-- *************** Output Node *************** -->
 <script type="text/javascript">
     RED.nodes.registerType('wb-output', {
-        category: 'WirenBoard',
+        category: 'Wiren Board',
         color: '#5fb408',
         align: 'right',
         defaults: {
@@ -190,7 +193,10 @@
         label: function() {
             var label = 'wb-output';
             if (typeof(this.filter) == 'string' && this.filter.length) {
-                label = (this.filter).split('/').slice(-1)[0];
+                var device_name = (this.filter).split('/').slice(1)[1];
+                var control_name = (this.filter).split('/').slice(-1)[0];
+
+                label = device_name+'/'+control_name;
             }
             return label;
         },
@@ -277,13 +283,13 @@
         <input type="text" id="node-input-server">
     </div>
     <div class="form-row">
-        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Device</label>
+        <label for="node-input-filter"><i class="fa fa-crosshairs"></i> Channel</label>
         <select id="node-input-filter">
         </select>
     </div>
     <div class="form-row">
         <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh channels list</button>
 	</div>
     <div class="form-row">
         <label for="node-input-command"><i class="fa fa-tasks"></i> Command</label>
@@ -298,13 +304,13 @@
 </script>
 
 <script type="text/x-red" data-help-name="wb-output">
-    <p>This node sends mqtt message to device.</p>
+    <p>This node sends mqtt message to channel.</p>
 
     <b>Configuration</b><br>
     <ul>
         <li><b>Name:</b> Choose any name to identify your node.</li>
         <li><b>Server:</b> Choose the wirenboard server instance to use.</li>
-        <li><b>Device:</b> Select the name of the device to send your message.</li>
+        <li><b>Channel:</b> Select the channel to send your message.</li>
     </ul>
     <b>Input</b><br>
     <ul>
@@ -384,7 +390,7 @@
                         try {
 
                             if (allowEmpty) {
-                                selectedItemElement.html('<option value="">--Select device</option>');
+                                selectedItemElement.html('<option value="">--Select channel</option>');
                             }
 
                             var optgroup = '';
