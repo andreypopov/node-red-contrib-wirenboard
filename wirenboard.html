@@ -54,8 +54,7 @@
             var node = this;
             console.log('oneditprepare');
             setTimeout(function(){
-                console.log('getItemList');
-                getItemList(node.filter, '#node-input-filter', false, true);
+                WB_getItemList(node.filter, '#node-input-filter', false, true);
             }, 100); //we need small timeout, too fire change event for server select
         },
         oneditsave: function () {
@@ -222,7 +221,7 @@
 
 
             setTimeout(function(){
-                getItemList(node.filter, '#node-input-filter', false, true);
+                WB_getItemList(node.filter, '#node-input-filter', false, true);
             }, 100); //we need small timeout, too fire change event for server select
         }
     });
@@ -371,8 +370,9 @@
 
 
 <script type='text/javascript'>
-    function getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false) {
-        function updateItemList(controller, selectedItemElement, itemName, refresh = false) {
+    function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false) {
+        console.log('in WB_getItemList');
+        function WB_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
             // Remove all previous and/or static (if any) elements from 'select' input element
             selectedItemElement.children().remove();
 
@@ -442,6 +442,7 @@
         var refreshListElement = $('#force-refresh');
         var selectedItemElement = $(selectedItemElementName);
 
+        console.log('multiselect');
 
         // Initialize bootstrap multiselect form
         selectedItemElement.multiselect({
@@ -459,15 +460,15 @@
         });
 
         // Initial call to populate item list
-        updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
+        WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
         // onChange event handler in case a new controller gets selected
         WbServerElement.change(function (event) {
-            updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+            WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
         });
         refreshListElement.click(function (event) {
             // Force a refresh of the item list
             console.log('CLICK');
-            updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+            WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
         });
     }
 
