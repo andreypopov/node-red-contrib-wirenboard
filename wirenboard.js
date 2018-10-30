@@ -172,6 +172,12 @@ module.exports = function(RED) {
                         client.publish(item+command, payload.toString())
                         client.end()
 
+                        node.status({
+                            fill: "green",
+                            shape: "dot",
+                            text: payload.toString()
+                        });
+
                         node.log('Publish mqtt topic: ' + (item+command) + ' : '+payload.toString());
                     })
 
