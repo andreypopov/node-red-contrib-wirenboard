@@ -52,7 +52,9 @@
         },
         oneditprepare: function () {
             var node = this;
+            console.log('oneditprepare');
             setTimeout(function(){
+                console.log('getItemList');
                 getItemList(node.filter, '#node-input-filter', false, true);
             }, 100); //we need small timeout, too fire change event for server select
         },
@@ -464,6 +466,7 @@
         });
         refreshListElement.click(function (event) {
             // Force a refresh of the item list
+            console.log('CLICK');
             updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
         });
     }
