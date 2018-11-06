@@ -301,29 +301,24 @@ module.exports = function(RED) {
                     if (!err) {
                         client.publish('/tmp/items_list', 'end_reading_items_list')
                     } else {
-                        console.log(err);
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: 'Error: subscribe to '+node.url
-                        });
+                        RED.log.error("code #0023: "+err);
                     }
                 })
             })
 
             client.on('error', function (error) {
-                console.log(error);
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: 'Error: '+error
-                });
+                RED.log.error("code #0024: "+error);
             })
 
             client.on('message', function (topic, message) {
                 if (message.toString() == 'end_reading_items_list') {
                     client.unsubscribe(['/devices/+/controls/+', '/devices/+/controls/meta/+', '/tmp/items_list'], function (err) {})
                     client.end()
+
+                    if (!that.items.length) {
+                        RED.log.error("code #0026: No items, check your settings");
+                    }
+
                     callback((that.items).sort(function (a, b) {
                         var aSize = a.device_name;
                         var bSize = b.device_name;
