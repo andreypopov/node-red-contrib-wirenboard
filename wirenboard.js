@@ -297,8 +297,27 @@ module.exports = function(RED) {
             var client  = mqtt.connect('mqtt://'+node.url)
 
             client.on('connect', function () {
-                client.subscribe(['/devices/+/controls/+', '/devices/+/controls/meta/+', '/tmp/items_list'], function (err) {})
-                client.publish('/tmp/items_list', 'end_reading_items_list')
+                client.subscribe(['/devices/+/controls/+', '/devices/+/controls/meta/+', '/tmp/items_list'], function (err) {
+                    if (!err) {
+                        client.publish('/tmp/items_list', 'end_reading_items_list')
+                    } else {
+                        console.log(err);
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: 'Error: subscribe to '+node.url
+                        });
+                    }
+                })
+            })
+
+            client.on('error', function (error) {
+                console.log(error);
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: 'Error: '+error
+                });
             })
 
             client.on('message', function (topic, message) {
