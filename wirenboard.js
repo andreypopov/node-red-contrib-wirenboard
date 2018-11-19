@@ -52,9 +52,6 @@ module.exports = function(RED) {
             controller.getItemsList(function (items) {
                 if (items) {
                     res.json(items).end();
-                    // res.json(items).end();
-                // } else {
-                //     res.status(404).end();
                 }
             }, forceRefresh);
         } else {
@@ -292,33 +289,34 @@ module.exports = function(RED) {
         if (forceRefresh || node.items === undefined) {
             console.log('Refreshing devices');
             var that = this;
+            that.devices = [];
             that.items = [];
 
             var client  = mqtt.connect('mqtt://'+node.url)
 
             client.on('connect', function () {
-                client.subscribe(['/devices/+/controls/+', '/devices/+/controls/meta/+', '/tmp/items_list'], function (err) {
+                client.subscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {
                     if (!err) {
                         client.publish('/tmp/items_list', 'end_reading_items_list')
                     } else {
-                        RED.log.error("code #0023: "+err);
+                        RED.log.error("wirenboard: error code #0023: "+err);
                     }
                 })
             })
 
             client.on('error', function (error) {
-                RED.log.error("code #0024: "+error);
+                RED.log.error("wirenboard: error code #0024: "+error);
             })
 
             client.on('message', function (topic, message) {
                 if (message.toString() == 'end_reading_items_list') {
-                    client.unsubscribe(['/devices/+/controls/+', '/devices/+/controls/meta/+', '/tmp/items_list'], function (err) {})
+                    client.unsubscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {})
                     client.end()
 
                     if (!that.items.length) {
-                        RED.log.error("code #0026: No items, check your settings");
+                        RED.log.warn("wirenboard: error code #0026: No items, check your settings");
                     }
-
+// console.log(that.devices)
                     callback((that.items).sort(function (a, b) {
                         var aSize = a.device_name;
                         var bSize = b.device_name;
@@ -332,12 +330,37 @@ module.exports = function(RED) {
                     }))
                 }
 
-                that.items.push({
-                    topic:topic,
-                    message:message.toString(),
-                    control_name:topic.split('/').slice(-1)[0],
-                    device_name:topic.split('/').slice(1)[1]
-                });
+                //parse topic
+                var topicParts = topic.split('/')
+                var deviceName = topicParts[2]
+
+                //meta device name
+                if (topicParts[3] == 'meta' && topicParts[4] == 'name') {
+                    that.devices[deviceName] = {'friendly_name':message.toString(), 'controls':[]}
+
+                //meta controls
+                } else if (topicParts[3] == 'controls' && topicParts[5] == 'meta') {
+                    var controlName = topicParts[4]
+                    if (typeof(that.devices[deviceName]['controls'][controlName]) == 'undefined')
+                        that.devices[deviceName]['controls'][controlName] = {}
+
+                    that.devices[deviceName]['controls'][controlName][topicParts[6]] = message.toString()
+
+                //devices
+                } else if (topicParts[3] == 'controls') {
+                    var controlName = topicParts[4]
+                    that.items.push({
+                        topic:topic,
+                        message:message.toString(),
+                        control_name:controlName,
+                        device_name:deviceName,
+                        device_friendly_name:typeof(that.devices[deviceName]['friendly_name'])!='undefined'?that.devices[deviceName]['friendly_name']:deviceName,
+                        meta:that.devices[deviceName]['controls'][controlName]
+                    });
+                }
+
+
+
             })
         } else {
             console.log('Using cached devices');

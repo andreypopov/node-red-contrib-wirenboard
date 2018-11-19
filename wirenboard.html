@@ -53,6 +53,7 @@
 
                 label = device_name+'/'+control_name;
             }
+
             return label;
         },
         oneditprepare: function () {
@@ -195,6 +196,8 @@
 
                 label = device_name+'/'+control_name;
             }
+            //console.log(this.items);
+
             return label;
         },
         oneditprepare: function () {
@@ -379,7 +382,7 @@
 
 
             setTimeout(function(){
-                WB_getItemList(node.filter, '#node-input-filter', false, true);
+                WB_getItemList(node.filter, '#node-input-filter', false, true, true);
             }, 100); //we need small timeout, too fire change event for server select
         }
     });
@@ -531,7 +534,7 @@
 
 
 <script type='text/javascript'>
-    function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false) {
+    function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false, disableReadonly = false) {
         function WB_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
             // Remove all previous and/or static (if any) elements from 'select' input element
             selectedItemElement.children().remove();
@@ -550,6 +553,7 @@
                             }
 
                             var optgroup = '';
+                            var disabled = '';
                             // var selected = false;
                             var groupHtml = '';
                             $.each(data, function(index, value) {
@@ -557,13 +561,18 @@
                                 // selected = typeof(itemName) == 'string' && value.topic == itemName;
 
                                 if (optgroup != value.device_name) {
-                                    groupHtml = $('<optgroup/>', { label: value.device_name});
+                                    groupHtml = $('<optgroup/>', { label: value.device_friendly_name});
                                     groupHtml.appendTo(selectedItemElement);
                                     optgroup = value.device_name;
                                 }
 
+                                if (disableReadonly && parseInt(value.meta.readonly) == 1)
+                                    disabled = 'disabled="disabled"';
+                                else
+                                    disabled = '';
+
                                 // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-                                $('<option value="' + value.topic +'">' +value.device_name +'/'+ value.control_name + '</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
+                                $('<option '+disabled+' value="' + value.topic +'">' +value.device_name +'/'+ value.control_name + '</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
                             });
 
                             // Enable item selection
@@ -578,7 +587,7 @@
                             selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
 
                         } catch (error) {
-                            console.error(`Error: ${error}`);
+                            console.error('Error #4534');
                         }
                     })
                     .fail(function (jqXHR, textStatus, errorThrown) {
