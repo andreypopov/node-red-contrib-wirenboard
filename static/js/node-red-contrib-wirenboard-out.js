@@ -70,7 +70,8 @@ RED.nodes.registerType('wb-output', {
 
 
         setTimeout(function(){
-            WB_getItemList(node.filter, '#node-input-filter', false, true, true);
+            WB_getItemList(node.filter, '#node-input-filter', {disableReadonly:true, allowEmpty:true});
         }, 100); //we need small timeout, too fire change event for server select
+
     }
 });

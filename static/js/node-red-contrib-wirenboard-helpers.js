@@ -1,4 +1,11 @@
-function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allowEmpty = false, disableReadonly = false) {
+function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
+
+    options = $.extend({
+        filterType:'',
+        disableReadonly:false,
+        refresh:false,
+        allowEmpty:false
+    }, options);
 
     function WB_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
         // Remove all previous and/or static (if any) elements from 'select' input element
@@ -13,17 +20,43 @@ function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allo
                 .done(function (data, textStatus, jqXHR) {
                     try {
 
-                        if (allowEmpty) {
+                        if (options.allowEmpty) {
                             selectedItemElement.html('<option value="">--Select channel</option>');
                         }
 
                         var optgroup = '';
                         var disabled = '';
+                        var nameSuffix = '';
                         // var selected = false;
                         var groupHtml = '';
                         $.each(data, function(index, value) {
+                            disabled = '';
+                            nameSuffix = '';
+
 
                             // selected = typeof(itemName) == 'string' && value.topic == itemName;
+
+
+                            //readonly
+                            if (typeof value.meta !== 'undefined'
+                                && typeof value.meta.type !== 'undefined'
+                                && options.disableReadonly
+                                && parseInt(value.meta.readonly) == 1
+                            ) {
+                                disabled = 'disabled="disabled"';
+                                nameSuffix = 'readonly';
+                                return true;
+                            }
+
+                            //filter by type
+                            if (typeof value.meta !== 'undefined'
+                                && typeof value.meta.type !== 'undefined'
+                                && options.filterType
+                                && value.meta.type != options.filterType) {
+                                disabled = 'disabled="disabled"';
+                                nameSuffix = value.meta.type;
+                                return true;
+                            }
 
                             if (optgroup != value.device_name) {
                                 groupHtml = $('<optgroup/>', { label: value.device_friendly_name});
@@ -31,13 +64,8 @@ function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allo
                                 optgroup = value.device_name;
                             }
 
-                            if (disableReadonly && parseInt(value.meta.readonly) == 1)
-                                disabled = 'disabled="disabled"';
-                            else
-                                disabled = '';
-
                             // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-                            $('<option '+disabled+' value="' + value.topic +'">' +value.device_name +'/'+ value.control_name + '</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
+                            $('<option '+disabled+' value="' + value.topic +'">' +value.device_name +'/'+ value.control_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
                         });
 
                         // Enable item selection
@@ -53,6 +81,7 @@ function WB_getItemList(nodeItem, selectedItemElementName, refresh = false, allo
 
                     } catch (error) {
                         console.error('Error #4534');
+                        console.log(error);
                     }
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {

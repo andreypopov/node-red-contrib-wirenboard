@@ -1,4 +1,4 @@
-RED.nodes.registerType('wb-get', {
+RED.nodes.registerType('wb-button', {
     category: 'Wiren Board',
     color: '#5fb408',
     defaults: {
@@ -12,15 +12,25 @@ RED.nodes.registerType('wb-get', {
         filter: {
             value: null,
             required: true
+        },
+        eventTypes: {
+            value: [],
+            required: true,
+        },
+        longPressDelay: {
+            value: 2000,
+        },
+        doubleClickDelay: {
+            value: 600,
         }
     },
-    inputs: 1,
+    inputs: 0,
     outputs: 1,
     outputLabels: ["event"],
-    paletteLabel: 'get',
+    paletteLabel: 'button',
     icon: "wirenboard.png",
     label: function () {
-        var label = 'wb-get';
+        var label = 'wb-button';
         if (this.name) {
             label = this.name;
         } else if (typeof(this.filter) == 'string' && this.filter.length) {
@@ -29,14 +39,31 @@ RED.nodes.registerType('wb-get', {
 
             label = device_name+'/'+control_name;
         }
-        //console.log(this.items);
 
         return label;
     },
     oneditprepare: function () {
         var node = this;
+        $('#node-input-longPressDelay').val(node.longPressDelay);
+        $('#node-input-doubleClickDelay').val(node.doubleClickDelay);
         setTimeout(function(){
-            WB_getItemList(node.filter, '#node-input-filter', {allowEmpty:true});
+            WB_getItemList(node.filter, '#node-input-filter', {filterType:'switch'}); //filterType:'switch'
+
+
+            var selectedEventsElement = $('#node-input-eventTypes');
+            var selectedEvents = selectedEventsElement.val();
+            // Initialize bootstrap multiselect form
+            selectedEventsElement.multiselect({
+                enableFiltering: false,
+                numberDisplayed: 1,
+                maxHeight: 300,
+                disableIfEmpty: true,
+                nSelectedText: 'selected',
+                nonSelectedText: 'None selected',
+                buttonWidth: '70%',
+            });
+
+
         }, 100); //we need small timeout, too fire change event for server select
     },
     oneditsave: function () {

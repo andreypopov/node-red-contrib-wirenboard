@@ -35,7 +35,7 @@ RED.nodes.registerType('wb-input', {
     oneditprepare: function () {
         var node = this;
         setTimeout(function(){
-            WB_getItemList(node.filter, '#node-input-filter', false, true);
+            WB_getItemList(node.filter, '#node-input-filter', {allowEmpty:true});
         }, 100); //we need small timeout, too fire change event for server select
     },
     oneditsave: function () {
