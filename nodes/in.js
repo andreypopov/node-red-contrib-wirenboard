@@ -83,7 +83,7 @@ module.exports = function(RED) {
 
         }
     }
-    RED.nodes.registerType('wirenboard-input', WirenboardNodeIn);
+    RED.nodes.registerType('wirenboard-in', WirenboardNodeIn);
 };
 
 
