@@ -1,0 +1,132 @@
+<script type="text/x-red" data-template-name="wirenboard-button">
+    <link rel="stylesheet" href="wirenboard/static/css/multiple-select.css" type="text/css" />
+    <link rel="stylesheet" href="wirenboard/static/css/common.css" type="text/css" />
+
+    <div class="form-row">
+        <label for="node-input-name" class="l-width"><i class="fa fa-bookmark"></i> <span data-i18n="label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-channel" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.channel"></span></label>
+        <select id="node-input-channel" class="s-width" data-single="true"></select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
+        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></a>
+    </div>
+
+
+    <div class="form-tips" style="margin-bottom:12px;" data-i18n="[html]tip.works_with_dry_contact"></div>
+
+    <div class="form-row">
+        <label for="node-input-eventTypes" class="l-width"><i class="fa fa-bolt"></i> Event types</label>
+        <select id="node-input-eventTypes" name="node-input-eventTypes" multiple="multiple" style="width: 70%">
+            <option value="Press">Press</option>
+			<option value="LongPress">LongPress</option>
+			<option value="Release">Release</option>
+            <option value="Click">Click</option>
+            <option value="DoubleClick">DoubleClick</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <div class="input-group">
+            <label for="node-input-longPressDelay" class="l-width"><i class="fa fa-clock-o"></i> LongPress</label>
+            <input type="text" id="node-input-longPressDelay" style="width:100px;">
+            <span class="input-group-addon">ms</span>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="input-group">
+            <label for="node-input-doubleClickDelay" class="l-width"><i class="fa fa-clock-o"></i> DoubleClick</label>
+            <input type="text" id="node-input-doubleClickDelay" style="width:100px;">
+            <span class="input-group-addon">ms</span>
+        </div>
+    </div>
+</script>
+
+<script type='text/javascript'>
+    RED.nodes.registerType('wirenboard-button', {
+        category: 'Wiren Board',
+        color: '#5fb408',
+        defaults: {
+            name: {
+                value: ""
+            },
+            server: {
+                type: "wirenboard-server",
+                required: true
+            },
+            channel: {
+                value: null,
+                required: true
+            },
+            eventTypes: {
+                value: [],
+                required: true,
+            },
+            longPressDelay: {
+                value: 2000,
+            },
+            doubleClickDelay: {
+                value: 600,
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        outputLabels: ["event"],
+        paletteLabel: 'button',
+        icon: "wirenboard.png",
+        label: function () {
+            var label = 'wb-button';
+            if (this.name) {
+                label = this.name;
+            } else if (typeof(this.channel) == 'string' && this.channel.length) {
+                var device_name = (this.channel).split('/').slice(1)[1];
+                var control_name = (this.channel).split('/').slice(-1)[0];
+
+                label = device_name+'/'+control_name;
+            }
+
+            return label;
+        },
+        oneditprepare: function () {
+            var node = this;
+            $('#node-input-longPressDelay').val(node.longPressDelay);
+            $('#node-input-doubleClickDelay').val(node.doubleClickDelay);
+            setTimeout(function(){
+                WB_getItemList(node.channel, '#node-input-channel', {filterType:'switch'}); //filterType:'switch'
+
+
+                var selectedEventsElement = $('#node-input-eventTypes');
+                var selectedEvents = selectedEventsElement.val();
+
+                // Initialize multiselect
+                selectedEventsElement.multipleSelect({
+                    maxHeight: 300,
+                    dropWidth: 320,
+                    width: 320,
+                    filter: true
+                });
+
+
+            }, 100); //we need small timeout, too fire change event for server select
+        },
+        oneditsave: function () {
+            var selectedOptions = $('#node-input-channel option:selected');
+            if (selectedOptions) {
+                this.channel = selectedOptions.map(function () {
+                    return $(this).val();
+                });
+            } else {
+                this.channel = null;
+            }
+        }
+    });
+
+</script>

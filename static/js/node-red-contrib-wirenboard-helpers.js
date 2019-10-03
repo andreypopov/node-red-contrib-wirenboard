@@ -13,7 +13,9 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
 
         if (controller) {
-            $.getJSON('/wirenboard/itemlist', {
+            selectedItemElement.multipleSelect('disable');
+
+            $.getJSON('/wirenboard/getChannels', {
                 controllerID: controller.id,
                 forceRefresh: refresh
             })
@@ -69,11 +71,11 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         });
 
                         // Enable item selection
-                        selectedItemElement.multiselect('enable');
+                        selectedItemElement.multipleSelect('enable');
                         // Finally, set the value of the input select to the selected value
                         selectedItemElement.val(itemName);
                         // // Rebuild bootstrap multiselect form
-                        selectedItemElement.multiselect('rebuild');
+                        selectedItemElement.multipleSelect('refresh');
                         // // Trim selected item string length with elipsis
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
@@ -86,15 +88,15 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     // Disable item selection if no items were retrieved
-                    selectedItemElement.multiselect('disable');
-                    selectedItemElement.multiselect('refresh');
+                    selectedItemElement.multipleSelect('disable');
+                    selectedItemElement.multipleSelect('refresh');
                     //console.error(`Error: ${errorThrown}`);
                 });
 
         } else {
             // Disable item selection if no (valid) controller was selected
-            selectedItemElement.multiselect('disable');
-            selectedItemElement.multiselect('refresh');
+            selectedItemElement.multipleSelect('disable');
+            selectedItemElement.multipleSelect('refresh');
         }
     }
 
@@ -104,19 +106,12 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
     var selectedItemElement = $(selectedItemElementName);
 
 
-    // Initialize bootstrap multiselect form
-    selectedItemElement.multiselect({
-        enableFiltering: true,
-        enableCaseInsensitiveFiltering: true,
-        filterPlaceholder: 'Filter items...',
-        includeResetOption: true,
-        includeResetDivider: true,
-        numberDisplayed: 1,
+    // Initialize  multiselect
+    selectedItemElement.multipleSelect({
         maxHeight: 300,
-        disableIfEmpty: true,
-        nSelectedText: 'selected',
-        nonSelectedText: 'None selected',
-        buttonWidth: '70%',
+        dropWidth: 320,
+        width: 320,
+        filter: true
     });
 
     // Initial call to populate item list

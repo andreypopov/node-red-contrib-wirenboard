@@ -1,0 +1,20 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server",
+        "channel": "Channel",
+        "refresh": "Refresh",
+        "refresh_devices_list": "Refresh Devices List"
+    },
+    "placeholder": {
+        "name": "Name"
+    },
+    "status": {
+        "no_server": "no server",
+        "no_device": "no device",
+        "connected": "connected"
+    },
+    "tip": {
+        "works_with_dry_contact": "<b>Important:</b> works nice only with DI-DR/DI-WD modules"
+    }
+}
