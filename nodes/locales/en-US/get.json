@@ -11,6 +11,7 @@
     },
     "status": {
         "no_server": "no server",
-        "no_device": "no device"
+        "no_device": "no device",
+        "no_connection": "no connection"
     }
 }

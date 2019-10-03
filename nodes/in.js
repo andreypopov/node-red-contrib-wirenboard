@@ -7,9 +7,13 @@ module.exports = function(RED) {
 
             var node = this;
             node.config = config;
+            node.firstMsg = true;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
+
+            node.status({}); //clean
+
             if (node.server) {
                 // node.server.on('onClose', () => this.onClose());
                 // node.server.on('onSocketError', () => this.onSocketError());
@@ -21,8 +25,8 @@ module.exports = function(RED) {
                 // node.sendLastState(); //tested for duplicate send with onSocketOpen
 
 
+                var client = node.server.connectMQTT();
 
-                var client = mqtt.connect('mqtt://' + node.server.config.host);
                 client.on('connect', function () {
                     if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
                         client.subscribe(node.config.channel, function (err) {
@@ -30,8 +34,9 @@ module.exports = function(RED) {
                                 node.status({
                                     fill: "red",
                                     shape: "dot",
-                                    text: 'Subscribe to "' + node.config.channel + '" error'
+                                    text: "node-red-contrib-wirenboard/in:status.no_connection"
                                 });
+                                node.warn('Subscribe to "' + node.config.channel + '" error');
                             }
                         })
                     } else {
@@ -44,14 +49,21 @@ module.exports = function(RED) {
                 });
 
                 client.on('message', function (topic, message) {
+                    if (node.firstMsg && !node.config.outputAtStartup) {
+                        node.firstMsg = false;
+                        return;
+                    }
+
                     node.status({
                         fill: "green",
                         shape: "dot",
                         text: message.toString()
                     });
 
-                    var event = {topic: topic, payload: message.toString()};
-                    node.send(event);
+                    node.send({
+                        payload: message.toString(),
+                        topic: topic
+                    });
                 });
 
                 node.on('close', function () {

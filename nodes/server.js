@@ -49,7 +49,17 @@ module.exports = function (RED) {
             }
         }
 
+        connectMQTT() {
+            var node = this;
 
+            var options = {
+                port: node.config.mqtt_port||1883,
+                username: node.config.mqtt_username||null,
+                password: node.config.mqtt_password||null
+            };
+            console.log(options);
+            return mqtt.connect('mqtt://' + node.config.host, options);
+        }
 
         getChannels(callback, forceRefresh = false) {
             var node = this;
@@ -62,7 +72,7 @@ module.exports = function (RED) {
                 that.items = [];
                 that.end = false;
 
-                var client  = mqtt.connect('mqtt://'+node.config.host);
+                var client  = node.connectMQTT();
                 client.on('connect', function () {
                     client.subscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {
                         if (!err) {

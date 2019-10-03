@@ -80,7 +80,7 @@ module.exports = function(RED) {
 
 
                         if (payload !== undefined) {
-                            var client = mqtt.connect('mqtt://' + node.server.config.host);
+                            var client = node.server.connectMQTT();
 
                             client.on('connect', function () {
                                 node.status({

@@ -18,17 +18,16 @@ module.exports = function(RED) {
                     clearTimeout(node.cleanTimer);
 
                     if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
-                        var client = mqtt.connect('mqtt://' + node.server.config.host);
+                        var client = node.server.connectMQTT();
 
                         client.on('connect', function () {
                             client.subscribe(node.config.channel, function (err) {
-                                if (err) {
-                                    node.status({
-                                        fill: "red",
-                                        shape: "dot",
-                                        text: 'Subscribe to "' + node.config.channel + '" error'
-                                    });
-                                }
+                                node.status({
+                                    fill: "red",
+                                    shape: "dot",
+                                    text: "node-red-contrib-wirenboard/get:status.no_connection"
+                                });
+                                node.warn('Subscribe to "' + node.config.channel + '" error');
                             })
                         });
 
