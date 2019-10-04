@@ -43,14 +43,13 @@ module.exports = function(RED) {
                     client.on('connect', function () {
                         client.subscribe(node.config.channel, function (err) {
                             if (err) {
-                                client.subscribe(node.config.channel, function (err) {
-                                    node.status({
-                                        fill: "red",
-                                        shape: "dot",
-                                        text: "node-red-contrib-wirenboard/button:status.no_connection"
-                                    });
-                                    node.warn('Subscribe to "' + node.config.channel + '" error');
-                                })
+                                node.status({
+                                    fill: "red",
+                                    shape: "dot",
+                                    text: "node-red-contrib-wirenboard/button:status.no_connection"
+                                });
+                                node.warn('Subscribe to "' + node.config.channel + '" error');
+
                             } else {
                                 node.status({
                                     fill: "green",

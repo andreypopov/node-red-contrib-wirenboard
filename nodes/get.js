@@ -22,12 +22,14 @@ module.exports = function(RED) {
 
                         client.on('connect', function () {
                             client.subscribe(node.config.channel, function (err) {
-                                node.status({
-                                    fill: "red",
-                                    shape: "dot",
-                                    text: "node-red-contrib-wirenboard/get:status.no_connection"
-                                });
-                                node.warn('Subscribe to "' + node.config.channel + '" error');
+                                if (err) {
+                                    node.status({
+                                        fill: "red",
+                                        shape: "dot",
+                                        text: "node-red-contrib-wirenboard/get:status.no_connection"
+                                    });
+                                    node.warn('Subscribe to "' + node.config.channel + '" error');
+                                }
                             })
                         });
 
