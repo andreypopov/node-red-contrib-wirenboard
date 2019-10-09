@@ -8,6 +8,7 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.cleanTimer = null;
+            node.is_subscribed = true;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -43,10 +44,11 @@ module.exports = function(RED) {
                 node.server.on('onMQTTConnect', () => this.onMQTTConnect());
                 node.server.on('onMQTTMessage', (data) => this.onMQTTMessage(data));
 
-                node.on('close', function () {
-                    node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
-                    node.server.mqtt.unsubscribe(node.config.channel, function (err) {});
-                });
+                node.on('close', () => this.onMQTTClose());
+
+                if (typeof(node.server.mqtt) === 'object') {
+                    node.onMQTTConnect();
+                }
 
             } else {
                 node.status({
@@ -77,6 +79,13 @@ module.exports = function(RED) {
             });
         }
 
+        onMQTTClose() {
+            var node = this;
+            node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
+            node.server.mqtt.unsubscribe(node.config.channel, function (err) {});
+            node.is_subscribed = false;
+        }
+
         onMQTTConnect() {
             var node = this;
 
@@ -90,6 +99,7 @@ module.exports = function(RED) {
                         });
                         node.warn('Subscribe to "' + node.config.channel + '" error');
                     } else {
+                        node.is_subscribed = true;
                         node.warn('Subscribed to: "' + node.config.channel);
                     }
                 })

@@ -8,6 +8,7 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.firstMsg = true;
+            node.is_subscribed = false;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -20,11 +21,11 @@ module.exports = function(RED) {
                 node.server.on('onMQTTConnect', () => this.onMQTTConnect());
                 node.server.on('onMQTTMessage', (data) => this.onMQTTMessage(data));
 
+                node.on('close', () => this.onMQTTClose());
 
-                node.on('close', function () {
-                    node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
-                    node.server.mqtt.unsubscribe(node.config.channel, function (err) {});
-                });
+                if (typeof(node.server.mqtt) === 'object') {
+                    node.onMQTTConnect();
+                }
             } else {
                 node.status({
                     fill: "red",
@@ -52,29 +53,39 @@ module.exports = function(RED) {
             });
         }
 
+        onMQTTClose() {
+            var node = this;
+            node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
+            node.server.mqtt.unsubscribe(node.config.channel, function (err) {});
+            node.is_subscribed = false;
+        }
+
         onMQTTConnect() {
             var node = this;
 
-            if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
-                node.server.mqtt.subscribe(node.config.channel, function (err) {
-                    if (err) {
-                        console.log(err);
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: "node-red-contrib-wirenboard/in:status.no_connection"
-                        });
-                        node.warn('Subscribe to "' + node.config.channel + '" error');
-                    } else {
-                        node.warn('Subscribed to: "' + node.config.channel);
-                    }
-                })
-            } else {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: "node-red-contrib-wirenboard/in:status.no_device"
-                });
+            if (!node.is_subscribed) {
+                if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
+                    node.server.mqtt.subscribe(node.config.channel, function (err) {
+                        if (err) {
+                            console.log(err);
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: "node-red-contrib-wirenboard/in:status.no_connection"
+                            });
+                            node.warn('Subscribe to "' + node.config.channel + '" error');
+                        } else {
+                            node.is_subscribed = true;
+                            node.warn('Subscribed to: "' + node.config.channel);
+                        }
+                    })
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-wirenboard/in:status.no_device"
+                    });
+                }
             }
         }
 
@@ -82,6 +93,9 @@ module.exports = function(RED) {
             var node = this;
 
             if (data.topic === node.config.channel) {
+                // console.log('============='+data.topic);
+                // console.log(node.firstMsg);
+                // console.log(node.config.outputAtStartup);
                 if (node.firstMsg && !node.config.outputAtStartup) {
                     node.firstMsg = false;
                     return;

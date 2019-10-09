@@ -171,7 +171,7 @@ module.exports = function (RED) {
 
             var messageString = message.toString();
             node.devices_values[topic] = messageString;
-
+// console.log(topic + ': '+ messageString);
             node.emit('onMQTTMessage', {topic:topic, payload:messageString});
         }
     }
