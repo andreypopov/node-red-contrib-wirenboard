@@ -1,9 +1,8 @@
-const EventEmitter = require('events');
 var mqtt = require('mqtt');
 
 
 module.exports = function (RED) {
-    class ServerNode {
+    class ServerNode{
         constructor(n) {
             RED.nodes.createNode(this, n);
 
@@ -12,7 +11,7 @@ module.exports = function (RED) {
             // node.state = [];
             // node.status = {};
             //
-            // node.setMaxListeners(255);
+            node.setMaxListeners(255);
             // node.refreshFindTimer = null;
             // node.refreshFindInterval = node.config.polling * 1000;
             // node.on('close', () => this.onClose());
@@ -29,24 +28,14 @@ module.exports = function (RED) {
 
 
             this.items = undefined;
+            this.devices_values = [];
 
-            this.connectToEventSource = function() {
-                var EventSource = require("eventsource");
-                var eventSourceInitDict = {
-                    rejectUnauthorized: false
-                };
 
-                node.log("Connecting to URL " + node.config.host);
-                var es = new EventSource(node.config.host, eventSourceInitDict);
-                return es;
-            }
+            node.mqtt = node.connectMQTT();
+            node.mqtt.on('connect', () => this.onMQTTConnect());
+            node.mqtt.on('message', (topic, message) => this.onMQTTMessage(topic, message));
 
-            this.doRequest = function(urlpart, options, callback) {
-                options.rejectUnauthorized = node.rejectUnauthorized;
-                options.uri = node.config.host + urlpart;
-                node.log("Requesting URI " + options.uri + " with method " + options.method);
-                request(options, callback);
-            }
+            node.on('close', () => this.onClose());
         }
 
         connectMQTT() {
@@ -57,7 +46,6 @@ module.exports = function (RED) {
                 username: node.config.mqtt_username||null,
                 password: node.config.mqtt_password||null
             };
-            console.log(options);
             return mqtt.connect('mqtt://' + node.config.host, options);
         }
 
@@ -110,7 +98,10 @@ module.exports = function (RED) {
 
                         if (!that.end) {
                             that.end = true;
-                            callback(that.items);
+
+                            if (typeof(callback) === "function") {
+                                callback(that.items);
+                            }
                         }
                         return node.items;
                     } else {
@@ -144,73 +135,45 @@ module.exports = function (RED) {
                         }
                     }
                 })
+
+                if (!Object.keys(node.items).length) {
+                    //node.emit('onConnectError');
+                }
+
             } else {
                 node.log('Using cached devices');
-                callback(node.items);
+                if (typeof(callback) === "function") {
+                    callback(node.items);
+                }
                 return node.items;
             }
 
         }
-        // find(callback) {
-        //     var node = this;
-        //
-        //     const devices = miio.devices({
-        //         cacheTime: 300 // 5 minutes. Default is 1800 seconds (30 minutes)
-        //     });
-        //
-        //     devices.on('available', device => {
-        //         console.log('available');
-        //         console.log(device);
-        //         if(device.matches('placeholder')) {
-        //             // This device is either missing a token or could not be connected to
-        //         } else {
-        //             // Do something useful with device
-        //         }
-        //     });
-        //
-        //
-        // }
-        //
-        // onClose() {
-        //     var that = this;
-        //     clearInterval(that.refreshStatusTimer);
-        //
-        //     if (that.device) {
-        //         that.device.destroy();
-        //         that.device = null;
-        //     }
-        // }
-        //
-        // connect() {
-        //     var node = this;
-        //
-        //     return new Promise(function (resolve, reject) {
-        //         node.miio = miio.device({
-        //             address: node.config.ip,
-        //             token: node.config.token
-        //         }).then(device => {
-        //             node.device = device;
-        //             node.device.updateMaxPollFailures(0);
-        //
-        //             node.device.on('thing:initialized', () => {
-        //                 node.log('Miio Roborock: Initialized');
-        //             });
-        //
-        //             node.device.on('thing:destroyed', () => {
-        //                 node.log('Miio Roborock: Destroyed');
-        //             });
-        //
-        //             resolve(device);
-        //
-        //         }).catch(err => {
-        //             node.warn('Miio Roborock Error: ' + err.message);
-        //             reject(err);
-        //         });
-        //     });
-        // }
-        //
-        //
 
+        onClose() {
+            var node = this;
+
+            node.mqtt.end();
+
+            node.emit('onClose');
+            node.warn('MQTT connection closed');
+        }
+
+        onMQTTConnect() {
+            var node = this;
+
+            node.emit('onMQTTConnect');
+            node.warn('MQTT Connected');
+        }
+
+        onMQTTMessage(topic, message) {
+            var node = this;
+
+            var messageString = message.toString();
+            node.devices_values[topic] = messageString;
+
+            node.emit('onMQTTMessage', {topic:topic, payload:messageString});
+        }
     }
 
     RED.nodes.registerType('wirenboard-server', ServerNode, {});

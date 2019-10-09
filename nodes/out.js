@@ -80,26 +80,20 @@ module.exports = function(RED) {
 
 
                         if (payload !== undefined) {
-                            var client = node.server.connectMQTT();
 
-                            client.on('connect', function () {
-                                node.status({
-                                    fill: "green",
-                                    shape: "dot",
-                                    text: payload.toString()
-                                });
+                            node.status({
+                                fill: "green",
+                                shape: "dot",
+                                text: payload.toString()
+                            });
 
-                                node.cleanTimer = setTimeout(function(){
-                                    node.status({}); //clean
-                                }, 3000);
+                            node.cleanTimer = setTimeout(function(){
+                                node.status({}); //clean
+                            }, 3000);
 
+                            node.server.mqtt.publish(node.config.channel + command, payload.toString());
 
-                                client.publish(node.config.channel + command, payload.toString());
-                                client.end();
-
-                                node.log('Published to mqtt topic: ' + (node.config.channel + command) + ' : ' + payload.toString());
-                            })
-
+                            node.log('Published to mqtt topic: ' + (node.config.channel + command) + ' : ' + payload.toString());
                         } else {
                             node.status({
                                 fill: "red",

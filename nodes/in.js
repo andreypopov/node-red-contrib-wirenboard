@@ -15,63 +15,16 @@ module.exports = function(RED) {
             node.status({}); //clean
 
             if (node.server) {
-                // node.server.on('onClose', () => this.onClose());
-                // node.server.on('onSocketError', () => this.onSocketError());
-                // node.server.on('onSocketClose', () => this.onSocketClose());
-                // node.server.on('onSocketOpen', () => this.onSocketOpen());
-                // node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
-                // node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
+                node.server.on('onConnectError', () => this.onConnectError());
+                node.server.on('onMQTT_Error_Connection', () => this.onMQTT_Error_Connection());
+                node.server.on('onMQTTConnect', () => this.onMQTTConnect());
+                node.server.on('onMQTTMessage', (data) => this.onMQTTMessage(data));
 
-                // node.sendLastState(); //tested for duplicate send with onSocketOpen
-
-
-                var client = node.server.connectMQTT();
-
-                client.on('connect', function () {
-                    if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
-                        client.subscribe(node.config.channel, function (err) {
-                            if (err) {
-                                node.status({
-                                    fill: "red",
-                                    shape: "dot",
-                                    text: "node-red-contrib-wirenboard/in:status.no_connection"
-                                });
-                                node.warn('Subscribe to "' + node.config.channel + '" error');
-                            }
-                        })
-                    } else {
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: "node-red-contrib-wirenboard/in:status.no_device"
-                        });
-                    }
-                });
-
-                client.on('message', function (topic, message) {
-                    if (node.firstMsg && !node.config.outputAtStartup) {
-                        node.firstMsg = false;
-                        return;
-                    }
-
-                    node.status({
-                        fill: "green",
-                        shape: "dot",
-                        text: message.toString()
-                    });
-
-                    node.send({
-                        payload: message.toString(),
-                        topic: topic
-                    });
-                });
 
                 node.on('close', function () {
                     node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
-                    client.unsubscribe(node.config.channel, function (err) {});
-                    client.end();
+                    node.server.mqtt.unsubscribe(node.config.channel, function (err) {});
                 });
-
             } else {
                 node.status({
                     fill: "red",
@@ -79,9 +32,75 @@ module.exports = function(RED) {
                     text: "node-red-contrib-wirenboard/in:status.no_server"
                 });
             }
-
-
         }
+
+        onConnectError(status) {
+            var node = this;
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: "node-red-contrib-wirenboard/in:status.no_connection"
+            });
+        }
+
+        onMQTT_Error_Connection() {
+            var node = this;
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: "node-red-contrib-wirenboard/in:status.no_connection"
+            });
+        }
+
+        onMQTTConnect() {
+            var node = this;
+
+            if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
+                node.server.mqtt.subscribe(node.config.channel, function (err) {
+                    if (err) {
+                        console.log(err);
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: "node-red-contrib-wirenboard/in:status.no_connection"
+                        });
+                        node.warn('Subscribe to "' + node.config.channel + '" error');
+                    } else {
+                        node.warn('Subscribed to: "' + node.config.channel);
+                    }
+                })
+            } else {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: "node-red-contrib-wirenboard/in:status.no_device"
+                });
+            }
+        }
+
+        onMQTTMessage(data) {
+            var node = this;
+
+            if (data.topic === node.config.channel) {
+                if (node.firstMsg && !node.config.outputAtStartup) {
+                    node.firstMsg = false;
+                    return;
+                }
+
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: data.payload
+                });
+
+                node.send({
+                    payload: data.payload,
+                    topic: data.topic
+                });
+            }
+        }
+
+
     }
     RED.nodes.registerType('wirenboard-in', WirenboardNodeIn);
 };

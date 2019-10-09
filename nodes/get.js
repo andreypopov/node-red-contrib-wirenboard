@@ -18,41 +18,35 @@ module.exports = function(RED) {
                     clearTimeout(node.cleanTimer);
 
                     if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
-                        var client = node.server.connectMQTT();
+                        if (node.config.channel in node.server.devices_values) {
+                            var value = node.server.devices_values[node.config.channel];
 
-                        client.on('connect', function () {
-                            client.subscribe(node.config.channel, function (err) {
-                                if (err) {
-                                    node.status({
-                                        fill: "red",
-                                        shape: "dot",
-                                        text: "node-red-contrib-wirenboard/get:status.no_connection"
-                                    });
-                                    node.warn('Subscribe to "' + node.config.channel + '" error');
-                                }
-                            })
-                        });
-
-                        client.on('message', function (topic, message) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: message.toString()
+                                text: value
                             });
 
-                            node.cleanTimer = setTimeout(function(){
+                            node.cleanTimer = setTimeout(function () {
                                 node.status({}); //clean
                             }, 3000);
 
                             node.send({
-                                payload: message.toString(),
+                                payload: value,
                                 payload_in: message_in.payload,
-                                topic: topic
+                                topic: node.config.channel
+                            });
+                        } else {
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: "node-red-contrib-wirenboard/get:status.no_value"
                             });
 
-                            client.unsubscribe(node.config.channel, function (err) {});
-                            client.end();
-                        })
+                            node.cleanTimer = setTimeout(function () {
+                                node.status({}); //clean
+                            }, 3000);
+                        }
                     }
                 });
 
