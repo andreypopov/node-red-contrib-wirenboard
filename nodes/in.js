@@ -55,38 +55,12 @@ module.exports = function(RED) {
 
         onMQTTClose() {
             var node = this;
-            node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
-            node.server.mqtt.unsubscribe(node.config.channel, function (err) {});
-            node.is_subscribed = false;
+            node.server.unsubscribeMQTT(node);
         }
 
         onMQTTConnect() {
             var node = this;
-
-            if (!node.is_subscribed) {
-                if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
-                    node.server.mqtt.subscribe(node.config.channel, function (err) {
-                        if (err) {
-                            console.log(err);
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: "node-red-contrib-wirenboard/in:status.no_connection"
-                            });
-                            node.warn('Subscribe to "' + node.config.channel + '" error');
-                        } else {
-                            node.is_subscribed = true;
-                            node.warn('Subscribed to: "' + node.config.channel);
-                        }
-                    })
-                } else {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-wirenboard/in:status.no_device"
-                    });
-                }
-            }
+            node.server.subscribeMQTT(node);
         }
 
         onMQTTMessage(data) {

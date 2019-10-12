@@ -8,12 +8,20 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.cleanTimer = null;
+            node.is_subscribed = false;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
+            node.server.on('onMQTTConnect', () => this.onMQTTConnect());
+            node.on('close', () => this.onMQTTClose());
 
 
             if (node.server)  {
+
+                if (typeof(node.server.mqtt) === 'object') {
+                    node.onMQTTConnect();
+                }
+
                 node.on('input', function (message_in) {
                     clearTimeout(node.cleanTimer);
 
@@ -65,8 +73,20 @@ module.exports = function(RED) {
                     text: "node-red-contrib-wirenboard/get:status.no_server"
                 });
             }
+        }
 
+        onMQTTClose() {
+            var node = this;
+            node.server.unsubscribeMQTT(node);
+        }
 
+        onMQTTConnect() {
+            var node = this;
+            node.server.subscribeMQTT(node);
+        }
+
+        onMQTTMessage(data) {
+            //do nothing
         }
     }
     RED.nodes.registerType('wirenboard-get', WirenboardNodeGet);

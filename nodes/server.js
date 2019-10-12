@@ -8,6 +8,7 @@ module.exports = function (RED) {
 
             var node = this;
             node.config = n;
+            node.connection = false;
             // node.state = [];
             // node.status = {};
             //
@@ -28,6 +29,7 @@ module.exports = function (RED) {
 
 
             this.items = undefined;
+            this.subscribed_topics = [];
             this.devices_values = [];
 
 
@@ -47,6 +49,70 @@ module.exports = function (RED) {
                 password: node.config.mqtt_password||null
             };
             return mqtt.connect('mqtt://' + node.config.host, options);
+        }
+
+        subscribeMQTT(node) {
+            var that = this;
+
+            if (!that.connection) return false;
+
+            if (node.config.channel in that.subscribed_topics) {
+                node.is_subscribed = true;
+                // node.warn('Already subscribed to: "' + node.config.channel + " - skipped");
+
+                //emulate first msg
+                if (node.config.channel in that.devices_values) {
+                    node.onMQTTMessage({
+                        "topic": node.config.channel,
+                        "payload": that.devices_values[node.config.channel]
+                    });
+                }
+                return false;
+            }
+
+            if (!node.is_subscribed) {
+                if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
+                    that.subscribed_topics[node.config.channel] = false;
+
+                    that.mqtt.subscribe(node.config.channel, function (err) {
+                        if (err) {
+                            console.log(err);
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: "node-red-contrib-wirenboard/server:status.no_connection"
+                            });
+                            node.warn('Subscribe to "' + node.config.channel + '" error');
+
+                        } else {
+                            node.is_subscribed = true;
+                            node.warn('Subscribed to: "' + node.config.channel);
+
+                            that.subscribed_topics[node.config.channel] = true;
+                        }
+                    })
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-wirenboard/server:status.no_device"
+                    });
+                }
+            }
+
+            return true;
+        }
+
+        unsubscribeMQTT(node) {
+            var that = this;
+
+            node.log('Unsubscribe from mqtt topic: ' + node.config.channel);
+            node.is_subscribed = false;
+
+            that.mqtt.unsubscribe(node.config.channel, function (err) {});
+            if (node.config.channel in that.subscribed_topics) {
+                delete that.subscribed_topics[node.config.channel];
+            }
         }
 
         getChannels(callback, forceRefresh = false) {
@@ -154,6 +220,7 @@ module.exports = function (RED) {
             var node = this;
 
             node.mqtt.end();
+            node.connection = false;
 
             node.emit('onClose');
             node.warn('MQTT connection closed');
@@ -162,8 +229,11 @@ module.exports = function (RED) {
         onMQTTConnect() {
             var node = this;
 
-            node.emit('onMQTTConnect');
+            node.connection = true;
             node.warn('MQTT Connected');
+
+            node.emit('onMQTTConnect');
+
         }
 
         onMQTTMessage(topic, message) {
