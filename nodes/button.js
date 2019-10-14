@@ -27,16 +27,6 @@ module.exports = function(RED) {
             node.eventTypes = config.eventTypes.filter(String);
             node.longpressStarted = false;
 
-            function eventHandler(event, topic) {
-                clearTimeout(node.refreshfunc);
-                node.refreshfunc = setTimeout(function () {
-                    node.status({});
-                }, 1500);
-
-                node.status({fill: "green", shape: "ring", text: event});
-                node.send({topic: topic, payload: event});
-            }
-
 
             if (node.server) {
                 node.server.on('onConnectError', () => this.onConnectError());
@@ -92,8 +82,18 @@ module.exports = function(RED) {
         onMQTTMessage(data) {
             var node = this;
 
+            function eventHandler(event, topic) {
+                clearTimeout(node.refreshfunc);
+                node.refreshfunc = setTimeout(function () {
+                    node.status({});
+                }, 1500);
+
+                node.status({fill: "green", shape: "ring", text: event});
+                node.send({topic: topic, payload: event});
+            }
+
             if (data.topic === node.config.channel) {
-                var val = parseInt(data.message) ? true : false;
+                var val = parseInt(data.payload) ? true : false;
                 var event = '';
 
                 if (node.val != val) {
@@ -104,13 +104,13 @@ module.exports = function(RED) {
                         node.timerclick = new Date().getTime();
 
                         if (node.eventTypes.indexOf('Press') != -1) {
-                            eventHandler('press', topic);
+                            eventHandler('press', data.topic);
                         }
 
                         if (node.eventTypes.indexOf('LongPress') != -1) {
                             node.timerfunc = setTimeout(function () {
                                 node.longpressStarted = true;
-                                eventHandler('longpress', topic);
+                                eventHandler('longpress', data.topic);
                             }, node.config.longPressDelay);
                         }
 
@@ -122,7 +122,7 @@ module.exports = function(RED) {
                             clearTimeout(node.clickfunc);
 
                             if (node.eventTypes.indexOf('Release') != -1) {
-                                eventHandler('release', topic);
+                                eventHandler('release', data.topic);
                             }
 
 
@@ -137,13 +137,13 @@ module.exports = function(RED) {
                                 if (((new Date().getTime()) - node.timerclick) > node.config.doubleClickDelay || node.eventTypes.indexOf('DoubleClick') == -1) { //80ms
                                     node.timerclick = node.clickcounter = 0;
 
-                                    eventHandler('click', topic);
+                                    eventHandler('click', data.topic);
                                     return true;
                                 } else {
                                     node.clickfunc = setTimeout(function () {
                                         node.timerclick = node.clickcounter = 0;
 
-                                        eventHandler('click', topic);
+                                        eventHandler('click', data.topic);
 
                                     }, node.config.doubleClickDelay - ((new Date().getTime()) - node.timerclick));
                                 }
@@ -154,7 +154,7 @@ module.exports = function(RED) {
                                 if (node.clickcounter == 2 && ((new Date().getTime()) - node.timerclick) < node.config.doubleClickDelay) {
                                     clearTimeout(node.clickfunc);
                                     node.timerclick = node.clickcounter = 0;
-                                    eventHandler('doubleclick', topic);
+                                    eventHandler('doubleclick', data.topic);
                                     return true;
                                 }
                                 setTimeout(function () {
