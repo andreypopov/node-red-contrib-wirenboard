@@ -86,7 +86,7 @@ module.exports = function (RED) {
 
                         } else {
                             node.is_subscribed = true;
-                            node.warn('Subscribed to: "' + node.config.channel);
+                            node.log('Subscribed to: "' + node.config.channel);
 
                             that.subscribed_topics[node.config.channel] = true;
                         }
@@ -223,14 +223,14 @@ module.exports = function (RED) {
             node.connection = false;
 
             node.emit('onClose');
-            node.warn('MQTT connection closed');
+            node.log('MQTT connection closed');
         }
 
         onMQTTConnect() {
             var node = this;
 
             node.connection = true;
-            node.warn('MQTT Connected');
+            node.log('MQTT Connected');
 
             node.emit('onMQTTConnect');
 

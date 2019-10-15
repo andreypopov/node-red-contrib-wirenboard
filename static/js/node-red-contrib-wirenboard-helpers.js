@@ -66,7 +66,6 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
                                 optgroup = value.device_name;
                             }
 
-                            // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
                             $('<option '+disabled+' value="' + value.topic +'">' +value.device_name +'/'+ value.control_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(groupHtml?groupHtml:selectedItemElement);
                         });
 
