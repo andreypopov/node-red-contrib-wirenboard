@@ -8,7 +8,7 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.cleanTimer = null;
-            node.is_subscribed = true;
+            node.is_subscribed = false;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -29,10 +29,19 @@ module.exports = function(RED) {
 
 
             if (node.server) {
-                node.server.on('onConnectError', () => this.onConnectError());
-                node.server.on('onMQTT_Error_Connection', () => this.onMQTT_Error_Connection());
-                node.server.on('onMQTTConnect', () => this.onMQTTConnect());
-                node.server.on('onMQTTMessage', (data) => this.onMQTTMessage(data));
+
+                node.listener_onConnectError = function(data) { node.onConnectError(); }
+                node.server.on('onConnectError', node.listener_onConnectError);
+
+                node.listener_onMQTT_Error_Connection = function(data) { node.onMQTT_Error_Connection(); }
+                node.server.on('onMQTT_Error_Connection', node.listener_onMQTT_Error_Connection);
+
+                node.listener_onMQTTConnect = function(data) { node.onMQTTConnect(); }
+                node.server.on('onMQTTConnect', node.listener_onMQTTConnect);
+
+                node.listener_onMQTTMessage = function(data) { node.onMQTTMessage(data); }
+                node.server.on('onMQTTMessage', node.listener_onMQTTMessage);
+
 
                 node.on('close', () => this.onMQTTClose());
 
@@ -72,6 +81,23 @@ module.exports = function(RED) {
         onMQTTClose() {
             var node = this;
             node.server.unsubscribeMQTT(node);
+
+            //remove listeners
+            if (node.listener_onConnectError) {
+                node.server.removeListener('onConnectError', node.listener_onConnectError);
+            }
+
+            if (node.listener_onMQTT_Error_Connection) {
+                node.server.removeListener('onMQTT_Error_Connection', node.listener_onMQTT_Error_Connection);
+            }
+
+            if (node.listener_onMQTTConnect) {
+                node.server.removeListener('onMQTTConnect', node.listener_onMQTTConnect);
+            }
+
+            if (node.listener_onMQTTMessage) {
+                node.server.removeListener("onMQTTMessage", node.listener_onMQTTMessage);
+            }
         }
 
         onMQTTConnect() {
@@ -82,17 +108,8 @@ module.exports = function(RED) {
         onMQTTMessage(data) {
             var node = this;
 
-            function eventHandler(event, topic) {
-                clearTimeout(node.refreshfunc);
-                node.refreshfunc = setTimeout(function () {
-                    node.status({});
-                }, 1500);
-
-                node.status({fill: "green", shape: "ring", text: event});
-                node.send({topic: topic, payload: event});
-            }
-
             if (data.topic === node.config.channel) {
+                console.log(node.eventTypes);
                 var val = parseInt(data.payload) ? true : false;
                 var event = '';
 
@@ -104,13 +121,13 @@ module.exports = function(RED) {
                         node.timerclick = new Date().getTime();
 
                         if (node.eventTypes.indexOf('Press') != -1) {
-                            eventHandler('press', data.topic);
+                            node.eventHandler('press', data.topic);
                         }
 
                         if (node.eventTypes.indexOf('LongPress') != -1) {
                             node.timerfunc = setTimeout(function () {
                                 node.longpressStarted = true;
-                                eventHandler('longpress', data.topic);
+                                node.eventHandler('longpress', data.topic);
                             }, node.config.longPressDelay);
                         }
 
@@ -122,7 +139,7 @@ module.exports = function(RED) {
                             clearTimeout(node.clickfunc);
 
                             if (node.eventTypes.indexOf('Release') != -1) {
-                                eventHandler('release', data.topic);
+                                node.eventHandler('release', data.topic);
                             }
 
 
@@ -137,13 +154,13 @@ module.exports = function(RED) {
                                 if (((new Date().getTime()) - node.timerclick) > node.config.doubleClickDelay || node.eventTypes.indexOf('DoubleClick') == -1) { //80ms
                                     node.timerclick = node.clickcounter = 0;
 
-                                    eventHandler('click', data.topic);
+                                    node.eventHandler('click', data.topic);
                                     return true;
                                 } else {
                                     node.clickfunc = setTimeout(function () {
                                         node.timerclick = node.clickcounter = 0;
 
-                                        eventHandler('click', data.topic);
+                                        node.eventHandler('click', data.topic);
 
                                     }, node.config.doubleClickDelay - ((new Date().getTime()) - node.timerclick));
                                 }
@@ -154,7 +171,7 @@ module.exports = function(RED) {
                                 if (node.clickcounter == 2 && ((new Date().getTime()) - node.timerclick) < node.config.doubleClickDelay) {
                                     clearTimeout(node.clickfunc);
                                     node.timerclick = node.clickcounter = 0;
-                                    eventHandler('doubleclick', data.topic);
+                                    node.eventHandler('doubleclick', data.topic);
                                     return true;
                                 }
                                 setTimeout(function () {
@@ -172,6 +189,19 @@ module.exports = function(RED) {
                 }
             }
         }
+
+
+        eventHandler(event, topic) {
+            var node = this;
+            clearTimeout(node.refreshfunc);
+            node.refreshfunc = setTimeout(function () {
+                node.status({});
+            }, 1500);
+
+            node.status({fill: "green", shape: "ring", text: event});
+            node.send({topic: topic, payload: event});
+        }
+
     }
     RED.nodes.registerType('wirenboard-button', WirenboardNodeButton);
 };

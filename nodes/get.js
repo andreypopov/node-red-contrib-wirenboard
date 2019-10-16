@@ -12,7 +12,10 @@ module.exports = function(RED) {
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            node.server.on('onMQTTConnect', () => this.onMQTTConnect());
+
+            node.listener_onMQTTConnect = function(data) { node.onMQTTConnect(); }
+            node.server.on('onMQTTConnect', node.listener_onMQTTConnect);
+
             node.on('close', () => this.onMQTTClose());
 
 
@@ -78,6 +81,11 @@ module.exports = function(RED) {
         onMQTTClose() {
             var node = this;
             node.server.unsubscribeMQTT(node);
+
+            //remove listeners
+            if (node.listener_onMQTTConnect) {
+                node.server.removeListener('onMQTTConnect', node.listener_onMQTTConnect);
+            }
         }
 
         onMQTTConnect() {

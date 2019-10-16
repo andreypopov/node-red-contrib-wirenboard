@@ -16,10 +16,17 @@ module.exports = function(RED) {
             node.status({}); //clean
 
             if (node.server) {
-                node.server.on('onConnectError', () => this.onConnectError());
-                node.server.on('onMQTT_Error_Connection', () => this.onMQTT_Error_Connection());
-                node.server.on('onMQTTConnect', () => this.onMQTTConnect());
-                node.server.on('onMQTTMessage', (data) => this.onMQTTMessage(data));
+                node.listener_onConnectError = function(data) { node.onConnectError(); }
+                node.server.on('onConnectError', node.listener_onConnectError);
+
+                node.listener_onMQTT_Error_Connection = function(data) { node.onMQTT_Error_Connection(); }
+                node.server.on('onMQTT_Error_Connection', node.listener_onMQTT_Error_Connection);
+
+                node.listener_onMQTTConnect = function(data) { node.onMQTTConnect(); }
+                node.server.on('onMQTTConnect', node.listener_onMQTTConnect);
+
+                node.listener_onMQTTMessage = function(data) { node.onMQTTMessage(data); }
+                node.server.on('onMQTTMessage', node.listener_onMQTTMessage);
 
                 node.on('close', () => this.onMQTTClose());
 
@@ -56,6 +63,23 @@ module.exports = function(RED) {
         onMQTTClose() {
             var node = this;
             node.server.unsubscribeMQTT(node);
+
+            //remove listeners
+            if (node.listener_onConnectError) {
+                node.server.removeListener('onConnectError', node.listener_onConnectError);
+            }
+
+            if (node.listener_onMQTT_Error_Connection) {
+                node.server.removeListener('onMQTT_Error_Connection', node.listener_onMQTT_Error_Connection);
+            }
+
+            if (node.listener_onMQTTConnect) {
+                node.server.removeListener('onMQTTConnect', node.listener_onMQTTConnect);
+            }
+
+            if (node.listener_onMQTTMessage) {
+                node.server.removeListener("onMQTTMessage", node.listener_onMQTTMessage);
+            }
         }
 
         onMQTTConnect() {

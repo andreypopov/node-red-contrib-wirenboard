@@ -12,12 +12,6 @@ module.exports = function(RED) {
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
-                // node.server.on('onClose', () => this.onClose());
-                // node.server.on('onStateChanged', (data) => node.onStateChanged(data));
-                // node.server.on('onStateChangedError', (error) => node.onStateChangedError(error));
-
-
-
                 node.status({}); //clean
 
                 node.on('input', function(message) {
