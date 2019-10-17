@@ -43,8 +43,8 @@ module.exports = function(RED) {
                             }, 3000);
 
 
-                            message_in.payload = value;
                             message_in.payload_in = message_in.payload;
+                            message_in.payload = value;
                             message_in.topic = node.config.channel;
 
                             node.send(message_in);
