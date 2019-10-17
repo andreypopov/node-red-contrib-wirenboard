@@ -42,11 +42,12 @@ module.exports = function(RED) {
                                 node.status({}); //clean
                             }, 3000);
 
-                            node.send({
-                                payload: value,
-                                payload_in: message_in.payload,
-                                topic: node.config.channel
-                            });
+
+                            message_in.payload = value;
+                            message_in.payload_in = message_in.payload;
+                            message_in.topic = node.config.channel;
+
+                            node.send(message_in);
                         } else {
                             node.status({
                                 fill: "red",
