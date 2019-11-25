@@ -21,6 +21,7 @@ module.exports = function(RED) {
             node.refreshfunc = null; //func to refresh ndoe status
             node.clickfunc = null; //func to fire click event
             node.clickcounter = 0;
+            node.singleClickCnt = 0;
             node.val = false;
             node.longPressDelay = config.longPressDelay;
             node.doubleClickDelay = config.doubleClickDelay;
@@ -109,7 +110,6 @@ module.exports = function(RED) {
             var node = this;
 
             if (data.topic === node.config.channel) {
-                console.log(node.eventTypes);
                 var val = parseInt(data.payload) ? true : false;
                 var event = '';
 
@@ -154,13 +154,21 @@ module.exports = function(RED) {
                                 if (((new Date().getTime()) - node.timerclick) > node.config.doubleClickDelay || node.eventTypes.indexOf('DoubleClick') == -1) { //80ms
                                     node.timerclick = node.clickcounter = 0;
 
-                                    node.eventHandler('click', data.topic);
+                                    node.singleClickCnt++;
+                                    node.eventHandler('click', data.topic, {
+                                        counter:node.singleClickCnt,
+                                        toggle: node.singleClickCnt % 2 == 0
+                                    });
                                     return true;
                                 } else {
                                     node.clickfunc = setTimeout(function () {
                                         node.timerclick = node.clickcounter = 0;
 
-                                        node.eventHandler('click', data.topic);
+                                        node.singleClickCnt++;
+                                        node.eventHandler('click', data.topic, {
+                                            counter:node.singleClickCnt,
+                                            toggle: node.singleClickCnt % 2 == 0
+                                        });
 
                                     }, node.config.doubleClickDelay - ((new Date().getTime()) - node.timerclick));
                                 }
@@ -191,7 +199,7 @@ module.exports = function(RED) {
         }
 
 
-        eventHandler(event, topic) {
+        eventHandler(event, topic, options = {}) {
             var node = this;
             clearTimeout(node.refreshfunc);
             node.refreshfunc = setTimeout(function () {
@@ -199,7 +207,7 @@ module.exports = function(RED) {
             }, 1500);
 
             node.status({fill: "green", shape: "ring", text: event});
-            node.send({topic: topic, payload: event});
+            node.send(Object.assign({topic: topic, payload: event}, options));
         }
 
     }
