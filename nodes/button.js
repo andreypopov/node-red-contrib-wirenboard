@@ -14,19 +14,28 @@ module.exports = function(RED) {
             node.server = RED.nodes.getNode(node.config.server);
 
 
-
-
             node.timerclick = 0;
             node.timerfunc = null;
             node.refreshfunc = null; //func to refresh ndoe status
             node.clickfunc = null; //func to fire click event
             node.clickcounter = 0;
             node.singleClickCnt = 0;
+            node.longPressClickCnt = 0;
+            node.doubleClickCnt = 0;
             node.val = false;
             node.longPressDelay = config.longPressDelay;
             node.doubleClickDelay = config.doubleClickDelay;
             node.eventTypes = config.eventTypes.filter(String);
             node.longpressStarted = false;
+
+
+            node.longpressInterval = false;
+            node.longpressTimerValue = 0;
+            node.longpressTimerValueStep = node.config.longpressTimerValueStep||5;
+            node.longpressTimerValueMin = node.config.longpressTimerValueMin||0;
+            node.longpressTimerValueMax = node.config.longpressTimerValueMax||100;
+            node.longpressTimerChangeDelayMs = node.config.longpressTimerChangeDelayMs||100;
+
 
 
             if (node.server) {
@@ -57,6 +66,7 @@ module.exports = function(RED) {
                     text: "node-red-contrib-wirenboard/button:status.no_server"
                 });
             }
+
         }
 
         onConnectError(status) {
@@ -65,7 +75,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "red",
                 shape: "dot",
-                text: "node-red-contrib-wirenboard/buttom:status.no_connection"
+                text: "node-red-contrib-wirenboard/button:status.no_connection"
             });
         }
 
@@ -121,13 +131,38 @@ module.exports = function(RED) {
                         node.timerclick = new Date().getTime();
 
                         if (node.eventTypes.indexOf('Press') != -1) {
-                            node.eventHandler('press', data.topic);
+                            node.eventHandler(null, 'press');
                         }
 
                         if (node.eventTypes.indexOf('LongPress') != -1) {
                             node.timerfunc = setTimeout(function () {
                                 node.longpressStarted = true;
-                                node.eventHandler('longpress', data.topic);
+                                node.longPressClickCnt++;
+
+                                if (node.config.longPressRange) {
+                                    node.longpressInterval = setInterval(function () {
+                                        if (node.longPressClickCnt % 2 === 0) {
+                                            node.longpressTimerValue -= node.longpressTimerValueStep;
+                                            if (node.longpressTimerValue <= node.longpressTimerValueMin) {
+                                                node.longpressTimerValue = node.longpressTimerValueMin;
+                                                clearInterval(node.longpressInterval);
+                                            }
+                                        } else {
+                                            node.longpressTimerValue += node.longpressTimerValueStep;
+                                            if (node.longpressTimerValue >= node.longpressTimerValueMax) {
+                                                node.longpressTimerValue = node.longpressTimerValueMax;
+                                                clearInterval(node.longpressInterval);
+                                            }
+                                        }
+                                        node.status({fill: "green", shape: "ring", text: node.longpressTimerValue});
+                                        node.send({payload: node.longpressTimerValue});
+                                    }, node.longpressTimerChangeDelayMs);
+                                }
+
+                                node.eventHandler(null,'longpress', {
+                                    counter:node.longPressClickCnt,
+                                    toggle: node.longPressClickCnt % 2 === 0
+                                });
                             }, node.config.longPressDelay);
                         }
 
@@ -137,9 +172,10 @@ module.exports = function(RED) {
 
                             clearTimeout(node.timerfunc);
                             clearTimeout(node.clickfunc);
+                            clearInterval(node.longpressInterval); //release here
 
                             if (node.eventTypes.indexOf('Release') != -1) {
-                                node.eventHandler('release', data.topic);
+                                node.eventHandler(null,'release');
                             }
 
 
@@ -155,9 +191,9 @@ module.exports = function(RED) {
                                     node.timerclick = node.clickcounter = 0;
 
                                     node.singleClickCnt++;
-                                    node.eventHandler('click', data.topic, {
+                                    node.eventHandler(null,'click', {
                                         counter:node.singleClickCnt,
-                                        toggle: node.singleClickCnt % 2 == 0
+                                        toggle: node.singleClickCnt % 2 === 0
                                     });
                                     return true;
                                 } else {
@@ -165,9 +201,9 @@ module.exports = function(RED) {
                                         node.timerclick = node.clickcounter = 0;
 
                                         node.singleClickCnt++;
-                                        node.eventHandler('click', data.topic, {
+                                        node.eventHandler(null,'click', {
                                             counter:node.singleClickCnt,
-                                            toggle: node.singleClickCnt % 2 == 0
+                                            toggle: node.singleClickCnt % 2 === 0
                                         });
 
                                     }, node.config.doubleClickDelay - ((new Date().getTime()) - node.timerclick));
@@ -179,7 +215,11 @@ module.exports = function(RED) {
                                 if (node.clickcounter == 2 && ((new Date().getTime()) - node.timerclick) < node.config.doubleClickDelay) {
                                     clearTimeout(node.clickfunc);
                                     node.timerclick = node.clickcounter = 0;
-                                    node.eventHandler('doubleclick', data.topic);
+                                    node.doubleClickCnt++;
+                                    node.eventHandler(null, 'doubleclick',{
+                                        counter:node.doubleClickCnt,
+                                        toggle: node.doubleClickCnt % 2 === 0
+                                    });
                                     return true;
                                 }
                                 setTimeout(function () {
@@ -199,15 +239,20 @@ module.exports = function(RED) {
         }
 
 
-        eventHandler(event, topic, options = {}) {
+        eventHandler(payload, event = null, options = {}) {
             var node = this;
             clearTimeout(node.refreshfunc);
             node.refreshfunc = setTimeout(function () {
                 node.status({});
             }, 1500);
 
-            node.status({fill: "green", shape: "ring", text: event});
-            node.send(Object.assign({topic: topic, payload: event}, options));
+            node.status({fill: "green", shape: "dot", text: event});
+
+            node.send(Object.assign({
+                payload: payload,
+                event: event,
+                topic: node.config.channel
+            }, options));
         }
 
     }

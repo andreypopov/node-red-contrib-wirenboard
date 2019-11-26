@@ -1,0 +1,30 @@
+<script type="text/x-red" data-help-name="wirenboard-motor">
+    <p>Listens for button events.</p>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt class="optional">Name <span class="property-type">string</span></dt><dd>Choose any name to identify your node.</dd>
+        <dt>Server <span class="property-type">object</span></dt><dd>Choose the wirenboard server instance to use.</dd>
+        <dt>ON <span class="property-type">string</span></dt><dd>Select <b>ON</b> channel to listen to</dd>
+        <dt>DIR <span class="property-type">string</span></dt><dd>Select <b>DIRECTION</b> channel to listen to</dd>
+        <dt class="optional">Max running time <span class="property-type">string</span></dt><dd>How long will work motor.</dd>
+        <dt class="optional">Inverse <span class="property-type">string</span></dt><dd>Change direction to opposite.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <h5>Output</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt><dd>true = start, false = stop</dd>
+    </dl>
+
+    <h3>Commands</h3>
+    <dl class="message-properties">
+        <dt>stop <span class="property-type">string</span></dt><dd>stops motor</dd>
+    </dl>
+    <dl class="message-properties">
+        <dt>toggle <span class="property-type">string</span></dt><dd>start and change direction</dd>
+    </dl>
+    <dl class="message-properties">
+        <dt>0 or 1 <span class="property-type">integer</span></dt><dd>start with defined direction</dd>
+    </dl>
+</script>
+

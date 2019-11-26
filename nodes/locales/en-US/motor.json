@@ -1,0 +1,22 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server",
+        "channel": "ON",
+        "channel_dir": "DIR",
+        "refresh": "Refresh",
+        "refresh_devices_list": "Refresh Devices List",
+        "max_running_time": "Max running time"
+    },
+    "placeholder": {
+        "name": "Name"
+    },
+    "status": {
+        "no_server": "no server",
+        "no_device": "no device",
+        "no_connection": "no connection",
+        "connected": "connected",
+        "stopped": "stopped",
+        "toggle": "toggle"
+    }
+}

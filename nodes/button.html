@@ -33,21 +33,58 @@
         </select>
     </div>
 
+<hr>
+<h4>LongPress options</h4>
     <div class="form-row">
         <div class="input-group">
-            <label for="node-input-longPressDelay" class="l-width"><i class="fa fa-clock-o"></i> LongPress</label>
-            <input type="text" id="node-input-longPressDelay" style="width:100px;">
+            <label for="node-input-longPressDelay" class="l-width"><i class="fa fa-clock-o"></i> Activation time</label>
+            <input type="text" id="node-input-longPressDelay" placeholder="1000" style="width:100px;">
             <span class="input-group-addon">ms</span>
         </div>
     </div>
 
     <div class="form-row">
-        <div class="input-group">
-            <label for="node-input-doubleClickDelay" class="l-width"><i class="fa fa-clock-o"></i> DoubleClick</label>
-            <input type="text" id="node-input-doubleClickDelay" style="width:100px;">
-            <span class="input-group-addon">ms</span>
+        <label for='node-input-longPressRange' class="l-width">Dimming function</label>
+        <input type="checkbox" id="node-input-longPressRange" checked="checked" style="display: inline-block; width: auto; vertical-align: top;"></input>
+    </div>
+    <div id="dimming_function_block">
+        <div class="form-row">
+<!--            <div class="input-group">-->
+                <label class="l-width">Dimming Range</label>
+                <label for="node-input-longpressTimerValueMin" class="a-width">Min</label>
+                <input type="text" id="node-input-longpressTimerValueMin" placeholder="0" style="width:50px;">
+
+
+                <label for="node-input-longpressTimerValueMax" class="a-width">Max</label>
+                <input type="text" id="node-input-longpressTimerValueMax" placeholder="100" style="width:50px;">
+
+
+                <label for="node-input-longpressTimerValueStep" class="a-width">Step</label>
+                <input type="text" id="node-input-longpressTimerValueStep" placeholder="5" style="width:50px;">
+<!--            </div>-->
+        </div>
+
+
+        <div class="form-row">
+            <div class="input-group">
+                <label for="node-input-longpressTimerChangeDelayMs" class="l-width"><i class="fa fa-clock-o"></i> Step time</label>
+                <input type="text" id="node-input-longpressTimerChangeDelayMs" placeholder="100" style="width:100px;">
+                <span class="input-group-addon">ms, how often to change value</span>
+            </div>
         </div>
     </div>
+
+<hr>
+<h4>DoubleClick options</h4>
+    <div class="form-row">
+        <div class="input-group">
+            <label for="node-input-doubleClickDelay" class="l-width"><i class="fa fa-clock-o"></i> Activation time</label>
+            <input type="text" id="node-input-doubleClickDelay" placeholder="600" style="width:100px;">
+            <span class="input-group-addon">ms, how long to wait for 2 clicks</span>
+
+        </div>
+    </div>
+<hr>
 </script>
 
 <script type='text/javascript'>
@@ -71,7 +108,22 @@
                 required: true,
             },
             longPressDelay: {
-                value: 2000,
+                value: 1000,
+            },
+            longPressRange: {
+                value: 0,
+            },
+            longpressTimerValueMin: {
+                value: 0,
+            },
+            longpressTimerValueMax: {
+                value: 100,
+            },
+            longpressTimerValueStep: {
+                value: 5,
+            },
+            longpressTimerChangeDelayMs: {
+                value: 100,
             },
             doubleClickDelay: {
                 value: 600,
