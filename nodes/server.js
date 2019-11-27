@@ -63,7 +63,7 @@ module.exports = function (RED) {
                 // node.warn('Already subscribed to: "' + topic + " - skipped");
 
                 //emulate first msg
-                if (ntopic in that.devices_values) {
+                if (topic in that.devices_values) {
                     node.onMQTTMessage({
                         "topic": topic,
                         "payload": that.devices_values[topic]

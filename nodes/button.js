@@ -31,10 +31,10 @@ module.exports = function(RED) {
 
             node.longpressInterval = false;
             node.longpressTimerValue = 0;
-            node.longpressTimerValueStep = node.config.longpressTimerValueStep||5;
-            node.longpressTimerValueMin = node.config.longpressTimerValueMin||0;
-            node.longpressTimerValueMax = node.config.longpressTimerValueMax||100;
-            node.longpressTimerChangeDelayMs = node.config.longpressTimerChangeDelayMs||100;
+            node.longpressTimerValueStep = parseInt(node.config.longpressTimerValueStep)||5;
+            node.longpressTimerValueMin = parseInt(node.config.longpressTimerValueMin)||0;
+            node.longpressTimerValueMax = parseInt(node.config.longpressTimerValueMax)||100;
+            node.longpressTimerChangeDelayMs = parseInt(node.config.longpressTimerChangeDelayMs)||100;
 
 
 
@@ -155,7 +155,7 @@ module.exports = function(RED) {
                                             }
                                         }
                                         node.status({fill: "green", shape: "ring", text: node.longpressTimerValue});
-                                        node.send({payload: node.longpressTimerValue});
+                                        node.send({payload: node.longpressTimerValue, event:"longpress"});
                                     }, node.longpressTimerChangeDelayMs);
                                 }
 

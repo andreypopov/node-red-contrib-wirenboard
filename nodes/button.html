@@ -152,7 +152,7 @@
             $('#node-input-longPressDelay').val(node.longPressDelay);
             $('#node-input-doubleClickDelay').val(node.doubleClickDelay);
             setTimeout(function(){
-                WB_getItemList(node.channel, '#node-input-channel', {filterType:'switch'}); //filterType:'switch'
+                WB_getItemList(node.channel, '#node-input-channel'); //filterType:'switch'
 
 
                 var selectedEventsElement = $('#node-input-eventTypes');
