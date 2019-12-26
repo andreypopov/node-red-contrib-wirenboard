@@ -180,20 +180,20 @@ module.exports = function (RED) {
                         var deviceName = topicParts[2];
 
                         //meta device name
-                        if (topicParts[3] == 'meta' && topicParts[4] == 'name') {
+                        if (topicParts[3] === 'meta' && topicParts[4] === 'name') {
                             that.devices[deviceName] = {'friendly_name': message.toString(), 'controls': []}
 
                             //meta controls
-                        } else if (topicParts[3] == 'controls' && topicParts[5] == 'meta') {
-                            var controlName = topicParts[4]
+                        } else if (topicParts[3] === 'controls' && topicParts[5] === 'meta' && deviceName in that.devices) {
+                            var controlName = topicParts[4];
                             if (typeof(that.devices[deviceName]['controls'][controlName]) == 'undefined')
-                                that.devices[deviceName]['controls'][controlName] = {}
+                                that.devices[deviceName]['controls'][controlName] = {};
 
                             that.devices[deviceName]['controls'][controlName][topicParts[6]] = message.toString()
 
                             //devices
-                        } else if (topicParts[3] == 'controls') {
-                            var controlName = topicParts[4]
+                        } else if (topicParts[3] === 'controls' && deviceName in that.devices) {
+                            var controlName = topicParts[4];
                             that.items.push({
                                 topic: topic,
                                 message: message.toString(),
