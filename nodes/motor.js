@@ -127,7 +127,14 @@ module.exports = function(RED) {
             //enable
             node.server.mqtt.publish(node.config.channel + '/on', "1");
             node.log('Published to mqtt topic: ' + node.config.channel + '/on : 1');
-            node.send({payload: true});
+            node.send({
+                payload: {
+                    on: true,
+                    dir: dir,
+                    inverse: node.config.inverse
+                },
+                topic: node.config.channel
+            });
 
             //disable
             node.runningTimer = setTimeout(function () {
@@ -140,7 +147,14 @@ module.exports = function(RED) {
 
             node.server.mqtt.publish(node.config.channel + '/on', "0");
             node.log('Published to mqtt topic: ' + node.config.channel + '/on : 0');
-            node.send({payload:false});
+            node.send({
+                payload: {
+                    on: false,
+                    dir: null,
+                    inverse: node.config.inverse
+                },
+                topic: node.config.channel
+            });
 
             node.nodeStatus("node-red-contrib-wirenboard/motor:status.stopped");
         }
