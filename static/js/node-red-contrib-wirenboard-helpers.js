@@ -71,14 +71,27 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                         // Enable item selection
                         selectedItemElement.multipleSelect('enable');
-                        // Finally, set the value of the input select to the selected value
-                        selectedItemElement.val(itemName);
-                        // // Rebuild bootstrap multiselect form
                         selectedItemElement.multipleSelect('refresh');
+                        // Finally, set the value of the input select to the selected value
+
+                        if (typeof(itemName) === 'object') {
+                            for (var index in itemName) {
+                                console.log(itemName[index]);
+                                selectedItemElement.multipleSelect('check', itemName[index]);
+                            }
+                        } else {
+                            selectedItemElement.multipleSelect('check', itemName);
+                            // selectedItemElement.val(itemName);
+                        }
+
+                        // // Rebuild bootstrap multiselect form
+                        // selectedItemElement.multipleSelect('refresh');
+                        // // Trim selected item string length with elipsis
+
                         // // Trim selected item string length with elipsis
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
-                        selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
+                        selectItemSpanElement.html(wb_truncateWithEllipses(sHTML, 35));
 
                     } catch (error) {
                         console.error('Error #4534');
@@ -113,14 +126,31 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
         filter: true
     });
 
+    var values = [];
+    var isMultiple = selectedItemElement.attr('multiple')!==undefined;
+    if (isMultiple) {
+        values = selectedItemElement.val().length ? selectedItemElement.val() : nodeItem;
+    } else {
+        values = selectedItemElement.val() || nodeItem;
+    }
+
     // Initial call to populate item list
-    WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
+    WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, values, false);
+
     // onChange event handler in case a new controller gets selected
     WbServerElement.change(function (event) {
-        WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+        WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, values, true);
     });
     refreshListElement.click(function (event) {
         // Force a refresh of the item list
-        WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+        WB_updateItemList(RED.nodes.node(WbServerElement.val()), selectedItemElement, values, true);
     });
+}
+
+function wb_truncateWithEllipses(text, max = 30) {
+    if (text) {
+        return text.substr(0, max - 1) + (text.length > max ? '&hellip;' : '');
+    } else {
+        return text;
+    }
 }

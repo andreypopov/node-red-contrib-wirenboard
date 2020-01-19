@@ -9,6 +9,7 @@ module.exports = function(RED) {
             node.config = config;
             node.firstMsg = true;
             node.is_subscribed = false;
+            node.cleanTimer = null;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -16,14 +17,11 @@ module.exports = function(RED) {
             node.status({}); //clean
 
             if (node.server) {
-                node.listener_onConnectError = function(data) { node.onConnectError(); }
-                node.server.on('onConnectError', node.listener_onConnectError);
-
-                node.listener_onMQTT_Error_Connection = function(data) { node.onMQTT_Error_Connection(); }
-                node.server.on('onMQTT_Error_Connection', node.listener_onMQTT_Error_Connection);
-
                 node.listener_onMQTTConnect = function(data) { node.onMQTTConnect(); }
                 node.server.on('onMQTTConnect', node.listener_onMQTTConnect);
+
+                node.listener_onConnectError = function(data) { node.onConnectError(); }
+                node.server.on('onConnectError', node.listener_onConnectError);
 
                 node.listener_onMQTTMessage = function(data) { node.onMQTTMessage(data); }
                 node.server.on('onMQTTMessage', node.listener_onMQTTMessage);
@@ -42,16 +40,7 @@ module.exports = function(RED) {
             }
         }
 
-        onConnectError(status) {
-            var node = this;
-            node.status({
-                fill: "red",
-                shape: "dot",
-                text: "node-red-contrib-wirenboard/in:status.no_connection"
-            });
-        }
-
-        onMQTT_Error_Connection() {
+        onConnectError(status = null) {
             var node = this;
             node.status({
                 fill: "red",
@@ -62,38 +51,40 @@ module.exports = function(RED) {
 
         onMQTTClose() {
             var node = this;
-            node.server.unsubscribeMQTT(node);
 
             //remove listeners
-            if (node.listener_onConnectError) {
-                node.server.removeListener('onConnectError', node.listener_onConnectError);
-            }
-
-            if (node.listener_onMQTT_Error_Connection) {
-                node.server.removeListener('onMQTT_Error_Connection', node.listener_onMQTT_Error_Connection);
-            }
-
             if (node.listener_onMQTTConnect) {
                 node.server.removeListener('onMQTTConnect', node.listener_onMQTTConnect);
             }
-
+            if (node.listener_onConnectError) {
+                node.server.removeListener('onConnectError', node.listener_onConnectError);
+            }
             if (node.listener_onMQTTMessage) {
                 node.server.removeListener("onMQTTMessage", node.listener_onMQTTMessage);
             }
+
+            node.onConnectError();
         }
 
         onMQTTConnect() {
             var node = this;
-            node.server.subscribeMQTT(node);
+
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: "node-red-contrib-wirenboard/in:status.connected"
+            });
+
+            node.cleanTimer = setTimeout(function () {
+                node.status({}); //clean
+            }, 3000);
         }
 
         onMQTTMessage(data) {
             var node = this;
+            clearTimeout(node.cleanTimer);
 
             if (data.topic === node.config.channel) {
-                // console.log('============='+data.topic);
-                // console.log(node.firstMsg);
-                // console.log(node.config.outputAtStartup);
                 if (node.firstMsg && !node.config.outputAtStartup) {
                     node.firstMsg = false;
                     return;

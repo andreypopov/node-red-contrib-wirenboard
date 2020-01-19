@@ -9,40 +9,20 @@ module.exports = function (RED) {
             var node = this;
             node.config = n;
             node.connection = false;
-            // node.state = [];
-            // node.status = {};
-            //
+            node.topic = '/devices/#';
+            node.items = undefined;
+            node.devices_values = [];
+            node.on('close', () => this.onClose());
             node.setMaxListeners(255);
-            // node.refreshFindTimer = null;
-            // node.refreshFindInterval = node.config.polling * 1000;
-            // node.on('close', () => this.onClose());
-            //
-            // node.connect().then(result => {
-            //     node.getStatus(true).then(result => {
-            //         node.emit("onInitEnd", result);
-            //     });
-            // });
-            //
-            // node.refreshStatusTimer = setInterval(function () {
-            //     node.getStatus(true);
-            // }, node.refreshFindInterval);
 
-
-            this.items = undefined;
-            this.subscribed_topics = [];
-            this.devices_values = [];
-
-
+            //mqtt
             node.mqtt = node.connectMQTT();
-
             node.mqtt.on('connect', () => this.onMQTTConnect());
             node.mqtt.on('message', (topic, message) => this.onMQTTMessage(topic, message));
-            node.on('close', () => this.onClose());
         }
 
         connectMQTT() {
             var node = this;
-
             var options = {
                 port: node.config.mqtt_port||1883,
                 username: node.config.mqtt_username||null,
@@ -51,72 +31,23 @@ module.exports = function (RED) {
             return mqtt.connect('mqtt://' + node.config.host, options);
         }
 
-        subscribeMQTT(node, topic = false) {
-            var that = this;
-
-            if (!that.connection) return false;
-
-            if (!topic) topic = node.config.channel;
-
-            if (topic in that.subscribed_topics) {
-                node.is_subscribed = true;
-                // node.warn('Already subscribed to: "' + topic + " - skipped");
-
-                //emulate first msg
-                if (topic in that.devices_values) {
-                    node.onMQTTMessage({
-                        "topic": topic,
-                        "payload": that.devices_values[topic]
-                    });
-                }
-                return false;
-            }
-
-            if (!node.is_subscribed) {
-                if (typeof (topic) == 'string' && (topic).length) {
-                    that.subscribed_topics[topic] = false;
-
-                    that.mqtt.subscribe(topic, function (err) {
-                        if (err) {
-                            console.log(err);
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: "node-red-contrib-wirenboard/server:status.no_connection"
-                            });
-                            node.warn('Subscribe to "' + topic + '" error');
-
-                        } else {
-                            node.is_subscribed = true;
-                            node.log('Subscribed to: "' + topic);
-
-                            that.subscribed_topics[topic] = true;
-                        }
-                    })
+        subscribeMQTT() {
+            var node = this;
+            node.mqtt.subscribe(node.topic, function (err) {
+                if (err) {
+                    node.warn('MQTT Error: Subscribe to "' + node.topic);
+                    node.emit('onConnectError', err);
                 } else {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-wirenboard/server:status.no_device"
-                    });
+                    node.log('MQTT Subscribed to: "' + node.topic);
                 }
-            }
-
-            return true;
+            })
         }
 
-        unsubscribeMQTT(node, topic = false) {
-            var that = this;
-
-            if (!topic) topic = node.config.channel;
-
-            node.log('Unsubscribe from mqtt topic: ' + topic);
-            node.is_subscribed = false;
-
-            that.mqtt.unsubscribe(topic, function (err) {});
-            if (topic in that.subscribed_topics) {
-                delete that.subscribed_topics[topic];
-            }
+        unsubscribeMQTT() {
+            var node = this;
+            node.log('MQTT Unsubscribe from mqtt topic: ' + node.topic);
+            node.mqtt.unsubscribe(node.topic, function (err) {});
+            node.devices_values = [];
         }
 
         getChannels(callback, forceRefresh = false) {
@@ -206,9 +137,9 @@ module.exports = function (RED) {
                     }
                 })
 
-                if (!Object.keys(node.items).length) {
+                // if (!Object.keys(node.items).length) {
                     //node.emit('onConnectError');
-                }
+                // }
 
             } else {
                 node.log('Using cached devices');
@@ -220,33 +151,28 @@ module.exports = function (RED) {
 
         }
 
-        onClose() {
-            var node = this;
-
-            node.mqtt.end();
-            node.connection = false;
-
-            node.emit('onClose');
-            node.log('MQTT connection closed');
-        }
-
         onMQTTConnect() {
             var node = this;
-
             node.connection = true;
             node.log('MQTT Connected');
-
             node.emit('onMQTTConnect');
-
+            node.subscribeMQTT();
         }
 
         onMQTTMessage(topic, message) {
             var node = this;
-
             var messageString = message.toString();
             node.devices_values[topic] = messageString;
-// console.log(topic + ': '+ messageString);
             node.emit('onMQTTMessage', {topic:topic, payload:messageString});
+        }
+
+        onClose() {
+            var node = this;
+            node.unsubscribeMQTT();
+            node.mqtt.end();
+            node.connection = false;
+            node.emit('onClose');
+            node.log('MQTT connection closed');
         }
     }
 
