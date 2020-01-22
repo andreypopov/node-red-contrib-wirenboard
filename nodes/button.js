@@ -179,6 +179,9 @@ module.exports = function(RED) {
 
                             //longpress fired earlier
                             if (node.longpressStarted) {
+                                if (node.eventTypes.indexOf('LongPressRelease') != -1) {
+                                    node.eventHandler(null,'longpress_release');
+                                }
                                 node.timerclick = node.clickcounter = node.longpressStarted = 0;
                                 node.status({});
 
@@ -267,7 +270,6 @@ module.exports = function(RED) {
             clearTimeout(node.timerLongPress);
             clearInterval(node.longpressInterval);
             clearTimeout(node.clickfunc);
-            node.longpressStarted = false;
             node.timerclick = node.clickcounter = 0;
         }
 
