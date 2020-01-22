@@ -13,12 +13,14 @@ module.exports = function (RED) {
             node.items = undefined;
             node.devices_values = [];
             node.on('close', () => this.onClose());
-            node.setMaxListeners(255);
+            node.setMaxListeners(0);
 
             //mqtt
             node.mqtt = node.connectMQTT();
             node.mqtt.on('connect', () => this.onMQTTConnect());
             node.mqtt.on('message', (topic, message) => this.onMQTTMessage(topic, message));
+
+            // console.log(node.config._users);
         }
 
         connectMQTT() {

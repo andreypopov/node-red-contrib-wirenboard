@@ -14,7 +14,8 @@
     "status": {
         "no_server": "no server",
         "no_device": "no device",
-        "no_connection": "no connection"
+        "no_connection": "no connection",
+        "connected": "connected"
     },
     "multiselect": {
         "groups":  "Light Groups",

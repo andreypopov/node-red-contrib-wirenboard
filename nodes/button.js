@@ -15,7 +15,7 @@ module.exports = function(RED) {
 
 
             node.timerclick = 0;
-            node.timerfunc = null;
+            node.timerLongPress = null;
             node.refreshfunc = null; //func to refresh ndoe status
             node.clickfunc = null; //func to fire click event
             node.clickcounter = 0;
@@ -60,7 +60,6 @@ module.exports = function(RED) {
                     text: "node-red-contrib-wirenboard/button:status.no_server"
                 });
             }
-
         }
 
         onConnectError(status) {
@@ -75,7 +74,6 @@ module.exports = function(RED) {
 
         onMQTTClose() {
             var node = this;
-            node.server.unsubscribeMQTT(node);
 
             //remove listeners
             if (node.listener_onMQTTConnect) {
@@ -109,13 +107,14 @@ module.exports = function(RED) {
             var node = this;
 
             if (data.topic === node.config.channel) {
+                clearTimeout(node.refreshfunc);
                 var val = parseInt(data.payload) ? true : false;
                 var event = '';
 
+                // console.log('Input: '+val);
                 if (node.val != val) {
                     node.val = val;
                     if (val) { // value == 1
-                        clearTimeout(node.refreshfunc);
                         node.clickcounter++;
                         node.timerclick = new Date().getTime();
 
@@ -124,12 +123,16 @@ module.exports = function(RED) {
                         }
 
                         if (node.eventTypes.indexOf('LongPress') != -1) {
-                            node.timerfunc = setTimeout(function () {
+                            node.timerLongPress = setTimeout(function () {
                                 node.longpressStarted = true;
                                 node.longPressClickCnt++;
 
                                 if (node.config.longPressRange) {
                                     node.longpressInterval = setInterval(function () {
+                                        if (!node.longpressStarted || !node.val) { //отпущена кнопка
+                                            clearInterval(node.longpressInterval);
+                                            return;
+                                        }
                                         if (node.longPressClickCnt % 2 === 0) {
                                             node.longpressTimerValue -= node.longpressTimerValueStep;
                                             if (node.longpressTimerValue <= node.longpressTimerValueMin) {
@@ -143,15 +146,22 @@ module.exports = function(RED) {
                                                 clearInterval(node.longpressInterval);
                                             }
                                         }
-                                        node.status({fill: "green", shape: "ring", text: node.longpressTimerValue});
-                                        node.send({payload: node.longpressTimerValue, event:"longpress"});
+
+                                        // console.log(node.val + ' = ' + node.longpressStarted + ' = '+ node.longpressTimerValue);
+                                        // node.status({fill: "green", shape: "ring", text: node.longpressTimerValue});
+                                        // node.send({payload: node.longpressTimerValue, event:"longpress"});
+
+                                        node.eventHandler(node.longpressTimerValue,'longpress',{
+                                            text:node.longpressTimerValue
+                                        });
                                     }, node.longpressTimerChangeDelayMs);
+                                } else {
+                                    node.eventHandler(true,'longpress', {
+                                        counter:node.longPressClickCnt,
+                                        toggle: node.longPressClickCnt % 2 === 0
+                                    });
                                 }
 
-                                node.eventHandler(null,'longpress', {
-                                    counter:node.longPressClickCnt,
-                                    toggle: node.longPressClickCnt % 2 === 0
-                                });
                             }, node.config.longPressDelay);
                         }
 
@@ -159,20 +169,23 @@ module.exports = function(RED) {
 
                         if (node.clickcounter) {
 
-                            clearTimeout(node.timerfunc);
-                            clearTimeout(node.clickfunc);
-                            clearInterval(node.longpressInterval); //release here
-
                             if (node.eventTypes.indexOf('Release') != -1) {
                                 node.eventHandler(null,'release');
                             }
 
+                            clearTimeout(node.timerLongPress);
+                            clearInterval(node.longpressInterval);
+                            clearTimeout(node.clickfunc);
 
                             //longpress fired earlier
                             if (node.longpressStarted) {
                                 node.timerclick = node.clickcounter = node.longpressStarted = 0;
+                                node.status({});
+
                                 return true;
                             }
+
+
 
 
                             if (node.eventTypes.indexOf('Click') != -1) {
@@ -184,6 +197,7 @@ module.exports = function(RED) {
                                         counter:node.singleClickCnt,
                                         toggle: node.singleClickCnt % 2 === 0
                                     });
+                                    node.clearAllTimers();
                                     return true;
                                 } else {
                                     node.clickfunc = setTimeout(function () {
@@ -194,6 +208,7 @@ module.exports = function(RED) {
                                             counter:node.singleClickCnt,
                                             toggle: node.singleClickCnt % 2 === 0
                                         });
+                                        node.clearAllTimers();
 
                                     }, node.config.doubleClickDelay - ((new Date().getTime()) - node.timerclick));
                                 }
@@ -209,12 +224,13 @@ module.exports = function(RED) {
                                         counter:node.doubleClickCnt,
                                         toggle: node.doubleClickCnt % 2 === 0
                                     });
+                                    node.clearAllTimers();
                                     return true;
                                 }
                                 setTimeout(function () {
                                     clearTimeout(node.clickfunc);
                                     node.timerclick = node.clickcounter = 0;
-                                }, node.config.doubleClickDelay * 2);
+                                }, node.config.doubleClickDelay);
                             }
 
 
@@ -229,19 +245,30 @@ module.exports = function(RED) {
 
 
         eventHandler(payload, event = null, options = {}) {
+            // console.log("======> EVENT: " + event);
             var node = this;
             clearTimeout(node.refreshfunc);
             node.refreshfunc = setTimeout(function () {
                 node.status({});
             }, 1500);
 
-            node.status({fill: "green", shape: "dot", text: event});
+            node.status({fill: "green", shape: "dot", text: "text" in options?options.text:event});
 
             node.send(Object.assign({
                 payload: payload,
                 event: event,
                 topic: node.config.channel
             }, options));
+        }
+
+        clearAllTimers() {
+            var node = this;
+            clearTimeout(node.clickfunc);
+            clearTimeout(node.timerLongPress);
+            clearInterval(node.longpressInterval);
+            clearTimeout(node.clickfunc);
+            node.longpressStarted = false;
+            node.timerclick = node.clickcounter = 0;
         }
 
     }

@@ -75,16 +75,18 @@ module.exports = function(RED) {
                 text: "node-red-contrib-wirenboard/in:status.connected"
             });
 
-            node.cleanTimer = setTimeout(function () {
-                node.status({}); //clean
-            }, 3000);
+            // node.cleanTimer = setTimeout(function () {
+            //     node.status({}); //clean
+            // }, 3000);
         }
 
         onMQTTMessage(data) {
             var node = this;
-            clearTimeout(node.cleanTimer);
 
             if (data.topic === node.config.channel) {
+                clearTimeout(node.cleanTimer);
+
+
                 if (node.firstMsg && !node.config.outputAtStartup) {
                     node.firstMsg = false;
                     return;
