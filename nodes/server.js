@@ -28,7 +28,8 @@ module.exports = function (RED) {
             var options = {
                 port: node.config.mqtt_port||1883,
                 username: node.config.mqtt_username||null,
-                password: node.config.mqtt_password||null
+                password: node.config.mqtt_password||null,
+                clientId:"NodeRed-"+node.id
             };
             return mqtt.connect('mqtt://' + node.config.host, options);
         }
@@ -63,7 +64,16 @@ module.exports = function (RED) {
                 that.items = [];
                 that.end = false;
 
-                var client  = node.connectMQTT();
+
+                var options = {
+                    port: node.config.mqtt_port||1883,
+                    username: node.config.mqtt_username||null,
+                    password: node.config.mqtt_password||null,
+                    clientId:"NodeRed-tmp-"+node.id
+                };
+                var client = mqtt.connect('mqtt://' + node.config.host, options);
+
+
                 client.on('connect', function () {
                     client.subscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {
                         if (!err) {
