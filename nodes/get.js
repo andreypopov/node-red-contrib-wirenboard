@@ -31,16 +31,33 @@ module.exports = function(RED) {
                                 result = null;
                             }
                         } else {
+                            var max = null;
+                            var min = null;
+                            var sum = 0;
+                            var cnt = 0;
                             for (var index in node.config.channel) {
                                 var topic = node.config.channel[index];
 
                                 if (topic in node.server.devices_values) {
                                     result[topic] = node.server.devices_values[topic];
                                     hasData = true;
+
+                                    let val = parseFloat(node.server.devices_values[topic]);
+                                    cnt++;
+                                    sum += val;
+                                    if (min === null || min > val) min = val;
+                                    if (max === null || max < val) max = val;
                                 } else {
                                     result[topic] = null;
                                 }
                             }
+                            message_in.math = {
+                                "count":cnt,
+                                "avg":Math.round((sum/cnt) * 100) / 100,
+                                "sum":sum,
+                                "min":min,
+                                "max":max
+                            };
                         }
 
                         message_in.payload_in = message_in.payload;

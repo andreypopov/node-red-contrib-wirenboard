@@ -8,16 +8,17 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.cleanTimer = null;
-
-            //get server node
             node.server = RED.nodes.getNode(node.config.server);
+
+            if (typeof(node.config.channel) == 'string') node.config.channel = [node.config.channel]; //for compatible
+
             if (node.server) {
                 node.status({}); //clean
 
                 node.on('input', function(message) {
-                    if (typeof (node.config.channel) == 'string' && (node.config.channel).length) {
-                        clearTimeout(node.cleanTimer);
+                    clearTimeout(node.cleanTimer);
 
+                    if (typeof (node.config.channel) == 'object'  && (node.config.channel).length) {
                         var payload;
                         switch (node.config.payloadType) {
                             case 'flow':
@@ -85,9 +86,13 @@ module.exports = function(RED) {
                                 node.status({}); //clean
                             }, 3000);
 
-                            node.server.mqtt.publish(node.config.channel + command, payload.toString());
 
-                            node.log('Published to mqtt topic: ' + (node.config.channel + command) + ' : ' + payload.toString());
+                            for (var i in node.config.channel) {
+                                node.log('Published to mqtt topic: ' + (node.config.channel[i] + command) + ' : ' + payload.toString());
+                                node.server.mqtt.publish(node.config.channel[i] + command, payload.toString());
+                            }
+
+
                         } else {
                             node.status({
                                 fill: "red",
@@ -99,7 +104,7 @@ module.exports = function(RED) {
                 });
 
 
-                if (typeof (node.config.channel) != 'string' || !(node.config.channel).length) {
+                if (typeof (node.config.channel) != 'object' && !(node.config.channel).length) {
                     node.status({
                         fill: "red",
                         shape: "dot",

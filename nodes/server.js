@@ -20,6 +20,14 @@ module.exports = function (RED) {
             node.mqtt.on('connect', () => this.onMQTTConnect());
             node.mqtt.on('message', (topic, message) => this.onMQTTMessage(topic, message));
 
+            node.mqtt.on('close', () => this.onMQTTClose());
+            node.mqtt.on('end', () => this.onMQTTEnd());
+            node.mqtt.on('reconnect', () => this.onMQTTReconnect());
+            node.mqtt.on('offline', () => this.onMQTTOffline());
+            node.mqtt.on('disconnect', (error) => this.onMQTTDisconnect(error));
+            node.mqtt.on('error', (error) => this.onMQTTError(error));
+
+
             // console.log(node.config._users);
         }
 
@@ -169,6 +177,54 @@ module.exports = function (RED) {
             node.log('MQTT Connected');
             node.emit('onMQTTConnect');
             node.subscribeMQTT();
+        }
+
+        onMQTTDisconnect(error) {
+            var node = this;
+            // node.connection = true;
+            node.log('MQTT Disconnected');
+            console.log(error);
+
+        }
+
+        onMQTTError(error) {
+            var node = this;
+            // node.connection = true;
+            node.log('MQTT Error');
+            console.log(error);
+
+        }
+
+        onMQTTOffline() {
+            var node = this;
+            // node.connection = true;
+            node.log('MQTT Offline');
+            // console.log();
+
+        }
+
+        onMQTTEnd() {
+            var node = this;
+            // node.connection = true;
+            node.log('MQTT End');
+            // console.log();
+
+        }
+
+        onMQTTReconnect() {
+            var node = this;
+            // node.connection = true;
+            node.log('MQTT Reconnect');
+            // console.log();
+
+        }
+
+        onMQTTClose() {
+            var node = this;
+            // node.connection = true;
+            node.log('MQTT Close');
+            // console.log(node.connection);
+
         }
 
         onMQTTMessage(topic, message) {
