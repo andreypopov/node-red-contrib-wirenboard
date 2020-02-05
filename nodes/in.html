@@ -12,7 +12,7 @@
     </div>
     <div class="form-row">
         <label for="node-input-channel" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.channel"></span></label>
-        <select id="node-input-channel" class="s-width" data-single="true"></select>
+        <select id="node-input-channel" class="s-width" data-single="false" multiple="multiple"></select>
     </div>
     <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
@@ -52,12 +52,20 @@
         icon: "wirenboard.svg",
         label: function () {
             var label = 'wb-input';
+
             if (this.name) {
                 label = this.name;
-            } else if (typeof(this.channel) == 'string' && this.channel.length) {
+            } else if  (this.channel != null && typeof(this.channel) == 'object' && this.channel.length) {
+                if (this.channel.length == 1) {
+                    var device_name = (this.channel[0]).split('/').slice(1)[1];
+                    var control_name = (this.channel[0]).split('/').slice(-1)[0];
+                    label = device_name+'/'+control_name;
+                } else {
+                    label = this.channel.length + ' channels';
+                }
+            } else if (typeof(this.channel) == 'string') {
                 var device_name = (this.channel).split('/').slice(1)[1];
                 var control_name = (this.channel).split('/').slice(-1)[0];
-
                 label = device_name+'/'+control_name;
             }
 
@@ -66,7 +74,7 @@
         oneditprepare: function () {
             var node = this;
             setTimeout(function(){
-                WB_getItemList(node.channel, '#node-input-channel', {allowEmpty:true});
+                WB_getItemList(node.channel, '#node-input-channel', {allowEmpty:false});
             }, 100); //we need small timeout, too fire change event for server select
         },
         oneditsave: function () {

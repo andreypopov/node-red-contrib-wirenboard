@@ -1,3 +1,4 @@
+const WirenboardHelper = require('../lib/WirenboardHelper.js');
 var mqtt = require('mqtt');
 
 module.exports = function(RED) {
@@ -260,7 +261,8 @@ module.exports = function(RED) {
             node.send(Object.assign({
                 payload: payload,
                 event: event,
-                topic: node.config.channel
+                topic: node.config.channel,
+                selector:WirenboardHelper.generateSelector(node.config.channel)
             }, options));
         }
 

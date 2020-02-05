@@ -1,3 +1,5 @@
+const WirenboardHelper = require('../lib/WirenboardHelper.js');
+
 var mqtt = require('mqtt');
 
 module.exports = function(RED) {
@@ -10,9 +12,9 @@ module.exports = function(RED) {
             node.firstMsg = true;
             node.is_subscribed = false;
             node.cleanTimer = null;
-
-            //get server node
             node.server = RED.nodes.getNode(node.config.server);
+
+            if (typeof(node.config.channel) == 'string') node.config.channel = [node.config.channel]; //for compatible
 
             node.status({}); //clean
 
@@ -83,26 +85,68 @@ module.exports = function(RED) {
         onMQTTMessage(data) {
             var node = this;
 
-            if (data.topic === node.config.channel) {
+            if (node.hasChannel(data.topic)) {
                 clearTimeout(node.cleanTimer);
-
-
-                if (node.firstMsg && !node.config.outputAtStartup) {
-                    node.firstMsg = false;
-                    return;
-                }
-
+                
                 node.status({
                     fill: "green",
                     shape: "dot",
                     text: data.payload
                 });
 
-                node.send({
-                    payload: data.payload,
-                    topic: data.topic
-                });
+                if (node.isSingleChannelMode()) {
+                    if (node.firstMsg && !node.config.outputAtStartup) {
+                        node.firstMsg = false;
+                        return;
+                    }
+
+                    node.send({
+                        payload: data.payload,
+                        topic: data.topic,
+                        selector: WirenboardHelper.generateSelector(data.topic)
+                    });
+                } else {
+                    var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
+
+                    if (node.firstMsg && !node.config.outputAtStartup && data_array.has_null) {
+                        return;
+                    }
+                    node.firstMsg = false;
+
+                    node.send({
+                        payload: data_array.data,
+                        data_array: data_array.data_full,
+                        math: data_array.math,
+                        event: {
+                            payload: data.payload,
+                            topic:data.topic,
+                            selector: WirenboardHelper.generateSelector(data.topic)
+                        }
+                    });
+
+                    node.cleanTimer = setTimeout(function () {
+                        node.status({}); //clean
+                    }, 3000);
+                }
             }
+        }
+
+        isSingleChannelMode() {
+            return (this.config.channel).length === 1;
+        }
+
+        hasChannel(channel) {
+            var node = this;
+            var result = false;
+
+            for (var i in node.config.channel) {
+                if (node.config.channel[i] === channel) {
+                    result = true;
+                    break;
+                }
+            }
+
+            return result;
         }
 
 

@@ -1,5 +1,5 @@
+const WirenboardHelper = require('../lib/WirenboardHelper.js');
 var mqtt = require('mqtt');
-
 
 module.exports = function (RED) {
     class ServerNode{

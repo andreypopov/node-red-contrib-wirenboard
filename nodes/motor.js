@@ -1,3 +1,4 @@
+const WirenboardHelper = require('../lib/WirenboardHelper.js');
 var mqtt = require('mqtt');
 
 module.exports = function(RED) {
@@ -57,7 +58,8 @@ module.exports = function(RED) {
                 payload: {
                     on: true,
                     dir: dir,
-                    inverse: node.config.inverse
+                    inverse: node.config.inverse,
+                    selector:WirenboardHelper.generateSelector(node.config.channel)
                 },
                 topic: node.config.channel
             });
@@ -77,7 +79,8 @@ module.exports = function(RED) {
                 payload: {
                     on: false,
                     dir: null,
-                    inverse: node.config.inverse
+                    inverse: node.config.inverse,
+                    selector:WirenboardHelper.generateSelector(node.config.channel)
                 },
                 topic: node.config.channel
             });

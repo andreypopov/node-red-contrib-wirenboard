@@ -54,8 +54,11 @@
                 } else {
                     label = this.channel.length + ' channels';
                 }
+            } else if (typeof(this.channel) == 'string') {
+                var device_name = (this.channel).split('/').slice(1)[1];
+                var control_name = (this.channel).split('/').slice(-1)[0];
+                label = device_name+'/'+control_name;
             }
-            //console.log(this.items);
 
             return label;
         },
