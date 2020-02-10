@@ -46,8 +46,8 @@
                 required: true
             },
             channel: {
-                value: "",
-                required: true
+                value: [],
+                required: false
             },
             command: {
                 value: '/on',
@@ -69,6 +69,7 @@
         icon: "wirenboard.svg",
         label: function() {
             var label = 'wb-out';
+
             if (this.name) {
                 label = this.name;
             } else if  (this.channel != null && typeof(this.channel) == 'object' && this.channel.length) {
@@ -79,7 +80,7 @@
                 } else {
                     label = this.channel.length + ' channels';
                 }
-            } else if (typeof(this.channel) == 'string') {
+            } else if (typeof(this.channel) == 'string' && this.channel.length) {
                 var device_name = (this.channel).split('/').slice(1)[1];
                 var control_name = (this.channel).split('/').slice(-1)[0];
                 label = device_name+'/'+control_name;

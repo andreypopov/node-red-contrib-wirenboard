@@ -19,6 +19,20 @@ module.exports = function(RED) {
                 node.on('input', function(message) {
                     clearTimeout(node.cleanTimer);
 
+                    //overwrite with topic
+                    if (!(node.config.channel).length && "topic" in message) {
+                        if (typeof(message.topic) == 'string' ) message.topic = [message.topic];
+                        if (typeof(message.topic) == 'object') {
+                            for (var i in message.topic) {
+                                var topic = message.topic[i];
+                                if (typeof(topic) == 'string' && topic in node.server.devices_values) {
+                                    (node.config.channel).push(topic);
+                                }
+                            }
+                        }
+                    }
+
+                    console.log(node.config.channel);
                     if (typeof (node.config.channel) == 'object'  && (node.config.channel).length) {
                         var payload;
                         switch (node.config.payloadType) {
@@ -101,6 +115,12 @@ module.exports = function(RED) {
                                 text: "node-red-contrib-wirenboard/out:status.no_payload"
                             });
                         }
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: "node-red-contrib-wirenboard/out:status.no_device"
+                        });
                     }
                 });
 
