@@ -19,6 +19,19 @@ module.exports = function(RED) {
                 node.on('input', function (message_in) {
                     clearTimeout(node.cleanTimer);
 
+                    //overwrite with topic
+                    if (!(node.config.channel).length && "topic" in message_in) {
+                        if (typeof(message_in.topic) == 'string' ) message_in.topic = [message_in.topic];
+                        if (typeof(message_in.topic) == 'object') {
+                            for (var i in message_in.topic) {
+                                var topic = message_in.topic[i];
+                                if (typeof(topic) == 'string' && topic in node.server.devices_values) {
+                                    (node.config.channel).push(topic);
+                                }
+                            }
+                        }
+                    }
+
                     if (typeof (node.config.channel) == 'object'  && (node.config.channel).length) {
                         var result = {};
                         var hasData = false;
