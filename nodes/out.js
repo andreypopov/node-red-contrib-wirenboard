@@ -19,6 +19,8 @@ module.exports = function(RED) {
                 node.on('input', function(message) {
                     clearTimeout(node.cleanTimer);
 
+                    var channels = [];
+
                     //overwrite with topic
                     if (!(node.config.channel).length && "topic" in message) {
                         if (typeof(message.topic) == 'string' ) message.topic = [message.topic];
@@ -26,14 +28,16 @@ module.exports = function(RED) {
                             for (var i in message.topic) {
                                 var topic = message.topic[i];
                                 if (typeof(topic) == 'string' && topic in node.server.devices_values) {
-                                    (node.config.channel).push(topic);
+                                    channels.push(topic);
                                 }
                             }
                         }
+                    } else {
+                        channels = node.config.channel;
                     }
 
-                    console.log(node.config.channel);
-                    if (typeof (node.config.channel) == 'object'  && (node.config.channel).length) {
+
+                    if (typeof (channels) == 'object'  && channels.length) {
                         var payload;
                         switch (node.config.payloadType) {
                             case 'flow':
@@ -102,9 +106,9 @@ module.exports = function(RED) {
                             }, 3000);
 
 
-                            for (var i in node.config.channel) {
-                                node.log('Published to mqtt topic: ' + (node.config.channel[i] + command) + ' : ' + payload.toString());
-                                node.server.mqtt.publish(node.config.channel[i] + command, payload.toString());
+                            for (var i in channels) {
+                                node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
+                                node.server.mqtt.publish(channels[i] + command, payload.toString());
                             }
 
 
@@ -124,14 +128,6 @@ module.exports = function(RED) {
                     }
                 });
 
-
-                if (typeof (node.config.channel) != 'object' && !(node.config.channel).length) {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-wirenboard/out:status.no_device"
-                    });
-                }
             } else {
                 node.status({
                     fill: "red",

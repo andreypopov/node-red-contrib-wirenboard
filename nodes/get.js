@@ -19,6 +19,8 @@ module.exports = function(RED) {
                 node.on('input', function (message_in) {
                     clearTimeout(node.cleanTimer);
 
+                    var channels = [];
+
                     //overwrite with topic
                     if (!(node.config.channel).length && "topic" in message_in) {
                         if (typeof(message_in.topic) == 'string' ) message_in.topic = [message_in.topic];
@@ -26,26 +28,28 @@ module.exports = function(RED) {
                             for (var i in message_in.topic) {
                                 var topic = message_in.topic[i];
                                 if (typeof(topic) == 'string' && topic in node.server.devices_values) {
-                                    (node.config.channel).push(topic);
+                                    channels.push(topic);
                                 }
                             }
                         }
+                    } else {
+                        channels = node.config.channel;
                     }
 
-                    if (typeof (node.config.channel) == 'object'  && (node.config.channel).length) {
+                    if (typeof (channels) == 'object'  && channels.length) {
                         var result = {};
                         var hasData = false;
-                        if (node.isSingleChannelMode()) {
-                            message_in.topic = node.config.channel[0];
+                        if (channels.length === 1) {
+                            message_in.topic = channels[0];
                             message_in.selector = WirenboardHelper.generateSelector(message_in.topic);
-                            if (node.config.channel[0] in node.server.devices_values) {
-                                result = node.server.devices_values[node.config.channel[0]];
+                            if (channels[0] in node.server.devices_values) {
+                                result = node.server.devices_values[channels[0]];
                                 hasData = true;
                             } else {
                                 result = null;
                             }
                         } else {
-                            var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
+                            var data_array = WirenboardHelper.prepareDataArray(node.server, channels);
                             hasData = data_array.is_data;
                             result = data_array.data;
                             message_in.data_array = data_array.data_full;
@@ -60,7 +64,7 @@ module.exports = function(RED) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: node.isSingleChannelMode()?result:"ok"
+                                text: channels.length === 1?result:"ok"
                             });
                         } else {
                             node.status({
@@ -72,16 +76,16 @@ module.exports = function(RED) {
                         node.cleanTimer = setTimeout(function () {
                             node.status({}); //clean
                         }, 3000);
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: "node-red-contrib-wirenboard/get:status.no_device"
+                        });
                     }
                 });
 
-                if (typeof (node.config.channel) != 'object' && !(node.config.channel).length) {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-wirenboard/get:status.no_device"
-                    });
-                }
+
 
             } else {
                 node.status({
@@ -90,10 +94,6 @@ module.exports = function(RED) {
                     text: "node-red-contrib-wirenboard/get:status.no_server"
                 });
             }
-        }
-
-        isSingleChannelMode() {
-            return (this.config.channel).length === 1;
         }
 
     }
