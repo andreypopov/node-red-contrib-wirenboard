@@ -15,7 +15,7 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
         if (controller) {
             selectedItemElement.multipleSelect('disable');
 
-            $.getJSON('/wirenboard/getChannels', {
+            $.getJSON('wirenboard/getChannels', {
                 controllerID: controller.id,
                 forceRefresh: refresh
             })
