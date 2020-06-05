@@ -1,0 +1,178 @@
+[
+  {
+    "id": "77409e95.861da",
+    "type": "homekit-service",
+    "z": "7bd3a6f8.fd7df8",
+    "isParent": true,
+    "bridge": "",
+    "parentService": "",
+    "name": "Bulb",
+    "serviceName": "Lightbulb",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "cameraConfigVideoProcessor": "ffmpeg",
+    "cameraConfigSource": "",
+    "cameraConfigStillImageSource": "",
+    "cameraConfigMaxStreams": 2,
+    "cameraConfigMaxWidth": 1280,
+    "cameraConfigMaxHeight": 720,
+    "cameraConfigMaxFPS": 10,
+    "cameraConfigMaxBitrate": 300,
+    "cameraConfigVideoCodec": "libx264",
+    "cameraConfigAudioCodec": "libfdk_aac",
+    "cameraConfigAudio": false,
+    "cameraConfigPacketSize": 1316,
+    "cameraConfigVerticalFlip": false,
+    "cameraConfigHorizontalFlip": false,
+    "cameraConfigMapVideo": "0:0",
+    "cameraConfigMapAudio": "0:1",
+    "cameraConfigVideoFilter": "scale=1280:720",
+    "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+    "cameraConfigDebug": false,
+    "cameraConfigSnapshotOutput": "disabled",
+    "cameraConfigInterfaceName": "",
+    "characteristicProperties": "{\n    \"Brightness\":{\n        \"maxValue\": 100,\n        \"minValue\": 0,\n        \"minStep\": 1\n    }\n}",
+    "x": 470,
+    "y": 200,
+    "wires": [
+      [
+        "42fb14da.3b1d4c",
+        "5813d9f5.075ea8"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "9dd3380b.ad0928",
+    "type": "wirenboard-in",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "Channel 1",
+    "server": "",
+    "channel": [],
+    "outputAtStartup": true,
+    "x": 220,
+    "y": 260,
+    "wires": [
+      [
+        "3fef09ab.b9c5a6"
+      ]
+    ]
+  },
+  {
+    "id": "3fef09ab.b9c5a6",
+    "type": "function",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "",
+    "func": "var characteristic = {};\ncharacteristic.On = parseInt(msg.payload)?1:0;\ncharacteristic.Brightness = parseInt(msg.payload);\n\nmsg.payload = characteristic;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 315,
+    "y": 260,
+    "wires": [
+      [
+        "77409e95.861da"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "5813d9f5.075ea8",
+    "type": "function",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "",
+    "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (msg.payload['Brightness'] !== undefined) {\n    msg.payload = msg.payload.Brightness;\n} else {\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 615,
+    "y": 260,
+    "wires": [
+      [
+        "7657d623.e01348"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "7657d623.e01348",
+    "type": "wirenboard-out",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "Channel 1",
+    "server": "",
+    "channel": [],
+    "command": "/on",
+    "commandType": "wb_cmd",
+    "payload": "payload",
+    "payloadType": "msg",
+    "x": 720,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "42fb14da.3b1d4c",
+    "type": "function",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "",
+    "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n} else {\n    return null;\n}\nreturn msg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 615,
+    "y": 200,
+    "wires": [
+      [
+        "919f4f14.fe268"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "6a2eecbd.9a3914",
+    "type": "function",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "",
+    "func": "var newMsg = {};\nnewMsg.payload = {\n    \"On\":parseInt(msg.payload)>0\n};\n\nreturn newMsg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 315,
+    "y": 200,
+    "wires": [
+      [
+        "77409e95.861da"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "71f64cb2.d54af4",
+    "type": "wirenboard-in",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "K1",
+    "server": "",
+    "channel": [],
+    "outputAtStartup": true,
+    "x": 230,
+    "y": 200,
+    "wires": [
+      [
+        "6a2eecbd.9a3914"
+      ]
+    ]
+  },
+  {
+    "id": "919f4f14.fe268",
+    "type": "wirenboard-out",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "K1",
+    "server": "",
+    "channel": [],
+    "command": "/on",
+    "commandType": "wb_cmd",
+    "payload": "payload",
+    "payloadType": "msg",
+    "x": 710,
+    "y": 200,
+    "wires": []
+  }
+]

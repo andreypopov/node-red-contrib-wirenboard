@@ -1,0 +1,367 @@
+[
+  {
+    "id": "bdc052d1.1fa7d",
+    "type": "wirenboard-button",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "WD-14 dry contact",
+    "server": "",
+    "channel": {
+      "length": 0,
+      "prevObject": {
+        "length": 0,
+        "prevObject": {
+          "0": {
+            "location": {
+              "href": "http://127.0.0.1:1880/#flow/7bd3a6f8.fd7df8",
+              "ancestorOrigins": {},
+              "origin": "http://127.0.0.1:1880",
+              "protocol": "http:",
+              "host": "127.0.0.1:1880",
+              "hostname": "127.0.0.1",
+              "port": "1880",
+              "pathname": "/",
+              "search": "",
+              "hash": "#flow/7bd3a6f8.fd7df8"
+            },
+            "jQuery341025824675639568671": {
+              "events": {
+                "mouseup": [
+                  {
+                    "type": "mouseup",
+                    "origType": "mouseup",
+                    "guid": 3,
+                    "namespace": ""
+                  }
+                ],
+                "click": [
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2221,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2233,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2250,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2476,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2486,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2503,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2721,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 2733,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 3513,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 3525,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5107,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5117,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5134,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5153,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5353,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5365,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 5379,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "guid": 5560,
+                    "namespace": "red-ui-menu"
+                  }
+                ]
+              },
+              "focusin": 3
+            },
+            "jQuery341025824675639568672": {
+              "uiDialogInstances": []
+            }
+          },
+          "length": 1
+        }
+      }
+    },
+    "eventTypes": [
+      "LongPress",
+      "Click"
+    ],
+    "longPressDelay": 1000,
+    "longPressRange": true,
+    "longpressTimerValueMin": 0,
+    "longpressTimerValueMax": 100,
+    "longpressTimerValueStep": 5,
+    "longpressTimerChangeDelayMs": 100,
+    "doubleClickDelay": "500",
+    "x": 190,
+    "y": 480,
+    "wires": [
+      [
+        "94b7396b.d642a8"
+      ]
+    ]
+  },
+  {
+    "id": "94b7396b.d642a8",
+    "type": "wirenboard-get",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "All light in the room",
+    "server": "",
+    "channel": [],
+    "x": 410,
+    "y": 480,
+    "wires": [
+      [
+        "a3287e1f.ff2fb"
+      ]
+    ]
+  },
+  {
+    "id": "fb5119a4.517be8",
+    "type": "switch",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "",
+    "property": "math.sum",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "gt",
+        "v": "0",
+        "vt": "num"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 750,
+    "y": 460,
+    "wires": [
+      [
+        "12b8eefb.ab3b01"
+      ],
+      [
+        "be41eaaf.929018"
+      ]
+    ]
+  },
+  {
+    "id": "12b8eefb.ab3b01",
+    "type": "change",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "0",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "0",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 890,
+    "y": 460,
+    "wires": [
+      [
+        "89d7ec98.2c1a6"
+      ]
+    ]
+  },
+  {
+    "id": "be41eaaf.929018",
+    "type": "change",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "1",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "1",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 890,
+    "y": 500,
+    "wires": [
+      [
+        "89d7ec98.2c1a6"
+      ]
+    ]
+  },
+  {
+    "id": "a3287e1f.ff2fb",
+    "type": "switch",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "event",
+    "property": "event",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "click",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "longpress",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 610,
+    "y": 480,
+    "wires": [
+      [
+        "fb5119a4.517be8"
+      ],
+      [
+        "f8051bca.e0fea8"
+      ]
+    ]
+  },
+  {
+    "id": "f8051bca.e0fea8",
+    "type": "change",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "100",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "100",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 890,
+    "y": 540,
+    "wires": [
+      [
+        "89d7ec98.2c1a6"
+      ]
+    ]
+  },
+  {
+    "id": "89d7ec98.2c1a6",
+    "type": "debug",
+    "z": "7bd3a6f8.fd7df8",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "x": 1120,
+    "y": 500,
+    "wires": []
+  }
+]

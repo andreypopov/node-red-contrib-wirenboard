@@ -1,0 +1,273 @@
+[
+    {
+        "id": "db84e4c6.009fe8",
+        "type": "wirenboard-get",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "lux",
+        "server": "",
+        "channel": [],
+        "x": 530,
+        "y": 820,
+        "wires": [
+            [
+                "286906cd.0a292a"
+            ]
+        ]
+    },
+    {
+        "id": "286906cd.0a292a",
+        "type": "switch",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "<5",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "5",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 650,
+        "y": 820,
+        "wires": [
+            [
+                "cc1497a3.279608"
+            ]
+        ]
+    },
+    {
+        "id": "786a5d17.972364",
+        "type": "wirenboard-out",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "Bulb",
+        "server": "",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "x": 1410,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "f9406c0.1f56e98",
+        "type": "switch",
+        "z": "7bd3a6f8.fd7df8",
+        "name": ">50",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "50",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 370,
+        "y": 820,
+        "wires": [
+            [
+                "db84e4c6.009fe8"
+            ]
+        ]
+    },
+    {
+        "id": "643c0628.2090d8",
+        "type": "wirenboard-in",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "Current motion",
+        "server": "",
+        "channel": [],
+        "outputAtStartup": true,
+        "x": 200,
+        "y": 820,
+        "wires": [
+            [
+                "f9406c0.1f56e98"
+            ]
+        ]
+    },
+    {
+        "id": "ce16b2ab.0f1ba",
+        "type": "wirenboard-in",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "Max Motion",
+        "server": "",
+        "channel": [],
+        "outputAtStartup": true,
+        "x": 210,
+        "y": 740,
+        "wires": [
+            [
+                "95490f04.d54cb"
+            ]
+        ]
+    },
+    {
+        "id": "95490f04.d54cb",
+        "type": "switch",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "<20",
+        "property": "math.max",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "20",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 370,
+        "y": 740,
+        "wires": [
+            [
+                "502db638.cc99d8"
+            ]
+        ]
+    },
+    {
+        "id": "502db638.cc99d8",
+        "type": "wirenboard-get",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "Bulb",
+        "server": "",
+        "channel": [],
+        "x": 810,
+        "y": 740,
+        "wires": [
+            [
+                "10ca088d.ae3d47"
+            ]
+        ]
+    },
+    {
+        "id": "bef3a2f7.6fff3",
+        "type": "change",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "=0",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "0",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 740,
+        "wires": [
+            [
+                "786a5d17.972364"
+            ]
+        ]
+    },
+    {
+        "id": "cc1497a3.279608",
+        "type": "wirenboard-get",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "Bulb",
+        "server": "",
+        "channel": [],
+        "x": 810,
+        "y": 820,
+        "wires": [
+            [
+                "9a8137ea.7c7108"
+            ]
+        ]
+    },
+    {
+        "id": "9a8137ea.7c7108",
+        "type": "switch",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "0?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 930,
+        "y": 820,
+        "wires": [
+            [
+                "6e72570f.9f8ee8"
+            ]
+        ]
+    },
+    {
+        "id": "10ca088d.ae3d47",
+        "type": "switch",
+        "z": "7bd3a6f8.fd7df8",
+        "name": ">0?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 930,
+        "y": 740,
+        "wires": [
+            [
+                "bef3a2f7.6fff3"
+            ]
+        ]
+    },
+    {
+        "id": "6e72570f.9f8ee8",
+        "type": "change",
+        "z": "7bd3a6f8.fd7df8",
+        "name": "=1",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "1",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 820,
+        "wires": [
+            [
+                "786a5d17.972364"
+            ]
+        ]
+    }
+]
