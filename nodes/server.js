@@ -61,6 +61,21 @@ module.exports = function (RED) {
             node.devices_values = [];
         }
 
+        getTopicByElementId(elementId) {
+            var result = undefined;
+            var node = this;
+            if (node.items.length) {
+                for (var i in node.items) {
+                   if (node.items[i].elementId == elementId) {
+                       result = node.items[i].topic;
+                       break;
+                   }
+                }
+            }
+
+            return result;
+        }
+
         getChannels(callback, forceRefresh = false) {
             var node = this;
 
@@ -147,6 +162,7 @@ module.exports = function (RED) {
                             var controlName = topicParts[4];
                             that.items.push({
                                 topic: topic,
+                                elementId: WirenboardHelper.generateElementId(topic),
                                 message: message.toString(),
                                 control_name: controlName,
                                 device_name: deviceName,

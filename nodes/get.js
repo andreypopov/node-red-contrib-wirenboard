@@ -21,6 +21,10 @@ module.exports = function(RED) {
 
                     var channels = [];
 
+                    //overwrite with elementId
+                    if (!(node.config.channel).length && "elementId" in message_in) {
+                        message_in.topic = node.server.getTopicByElementId(message_in.elementId);
+                    }
                     //overwrite with topic
                     if (!(node.config.channel).length && "topic" in message_in) {
                         if (typeof(message_in.topic) == 'string' ) message_in.topic = [message_in.topic];
@@ -41,7 +45,7 @@ module.exports = function(RED) {
                         var hasData = false;
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
-                            message_in.selector = WirenboardHelper.generateSelector(message_in.topic);
+                            message_in.elementId = WirenboardHelper.generateElementId(message_in.topic);
                             if (channels[0] in node.server.devices_values) {
                                 result = node.server.devices_values[channels[0]];
                                 hasData = true;

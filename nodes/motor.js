@@ -10,7 +10,9 @@ module.exports = function(RED) {
             node.config = config;
             node.cleanTimer = null;
             node.runningTimer = null;
+            node.runningInterval = null;
             node.is_subscribed = false;
+            node.percent = null;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -21,7 +23,15 @@ module.exports = function(RED) {
                     clearTimeout(node.cleanTimer);
                     clearTimeout(node.runningTimer);
 
-                    if ("stop" === message_in.payload) {
+                    if (parseInt(message_in.payload) > 1 && parseInt(message_in.payload) <= 100) {
+                        //choose direction
+                        var dir = parseInt(message_in.payload) > 0;
+                        dir = node.config.inverse ? !dir : dir;
+                        dir = dir ? "1" : "0";
+
+                        node.go(message_in.payload, dir);
+                        // node.start(dir);
+                    } else if ("stop" === message_in.payload) {
                         node.stop();
                     } else if ("toggle" === message_in.payload) {
                         node.toggle();
@@ -45,6 +55,46 @@ module.exports = function(RED) {
 
         }
 
+        go(percent, dir) {
+            var node = this;
+            percent = parseInt(percent);
+
+            var timeEnd = node.config.max_running_time/100*percent;
+            if (percent === 0) {
+                timeEnd = node.config.max_running_time;
+            }
+
+
+
+            node.server.mqtt.publish(node.config.channel_dir + '/on', dir.toString());
+            node.log('Published to mqtt topic: ' + node.config.channel_dir + '/on : ' + dir.toString());
+
+            //enable
+            node.server.mqtt.publish(node.config.channel + '/on', "1");
+            node.log('Published to mqtt topic: ' + node.config.channel + '/on : 1');
+            node.send({
+                payload: {
+                    on: true,
+                    dir: dir,
+                    inverse: node.config.inverse,
+                    elementId:WirenboardHelper.generateElementId(node.config.channel)
+                },
+                topic: node.config.channel
+            });
+
+            node.runningInterval = setTimeout(function () {
+                //node.percent +=
+            }, 500);
+
+
+            //disable
+            node.runningTimer = setTimeout(function () {
+                clearInterval(node.runningInterval);
+                node.stop();
+                node.percent = percent;
+            }, timeEnd);
+        }
+
         start(dir) {
             var node = this;
 
@@ -59,7 +109,7 @@ module.exports = function(RED) {
                     on: true,
                     dir: dir,
                     inverse: node.config.inverse,
-                    selector:WirenboardHelper.generateSelector(node.config.channel)
+                    elementId:WirenboardHelper.generateElementId(node.config.channel)
                 },
                 topic: node.config.channel
             });
@@ -80,7 +130,7 @@ module.exports = function(RED) {
                     on: false,
                     dir: null,
                     inverse: node.config.inverse,
-                    selector:WirenboardHelper.generateSelector(node.config.channel)
+                    elementId:WirenboardHelper.generateElementId(node.config.channel)
                 },
                 topic: node.config.channel
             });

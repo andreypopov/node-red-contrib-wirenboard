@@ -262,7 +262,7 @@ module.exports = function(RED) {
                 payload: payload,
                 event: event,
                 topic: node.config.channel,
-                selector:WirenboardHelper.generateSelector(node.config.channel)
+                elementId:WirenboardHelper.generateElementId(node.config.channel)
             }, options));
         }
 

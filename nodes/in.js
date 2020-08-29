@@ -103,7 +103,7 @@ module.exports = function(RED) {
                     node.send({
                         payload: data.payload,
                         topic: data.topic,
-                        selector: WirenboardHelper.generateSelector(data.topic)
+                        elementId: WirenboardHelper.generateElementId(data.topic)
                     });
                 } else {
                     var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
@@ -120,7 +120,7 @@ module.exports = function(RED) {
                         event: {
                             payload: data.payload,
                             topic:data.topic,
-                            selector: WirenboardHelper.generateSelector(data.topic)
+                            elementId: WirenboardHelper.generateElementId(data.topic)
                         }
                     });
 
