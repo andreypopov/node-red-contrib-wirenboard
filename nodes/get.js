@@ -22,11 +22,12 @@ module.exports = function(RED) {
                     var channels = [];
 
                     //overwrite with elementId
-                    if (!(node.config.channel).length && "elementId" in message_in) {
+                    if (!node.config.channel.length && "elementId" in message_in) {
                         message_in.topic = node.server.getTopicByElementId(message_in.elementId);
                     }
+
                     //overwrite with topic
-                    if (!(node.config.channel).length && "topic" in message_in) {
+                    if (!node.config.channel.length && "topic" in message_in) {
                         if (typeof(message_in.topic) == 'string' ) message_in.topic = [message_in.topic];
                         if (typeof(message_in.topic) == 'object') {
                             for (var i in message_in.topic) {

@@ -50,6 +50,7 @@ module.exports = function (RED) {
                     node.emit('onConnectError', err);
                 } else {
                     node.log('MQTT Subscribed to: "' + node.topic);
+                    node.getChannels();
                 }
             })
         }
