@@ -35,82 +35,140 @@
         <label for='node-input-inverse' class="l-width">Inverse</label>
         <input type="checkbox" id="node-input-inverse" checked="checked" style="display: inline-block; width: auto; vertical-align: top;"></input>
     </div>
+
+<hr>
+<h4>Extra push on close</h4>
+<div class="form-row">
+    <label for="node-input-contact_close" class="l-width"><i class="fa fa-compress"></i> <span data-i18n="label.contact_close"></span></label>
+    <select id="node-input-contact_close" class="s-width" data-single="true"></select>
+</div>
+<div class="form-row">
+    <div class="input-group">
+        <label for="node-input-extra_close_push_delay" class="l-width"><i class="fa fa-clock-o"></i> <span data-i18n="label.extra_close_push_delay"></span></label>
+        <input type="text" id="node-input-extra_close_push_delay" placeholder="" style="width:100px;">
+        <span class="input-group-addon">ms</span>
+    </div>
+</div>
+<div class="form-row">
+    <div class="input-group">
+        <label for="node-input-extra_close_push_time" class="l-width"><i class="fa fa-clock-o"></i> <span data-i18n="label.extra_close_push_time"></span></label>
+        <input type="text" id="node-input-extra_close_push_time" placeholder="" style="width:100px;">
+        <span class="input-group-addon">ms</span>
+    </div>
+</div>
+
 </script>
 
 <script type='text/javascript'>
-    RED.nodes.registerType('wirenboard-motor', {
-        category: 'Wiren Board',
-        color: '#5fb408',
-        defaults: {
-            name: {
-                value: ""
-            },
-            server: {
-                type: "wirenboard-server",
-                required: true
-            },
-            channel: {
-                value: null,
-                required: true
-            },
-            channel_dir: {
-                value: null,
-                required: true
-            },
-            max_running_time: {
-                value: 15000,
-                required: true
-            },
-            inverse: {
-                value: false,
-                required: false
-            }
-        },
-        inputs: 1,
-        outputs: 1,
-        outputLabels: ["event"],
-        paletteLabel: 'motor',
-        icon: "wirenboard.svg",
-        label: function () {
-            var label = 'wb-motor';
-            if (this.name) {
-                label = this.name;
-            } else if (typeof(this.channel) == 'string' && this.channel.length) {
-                var device_name = (this.channel).split('/').slice(1)[1];
-                var control_name = (this.channel).split('/').slice(-1)[0];
+  RED.nodes.registerType('wirenboard-motor', {
+    category: 'Wiren Board',
+    color: '#5fb408',
+    defaults: {
+      name: {
+        value: '',
+      },
+      server: {
+        type: 'wirenboard-server',
+        required: true,
+      },
+      channel: {
+        value: null,
+        required: true,
+      },
+      channel_dir: {
+        value: null,
+        required: true,
+      },
+      contact_open: {
+        value: null,
+        required: false,
+      },
+      contact_close: {
+        value: null,
+        required: false,
+      },
+      max_running_time: {
+        value: 15000,
+        required: true,
+      },
+      inverse: {
+        value: false,
+        required: false,
+      },
+      extra_close_push_delay: {
+        value: null,
+        required: false,
+      },
+      extra_close_push_time: {
+        value: null,
+        required: false,
+      },
+    },
+    inputs: 1,
+    outputs: 1,
+    outputLabels: ['event'],
+    paletteLabel: 'motor',
+    icon: 'wirenboard.svg',
+    label: function() {
+      var label = 'wb-motor';
+      if (this.name) {
+        label = this.name;
+      } else if (typeof (this.channel) == 'string' && this.channel.length) {
+        var device_name = (this.channel).split('/').slice(1)[1];
+        var control_name = (this.channel).split('/').slice(-1)[0];
 
-                label = device_name+'/'+control_name;
-            }
+        label = device_name + '/' + control_name;
+      }
 
-            return label;
-        },
-        oneditprepare: function () {
-            var node = this;
+      return label;
+    },
+    oneditprepare: function() {
+      var node = this;
 
-            setTimeout(function(){
-                WB_getItemList(node.channel, '#node-input-channel', {filterType:'switch'}); //filterType:'switch'
-                WB_getItemList(node.channel_dir, '#node-input-channel_dir', {filterType:'switch'}); //filterType:'switch'
-            }, 100); //we need small timeout, too fire change event for server select
-        },
-        oneditsave: function () {
-            var selectedOptionsOn = $('#node-input-channel option:selected');
-            if (selectedOptionsOn) {
-                this.channel = selectedOptionsOn.map(function () {
-                    return $(this).val();
-                });
-            } else {
-                this.channel = null;
-            }
+      setTimeout(function() {
+        WB_getItemList(node.channel, '#node-input-channel', {filterType: 'switch'}); //filterType:'switch'
+        WB_getItemList(node.channel_dir, '#node-input-channel_dir', {filterType: 'switch'}); //filterType:'switch'
+        WB_getItemList(node.contact_open, '#node-input-contact_open', {filterType: 'switch'}); //filterType:'switch'
+        WB_getItemList(node.contact_close, '#node-input-contact_close', {filterType: 'switch'}); //filterType:'switch'
+      }, 100); //we need small timeout, too fire change event for server select
+    },
+    oneditsave: function() {
+      var selectedOptionsOn = $('#node-input-channel option:selected');
+      if (selectedOptionsOn) {
+        this.channel = selectedOptionsOn.map(function() {
+          return $(this).val();
+        });
+      } else {
+        this.channel = null;
+      }
 
-            var selectedOptionsDir = $('#node-input-channel_dir option:selected');
-            if (selectedOptionsDir) {
-                this.channel_dir = selectedOptionsDir.map(function () {
-                    return $(this).val();
-                });
-            } else {
-                this.channel_dir = null;
-            }
-        }
-    });
+      var selectedOptionsDir = $('#node-input-channel_dir option:selected');
+      if (selectedOptionsDir) {
+        this.channel_dir = selectedOptionsDir.map(function() {
+          return $(this).val();
+        });
+      } else {
+        this.channel_dir = null;
+      }
+
+      // var selectedOptionsContactOpen= $('#node-input-contact_open option:selected');
+      // if (selectedOptionsContactOpen) {
+      //   this.contact_open = selectedOptionsContactOpen.map(function() {
+      //     return $(this).val();
+      //   });
+      // } else {
+      //   this.contact_open = null;
+      // }
+
+      var selectedOptionsContactClose= $('#node-input-contact_close option:selected');
+      if (selectedOptionsContactClose) {
+        this.contact_close = selectedOptionsContactClose.map(function() {
+          return $(this).val();
+        });
+      } else {
+        this.contact_close = null;
+      }
+    },
+  });
 
 </script>

@@ -11,7 +11,7 @@
     "multiple-select": "^1.4.1",
     "eventsource": "^0.2.1",
     "mqtt": "^4.2.6",
-    "request": "^2.81.0"
+    "request": "^2.88.2"
   },
   "deprecated": false,
   "description": "Wiren Board connectivity nodes for node-red",
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
-  "version": "3.2.4"
+  "version": "3.3.0"
 }

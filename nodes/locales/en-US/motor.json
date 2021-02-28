@@ -4,9 +4,13 @@
         "server": "Server",
         "channel": "ON",
         "channel_dir": "DIR",
+        "contact_close": "Close sensor",
+        "contact_open": "Open sensor",
         "refresh": "Refresh",
         "refresh_devices_list": "Refresh Devices List",
-        "max_running_time": "Max running time"
+        "max_running_time": "Full time",
+        "extra_close_push_delay": "Delay before push",
+        "extra_close_push_time": "Push time"
     },
     "placeholder": {
         "name": "Name"
@@ -17,6 +21,8 @@
         "no_connection": "no connection",
         "connected": "connected",
         "stopped": "stopped",
-        "toggle": "toggle"
+        "toggle": "toggle",
+        "opening": "opening",
+        "closing": "closing"
     }
 }

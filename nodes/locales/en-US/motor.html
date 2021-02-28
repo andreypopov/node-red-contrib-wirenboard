@@ -6,14 +6,18 @@
         <dt>Server <span class="property-type">object</span></dt><dd>Choose the wirenboard server instance to use.</dd>
         <dt>ON <span class="property-type">string</span></dt><dd>Select <b>ON</b> channel to listen to</dd>
         <dt>DIR <span class="property-type">string</span></dt><dd>Select <b>DIRECTION</b> channel to listen to</dd>
-        <dt class="optional">Max running time <span class="property-type">string</span></dt><dd>How long will work motor.</dd>
+        <dt>Full time <span class="property-type">string</span></dt><dd>How long will work motor.</dd>
         <dt class="optional">Inverse <span class="property-type">string</span></dt><dd>Change direction to opposite.</dd>
+        <dt class="optional">Close sensor <span class="property-type">string</span></dt><dd>Select <b>CLOSE STATE</b> contact sensor</dd>
+        <dt class="optional">Extra push delay <span class="property-type">number</span></dt><dd> Wait for .. ms</dd>
+        <dt class="optional">Extra push time <span class="property-type">number</span></dt><dd> Push for .. ms</dd>
     </dl>
 
     <h3>Outputs</h3>
     <h5>Output</h5>
     <dl class="message-properties">
         <dt>payload <span class="property-type">string</span></dt><dd>true = start, false = stop</dd>
+        <dt>homekit <span class="property-type">object</span></dt><dd>formatted data for homekit node</dd>
     </dl>
 
     <h3>Commands</h3>
