@@ -87,9 +87,11 @@ module.exports = function(RED) {
                 }
             }
 
-            console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
+            // console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
 
-            node.move(percent>node.percent);
+            if (percent === node.percent) return;
+
+            node.move(percent<node.percent);
 
             node.send({
                 payload: {
@@ -203,11 +205,11 @@ module.exports = function(RED) {
         }
 
         open() {
-            this.move(true);
+            this.move(false);
         }
 
         close() {
-            this.move(false);
+            this.move(true);
         }
 
         move(direction) {
