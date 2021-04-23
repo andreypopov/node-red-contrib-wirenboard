@@ -112,7 +112,7 @@ module.exports = function(RED) {
 
                             for (var i in channels) {
                                 node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
-                                node.server.mqtt.publish(channels[i] + command, payload.toString());
+                                node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain:true});
                             }
 
 

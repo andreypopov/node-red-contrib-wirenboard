@@ -8,9 +8,8 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "multiple-select": "^1.4.1",
-    "eventsource": "^0.2.1",
     "mqtt": "^4.2.6",
+    "multiple-select": "^1.5.2",
     "request": "^2.88.2"
   },
   "deprecated": false,
@@ -38,5 +37,5 @@
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
-  "version": "3.3.3"
+  "version": "3.3.5"
 }
