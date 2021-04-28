@@ -128,8 +128,8 @@
       setTimeout(function() {
         WB_getItemList(node.channel, '#node-input-channel', {filterType: 'switch'}); //filterType:'switch'
         WB_getItemList(node.channel_dir, '#node-input-channel_dir', {filterType: 'switch'}); //filterType:'switch'
-        WB_getItemList(node.contact_open, '#node-input-contact_open', {filterType: 'switch'}); //filterType:'switch'
-        WB_getItemList(node.contact_close, '#node-input-contact_close', {filterType: 'switch'}); //filterType:'switch'
+        WB_getItemList(node.contact_open, '#node-input-contact_open', {filterType: 'switch', allowEmpty:true}); //filterType:'switch'
+        WB_getItemList(node.contact_close, '#node-input-contact_close', {filterType: 'switch', allowEmpty:true}); //filterType:'switch'
       }, 100); //we need small timeout, too fire change event for server select
     },
     oneditsave: function() {

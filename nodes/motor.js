@@ -17,6 +17,8 @@ module.exports = function(RED) {
             node.contact_close_flag = null;
             //homekit: 0 close, 100 open
 
+            node.status({});
+
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
 
@@ -71,6 +73,7 @@ module.exports = function(RED) {
         go(percent) {
             var node = this;
             percent = parseInt(percent);
+
             var absPercent = Math.abs(node.percent-percent);
             var timeEnd = node.config.max_running_time/100*absPercent;
             if (percent === 100 || percent === 0) { //open
@@ -84,6 +87,12 @@ module.exports = function(RED) {
             } else if (node.config.contact_open && node.config.contact_open in node.server.devices_values) {
                 if (parseInt(node.server.devices_values[node.config.contact_open])) { //is opened
                     node.percent = 100;
+                }
+            }
+
+            if (!node.config.contact_close && !node.config.contact_open) {
+                if (percent === node.percent) {
+                    node.percent = percent===100?0:100;
                 }
             }
 

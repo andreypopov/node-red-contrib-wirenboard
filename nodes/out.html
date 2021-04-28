@@ -30,6 +30,11 @@
         <input type="text" id="node-input-payload" style="width:70%">
         <input type="hidden" id="node-input-payloadType">
     </div>
+
+    <div class="form-row">
+        <label for='node-input-rbe' class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.rbe"></span></label>
+        <input type="checkbox" id="node-input-rbe"  style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.rbe_help"></span></input>
+    </div>
 </script>
 
 <script type='text/javascript'>
@@ -60,6 +65,10 @@
             },
             payloadType: {
                 value: 'msg',
+            },
+            rbe: {
+                value: false,
+                required: false
             }
         },
         inputLabels: "value",

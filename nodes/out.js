@@ -10,6 +10,7 @@ module.exports = function(RED) {
             node.config = config;
             node.cleanTimer = null;
             node.server = RED.nodes.getNode(node.config.server);
+            node.last_change = null;
 
             if (typeof(node.config.channel) == 'string') node.config.channel = [node.config.channel]; //for compatible
 
@@ -97,22 +98,50 @@ module.exports = function(RED) {
                         }
 
 
+                        var rbe = "rbe" in node.config && node.config.rbe;
+
                         if (payload !== undefined) {
 
-                            node.status({
-                                fill: "green",
-                                shape: "dot",
-                                text: payload.toString()
-                            });
-
-                            node.cleanTimer = setTimeout(function(){
-                                node.status({}); //clean
-                            }, 3000);
-
-
+                            var updateStatus = false;
                             for (var i in channels) {
-                                node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
-                                node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain:true});
+                                var lastValue = channels[i] in node.server.devices_values?node.server.devices_values[channels[i]].toString():null;
+                                if (!rbe || (rbe && lastValue !== payload.toString())) {
+                                    node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
+                                    node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain: true});
+                                    updateStatus = true;
+                                    node.last_change = new Date().getTime();
+                                }
+                            }
+
+                            var text = payload.toString() + ' [' + new Date(node.last_change).toLocaleDateString('ru-RU') + ' ' + new Date(node.last_change).toLocaleTimeString('ru-RU')+']';
+                            if (updateStatus) {
+                                node.status({
+                                    fill: "green",
+                                    shape: "dot",
+                                    text: text
+                                });
+
+                                node.cleanTimer = setTimeout(function() {
+                                    node.status({
+                                        fill: "green",
+                                        shape: "ring",
+                                        text: text
+                                    });
+                                }, 3000);
+                            } else {
+                                // node.status({
+                                //     fill: "yellow",
+                                //     shape: "dot",
+                                //     text: "node-red-contrib-wirenboard/out:status.rbe"
+                                // });
+                                //
+                                // node.cleanTimer = setTimeout(function() {
+                                //     node.status({
+                                //         fill: "green",
+                                //         shape: "ring",
+                                //         text: text
+                                //     });
+                                // }, 3000);
                             }
 
 
