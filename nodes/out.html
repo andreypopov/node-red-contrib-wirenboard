@@ -111,8 +111,18 @@
                 value: 'topic',
                 typeField: $('#node-input-commandType'),
             });
+
+          //init typedInput
+          var payloadTypes = {
+            value: 'wb_payload',
+            label: 'WB',
+            icon: 'icons/node-red-contrib-wirenboard/wirenboard-color.png',
+            options: [
+              {'value':'toggle', 'label':'Toggle'}
+            ]
+          };
             $('#node-input-payload').typedInput({
-                types: ['msg', 'flow', 'global', 'str', 'num', 'date'],
+                types: ['msg', 'flow', 'global', 'str', 'num', 'date', payloadTypes],
                 default: 'msg',
                 value: 'payload',
                 typeField: $('#node-input-payloadType'),
@@ -128,4 +138,7 @@
         }
     });
 </script>
+
+
+
 

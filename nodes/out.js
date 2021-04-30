@@ -81,6 +81,10 @@ module.exports = function(RED) {
                                 payload = message[node.config.payload];
                                 break;
                             }
+
+                            case 'wb_payload':
+                                payload = node.config.payload;
+                                break;
                         }
 
                         var command;
@@ -105,6 +109,11 @@ module.exports = function(RED) {
                             var updateStatus = false;
                             for (var i in channels) {
                                 var lastValue = channels[i] in node.server.devices_values?node.server.devices_values[channels[i]].toString():null;
+
+                                if (node.config.payloadType === 'wb_payload' && payload === 'toggle') {
+                                    payload = parseInt(lastValue)?0:1;
+                                }
+
                                 if (!rbe || (rbe && lastValue !== payload.toString())) {
                                     node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
                                     node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain: true});
