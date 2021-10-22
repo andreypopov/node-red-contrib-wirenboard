@@ -123,8 +123,11 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
         maxHeight: 300,
         dropWidth: 320,
         width: 320,
-        filter: true
+        filter: true,
+        minimumCountSelected:1
     });
+
+
 
     var values = [];
     var isMultiple = selectedItemElement.attr('multiple')!==undefined;
