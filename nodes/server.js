@@ -12,6 +12,9 @@ module.exports = function (RED) {
             node.topic = '/devices/#';
             node.items = undefined;
             node.devices_values = [];
+            node.devices_meta = [];
+            node.devices_errors = {};
+            node.errorTimers = {};
             node.on('close', () => this.onClose());
             node.setMaxListeners(0);
 
@@ -19,16 +22,12 @@ module.exports = function (RED) {
             node.mqtt = node.connectMQTT();
             node.mqtt.on('connect', () => this.onMQTTConnect());
             node.mqtt.on('message', (topic, message) => this.onMQTTMessage(topic, message));
-
             node.mqtt.on('close', () => this.onMQTTClose());
             node.mqtt.on('end', () => this.onMQTTEnd());
             node.mqtt.on('reconnect', () => this.onMQTTReconnect());
             node.mqtt.on('offline', () => this.onMQTTOffline());
             node.mqtt.on('disconnect', (error) => this.onMQTTDisconnect(error));
             node.mqtt.on('error', (error) => this.onMQTTError(error));
-
-
-            // console.log(node.config._users);
         }
 
         connectMQTT() {
@@ -150,14 +149,13 @@ module.exports = function (RED) {
                         if (topicParts[3] === 'meta' && topicParts[4] === 'name') {
                             that.devices[deviceName] = {'friendly_name': message.toString(), 'controls': []}
 
-                            //meta controls
+                        //meta controls
                         } else if (topicParts[3] === 'controls' && topicParts[5] === 'meta' && deviceName in that.devices) {
                             var controlName = topicParts[4];
                             if (typeof(that.devices[deviceName]['controls'][controlName]) == 'undefined')
                                 that.devices[deviceName]['controls'][controlName] = {};
 
-                            that.devices[deviceName]['controls'][controlName][topicParts[6]] = message.toString()
-
+                            that.devices[deviceName]['controls'][controlName][topicParts[6]] = message.toString();
                             //devices
                         } else if (topicParts[3] === 'controls' && deviceName in that.devices) {
                             var controlName = topicParts[4];
@@ -186,6 +184,56 @@ module.exports = function (RED) {
                 return node.items;
             }
 
+        }
+
+        parseMetaData(topic, message) {
+            var node = this;
+
+            var topicParts = topic.split('/');
+            var deviceName = topicParts[2];
+            var controlName = topicParts[4];
+            let deviceTopic = '/devices/'+deviceName+'/controls/'+controlName;
+
+            //meta topic
+            if (topicParts[3] === 'controls' && topicParts[5] === 'meta') {
+                var metaName = topicParts[6];
+                if (metaName === 'error') {
+                    if (message.toString()) {
+                        if (deviceTopic in node.errorTimers) {
+                            clearTimeout(node.errorTimers[deviceTopic]);
+                            delete node.errorTimers[deviceTopic];
+                        }
+                        node.errorTimers[deviceTopic] = setTimeout(function(){
+                            node.log('Error after 60 sec!: '+deviceTopic)
+                            node.devices_errors[deviceTopic] = true;
+                            node.emit('onMetaError', {topic:deviceTopic, payload:true});
+                        }, 60000);
+                    } else {
+                        // node.log('Error was removed! clean error: '+deviceTopic)
+                        if (deviceTopic in node.errorTimers) {
+                            clearTimeout(node.errorTimers[deviceTopic]);
+                            delete node.errorTimers[deviceTopic];
+                        }
+                        if (deviceTopic in node.devices_errors) {
+                            delete node.devices_errors[deviceTopic];
+                            node.emit('onMetaError', {topic:deviceTopic, payload:false});
+                        }
+                    }
+                }
+
+            //device topic
+            } else if (topicParts[3] === 'controls' && deviceName in node.devices) {
+                if (deviceTopic in node.errorTimers) {
+                    clearTimeout(node.errorTimers[deviceTopic]);
+                    delete node.errorTimers[deviceTopic];
+
+                    if (deviceTopic in node.devices_errors) {
+                        delete node.devices_errors[deviceTopic];
+                    }
+                    node.emit('onMetaError', {topic:deviceTopic, payload:false});
+                    node.log('New value! clean error: '+deviceTopic)
+                }
+            }
         }
 
         onMQTTConnect() {
@@ -249,6 +297,8 @@ module.exports = function (RED) {
             var messageString = message.toString();
             node.devices_values[topic] = messageString;
             node.emit('onMQTTMessage', {topic:topic, payload:messageString});
+
+            node.parseMetaData(topic, message);
         }
 
         onClose() {

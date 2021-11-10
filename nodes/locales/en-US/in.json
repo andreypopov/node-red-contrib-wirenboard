@@ -6,7 +6,9 @@
         "refresh": "Refresh",
         "refresh_devices_list": "Refresh Devices List",
         "start_output": "Start Output",
-        "start_output_help": "Send value on start"
+        "start_output_help": "Send value on start",
+        "error_output": "Errors Output",
+        "error_output_help": ""
     },
     "placeholder": {
         "name": "Name"

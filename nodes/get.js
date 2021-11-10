@@ -12,6 +12,7 @@ module.exports = function(RED) {
             node.cleanTimer = null;
             node.is_subscribed = false;
             node.server = RED.nodes.getNode(node.config.server);
+            node.diff = {};
 
             if (typeof(node.config.channel) == 'string') node.config.channel = [node.config.channel]; //for compatible
 
@@ -47,7 +48,10 @@ module.exports = function(RED) {
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
                             message_in.elementId = WirenboardHelper.generateElementId(message_in.topic);
-                            if (channels[0] in node.server.devices_values) {
+                            if (channels[0] in node.server.devices_errors) {
+                                result = null;
+                                hasData = false;
+                            } else if (channels[0] in node.server.devices_values) {
                                 result = node.server.devices_values[channels[0]];
                                 hasData = true;
                             } else {
@@ -61,6 +65,18 @@ module.exports = function(RED) {
                             message_in.math = data_array.math;
                         }
 
+
+                        function difference(objOld, objNew) {
+                            var changes = {};
+                            for (var index in objNew) {
+                                if (!(index in objOld) || objOld[index] !== objNew[index]) changes[index] = objNew[index];
+                            }
+                            return changes;
+                        }
+                        message_in.payload_diff = difference(node.diff, result);
+                        node.diff = result;
+
+
                         message_in.payload_in = message_in.payload;
                         message_in.payload = result;
                         node.send(message_in);
@@ -69,13 +85,13 @@ module.exports = function(RED) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: channels.length === 1?result:"ok"
+                                text: channels.length === 1 ? result : "ok"
                             });
                         } else {
                             node.status({
                                 fill: "red",
                                 shape: "dot",
-                                text: "node-red-contrib-wirenboard/get:status.no_value"
+                                text: "node-red-contrib-wirenboard/get:status.no_connection"
                             });
                         }
                         node.cleanTimer = setTimeout(function () {

@@ -22,6 +22,10 @@
         <label for='node-input-outputAtStartup' class="l-width"><i class='fa fa-share-square'></i> <span data-i18n="label.start_output"></span></label>
         <input type="checkbox" id="node-input-outputAtStartup" checked="checked" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.start_output_help"></span></input>
     </div>
+    <div class="form-row">
+        <label for='node-input-outputError' class="l-width"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></i> <span data-i18n="label.error_output"></span></label>
+        <input type="checkbox" id="node-input-outputError" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.error_output_help"></span></input>
+    </div>
 </script>
 
 <script type='text/javascript'>
@@ -76,6 +80,11 @@
             setTimeout(function(){
                 WB_getItemList(node.channel, '#node-input-channel', {allowEmpty:false});
             }, 100); //we need small timeout, too fire change event for server select
+
+
+          $("#node-input-outputError").prop('checked', node.outputs==2).change(function() {
+            node.outputs = this.checked ? 2 : 1;
+          });
         },
         oneditsave: function () {
             var selectedOptions = $('#node-input-channel option:selected');
@@ -86,6 +95,8 @@
             } else {
                 this.channel = null;
             }
+
+            node.outputs = $("#node-input-outputError").prop('checked') ? 2 : 1;
         }
     });
 

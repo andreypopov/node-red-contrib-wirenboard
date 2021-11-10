@@ -17,6 +17,7 @@
         "no_server": "no server",
         "no_device": "no device",
         "no_payload": "no payload",
-        "rbe": "no change"
+        "rbe": "no change",
+        "no_connection": "no connection"
     }
 }

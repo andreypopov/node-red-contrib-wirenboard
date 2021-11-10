@@ -127,8 +127,6 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
         minimumCountSelected:1
     });
 
-
-
     var values = [];
     var isMultiple = selectedItemElement.attr('multiple')!==undefined;
     if (isMultiple) {

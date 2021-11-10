@@ -108,6 +108,14 @@ module.exports = function(RED) {
 
                             var updateStatus = false;
                             for (var i in channels) {
+                                if (channels[i] in node.server.devices_errors) {
+                                    node.status({
+                                        fill: "red",
+                                        shape: "dot",
+                                        text: "node-red-contrib-wirenboard/out:status.no_connection"
+                                    });
+                                }
+
                                 var lastValue = channels[i] in node.server.devices_values?node.server.devices_values[channels[i]].toString():null;
 
                                 if (node.config.payloadType === 'wb_payload' && payload === 'toggle') {

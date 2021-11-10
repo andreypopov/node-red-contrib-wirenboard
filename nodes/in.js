@@ -12,6 +12,7 @@ module.exports = function(RED) {
             node.firstMsg = true;
             node.is_subscribed = false;
             node.cleanTimer = null;
+            node.meta = {};
             node.server = RED.nodes.getNode(node.config.server);
 
             if (typeof(node.config.channel) == 'string') node.config.channel = [node.config.channel]; //for compatible
@@ -27,6 +28,9 @@ module.exports = function(RED) {
 
                 node.listener_onMQTTMessage = function(data) { node.onMQTTMessage(data); }
                 node.server.on('onMQTTMessage', node.listener_onMQTTMessage);
+
+                node.listener_onMetaError = function(data) { node.onMetaError(data); }
+                node.server.on('onMetaError', node.listener_onMetaError);
 
                 node.on('close', () => this.onMQTTClose());
 
@@ -49,6 +53,40 @@ module.exports = function(RED) {
                 shape: "dot",
                 text: "node-red-contrib-wirenboard/in:status.no_connection"
             });
+        }
+
+        onMetaError(data) {
+            var node = this;
+            if (node.hasChannel(data.topic)) {
+
+                node.send([null, {
+                    payload: data.payload,
+                    topic: data.topic,
+                    elementId: WirenboardHelper.generateElementId(data.topic),
+                    message:data.payload?RED._("node-red-contrib-wirenboard/in:status.no_connection"):RED._("node-red-contrib-wirenboard/in:status.connected")
+                }]);
+
+                if (node.isSingleChannelMode()) {
+                    if (data.payload) {
+                        let text = RED._("node-red-contrib-wirenboard/in:status.no_connection") + ' [' + new Date().toLocaleDateString('ru-RU') + ' ' +
+                            new Date().toLocaleTimeString('ru-RU') + ']';
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: text
+                        });
+
+                    } else {
+                        node.status({
+                            fill: "green",
+                            shape: "dot",
+                            text: (data.topic in node.server.devices_values)
+                                ? node.server.devices_values[data.topic]
+                                : "node-red-contrib-wirenboard/in:status.connected"
+                        });
+                    }
+                }
+            }
         }
 
         onMQTTClose() {
@@ -77,9 +115,13 @@ module.exports = function(RED) {
                 text: "node-red-contrib-wirenboard/in:status.connected"
             });
 
-            // node.cleanTimer = setTimeout(function () {
-            //     node.status({}); //clean
-            // }, 3000);
+
+            //meta errors
+            for (var i in node.config.channel) {
+                if (node.config.channel[i] in node.server.devices_errors) {
+                    node.onMetaError({topic:node.config.channel[i], payload:true});
+                }
+            }
         }
 
         onMQTTMessage(data) {
@@ -87,7 +129,7 @@ module.exports = function(RED) {
 
             if (node.hasChannel(data.topic)) {
                 clearTimeout(node.cleanTimer);
-                
+
                 node.status({
                     fill: "green",
                     shape: "dot",
@@ -103,7 +145,8 @@ module.exports = function(RED) {
                     node.send({
                         payload: data.payload,
                         topic: data.topic,
-                        elementId: WirenboardHelper.generateElementId(data.topic)
+                        elementId: WirenboardHelper.generateElementId(data.topic),
+                        meta: data.topic in node.meta?node.meta[data.topic]:null
                     });
                 } else {
                     var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
@@ -148,8 +191,6 @@ module.exports = function(RED) {
 
             return result;
         }
-
-
     }
     RED.nodes.registerType('wirenboard-in', WirenboardNodeIn);
 };
