@@ -204,7 +204,7 @@ module.exports = function (RED) {
                             delete node.errorTimers[deviceTopic];
                         }
                         node.errorTimers[deviceTopic] = setTimeout(function(){
-                            // node.log('Error after 60 sec!: '+deviceTopic)
+                            node.log('Read Error: '+deviceTopic)
                             node.devices_errors[deviceTopic] = true;
                             node.emit('onMetaError', {topic:deviceTopic, payload:true});
                         }, 60000);

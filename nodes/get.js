@@ -48,11 +48,11 @@ module.exports = function(RED) {
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
                             message_in.elementId = WirenboardHelper.generateElementId(message_in.topic);
-                            if (channels[0] in node.server.devices_errors) {
-                                result = null;
+                            if (message_in.topic in node.server.devices_errors) {
+                                result = node.server.devices_values[message_in.topic]; //last valid value
                                 hasData = false;
-                            } else if (channels[0] in node.server.devices_values) {
-                                result = node.server.devices_values[channels[0]];
+                            } else if (message_in.topic in node.server.devices_values) {
+                                result = node.server.devices_values[message_in.topic];
                                 hasData = true;
                             } else {
                                 result = null;
@@ -66,15 +66,17 @@ module.exports = function(RED) {
                         }
 
 
-                        function difference(objOld, objNew) {
-                            var changes = {};
-                            for (var index in objNew) {
-                                if (!(index in objOld) || objOld[index] !== objNew[index]) changes[index] = objNew[index];
-                            }
-                            return changes;
-                        }
-                        message_in.payload_diff = difference(node.diff, result);
-                        node.diff = result;
+                        // function difference(objOld, objNew) {
+                        //     var changes = {};
+                        //     if (objNew) {
+                        //         for (var index in objNew) {
+                        //             if (!(index in objOld) || objOld[index] !== objNew[index]) changes[index] = objNew[index];
+                        //         }
+                        //     }
+                        //     return changes;
+                        // }
+                        // message_in.payload_diff = difference(node.diff, result);
+                        // node.diff = result;
 
 
                         message_in.payload_in = message_in.payload;
