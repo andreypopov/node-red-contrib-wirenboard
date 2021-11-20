@@ -1,0 +1,239 @@
+[
+    {
+        "id": "d76d38a267cfa5c2",
+        "type": "group",
+        "z": "d60a5ec574524af9",
+        "name": "WB-RGBW CCT-channel",
+        "style": {
+            "stroke": "#a4a4a4",
+            "fill-opacity": "0.5",
+            "label": true,
+            "fill": "#ffffbf"
+        },
+        "nodes": [
+            "49ddd9da38adaf95",
+            "7da813aaba2060cd",
+            "6457f76af9b4b969",
+            "2fe95eb52c10ce69",
+            "e2c0db646be3d6a9",
+            "e08c13f7bbb92501",
+            "13bc3eaea5094620"
+        ],
+        "env": [],
+        "x": 654,
+        "y": 899,
+        "w": 812,
+        "h": 202
+    },
+    {
+        "id": "49ddd9da38adaf95",
+        "type": "wirenboard-in",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "name": "27-cct (enable-bri-temperature)",
+        "server": "e72d9d72.a206",
+        "channel": [
+            "/devices/wb-mrgbw-d3-02_27/controls/CCT brightness",
+            "/devices/wb-mrgbw-d3-02_27/controls/CCT enable",
+            "/devices/wb-mrgbw-d3-02_27/controls/CCT temperature"
+        ],
+        "outputAtStartup": true,
+        "x": 810,
+        "y": 1000,
+        "wires": [
+            [
+                "7da813aaba2060cd"
+            ]
+        ]
+    },
+    {
+        "id": "7da813aaba2060cd",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "name": "to homekit",
+        "func": "var isOn = parseInt(msg.payload[\"/devices/wb-mrgbw-d3-02_27/controls/CCT enable\"]);\nvar bri = parseInt(msg.payload[\"/devices/wb-mrgbw-d3-02_27/controls/CCT brightness\"]);\nvar ct = parseInt(msg.payload[\"/devices/wb-mrgbw-d3-02_27/controls/CCT temperature\"]);\nlet ctHomekit = convertRange(ct, [0, 100], [140, 500]);\nctHomekit = 500 - ctHomekit + 140;\n\nvar newMsg = {};\nnewMsg.payload_in = msg.payload;\nnewMsg.payload = {\n    \"Brightness\": bri,\n    \"On\":isOn,\n    \"ColorTemperature\": ctHomekit\n};\n\nreturn newMsg;\n\n\nfunction convertRange(value, r1, r2) {\n    var val = Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);\n    if (val < r2[0]) val = r2[0];\n    if (val > r2[1]) val = r2[1];\n    return val;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 975,
+        "y": 1000,
+        "wires": [
+            [
+                "6457f76af9b4b969"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "6457f76af9b4b969",
+        "type": "homekit-service",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "isParent": true,
+        "hostType": "0",
+        "bridge": "99f95ec8.0cb0c",
+        "accessoryId": "",
+        "parentService": "",
+        "name": "Люстра",
+        "serviceName": "Lightbulb",
+        "topic": "",
+        "filter": false,
+        "manufacturer": "Детская, люстра",
+        "model": "rgbw",
+        "serialNo": "27-r + 27-b",
+        "firmwareRev": "",
+        "hardwareRev": "",
+        "softwareRev": "",
+        "cameraConfigVideoProcessor": "ffmpeg",
+        "cameraConfigSource": "",
+        "cameraConfigStillImageSource": "",
+        "cameraConfigMaxStreams": 2,
+        "cameraConfigMaxWidth": 1280,
+        "cameraConfigMaxHeight": 720,
+        "cameraConfigMaxFPS": 10,
+        "cameraConfigMaxBitrate": 300,
+        "cameraConfigVideoCodec": "libx264",
+        "cameraConfigAudioCodec": "libfdk_aac",
+        "cameraConfigAudio": false,
+        "cameraConfigPacketSize": 1316,
+        "cameraConfigVerticalFlip": false,
+        "cameraConfigHorizontalFlip": false,
+        "cameraConfigMapVideo": "0:0",
+        "cameraConfigMapAudio": "0:1",
+        "cameraConfigVideoFilter": "scale=1280:720",
+        "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+        "cameraConfigDebug": false,
+        "cameraConfigSnapshotOutput": "disabled",
+        "cameraConfigInterfaceName": "",
+        "characteristicProperties": "{\"Brightness\":{\"maxValue\":100,\"minValue\":0,\"minStep\":1},\"ColorTemperature\":{}}",
+        "waitForSetupMsg": false,
+        "outputs": 2,
+        "x": 1080,
+        "y": 1000,
+        "wires": [
+            [
+                "2fe95eb52c10ce69"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "2fe95eb52c10ce69",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "name": "from homekit",
+        "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"Brightness\" in msg.payload) {\n    msg.payload = msg.payload.Brightness;\n    return [null, msg, null]\n} else if (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n    return [msg, null, null];\n} else if (\"ColorTemperature\" in msg.payload) {\n    msg.payload = msg.payload.ColorTemperature;\n    msg.payload = 100 - convertRange(msg.payload, [140, 500], [0, 100]);\n    return [null, null, msg];\n}\nreturn null;\n\n\nfunction convertRange(value, r1, r2) {\n    var val = Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);\n    if (val < r2[0]) val = r2[0];\n    if (val > r2[1]) val = r2[1];\n    return val;\n}",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1195,
+        "y": 1000,
+        "wires": [
+            [
+                "e2c0db646be3d6a9"
+            ],
+            [
+                "e08c13f7bbb92501"
+            ],
+            [
+                "13bc3eaea5094620"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "e2c0db646be3d6a9",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "name": "27-cct-on",
+        "server": "e72d9d72.a206",
+        "channel": [
+            "/devices/wb-mrgbw-d3-02_27/controls/CCT enable"
+        ],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 1380,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "e08c13f7bbb92501",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "name": "27-cct-bri",
+        "server": "e72d9d72.a206",
+        "channel": [
+            "/devices/wb-mrgbw-d3-02_27/controls/CCT brightness"
+        ],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 1380,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "13bc3eaea5094620",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "d76d38a267cfa5c2",
+        "name": "27-cct-ct",
+        "server": "e72d9d72.a206",
+        "channel": [
+            "/devices/wb-mrgbw-d3-02_27/controls/CCT temperature"
+        ],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 1380,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "e72d9d72.a206",
+        "type": "wirenboard-server",
+        "name": "WirenBoard",
+        "host": "192.168.1.3",
+        "mqtt_port": "",
+        "mqtt_username": "",
+        "mqtt_password": ""
+    },
+    {
+        "id": "99f95ec8.0cb0c",
+        "type": "homekit-bridge",
+        "bridgeName": "Node-red",
+        "pinCode": "111-11-111",
+        "port": "",
+        "allowInsecureRequest": false,
+        "manufacturer": "NRCHKB",
+        "model": "1.2.0",
+        "serialNo": "Default Serial Number",
+        "firmwareRev": "1.2.0",
+        "hardwareRev": "1.2.0",
+        "softwareRev": "1.2.0",
+        "customMdnsConfig": false,
+        "mdnsMulticast": true,
+        "mdnsInterface": "",
+        "mdnsPort": "",
+        "mdnsIp": "",
+        "mdnsTtl": "",
+        "mdnsLoopback": true,
+        "mdnsReuseAddr": true,
+        "allowMessagePassthrough": true
+    }
+]
