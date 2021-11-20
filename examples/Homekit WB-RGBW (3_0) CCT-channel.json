@@ -1,6 +1,6 @@
 [
     {
-        "id": "d76d38a267cfa5c2",
+        "id": "fe7b496470c355d2",
         "type": "group",
         "z": "d60a5ec574524af9",
         "name": "WB-RGBW CCT-channel",
@@ -11,67 +11,63 @@
             "fill": "#ffffbf"
         },
         "nodes": [
-            "49ddd9da38adaf95",
-            "7da813aaba2060cd",
-            "6457f76af9b4b969",
-            "2fe95eb52c10ce69",
-            "e2c0db646be3d6a9",
-            "e08c13f7bbb92501",
-            "13bc3eaea5094620"
+            "b658aa9906e15366",
+            "05c59dc537291849",
+            "73fff3c48321a9a0",
+            "2a4886740902f305",
+            "d691fe050d85674f",
+            "25583856d25311a2",
+            "a84a9f8e9b3edafb"
         ],
         "env": [],
-        "x": 654,
-        "y": 899,
-        "w": 812,
+        "x": 334,
+        "y": 819,
+        "w": 772,
         "h": 202
     },
     {
-        "id": "49ddd9da38adaf95",
+        "id": "b658aa9906e15366",
         "type": "wirenboard-in",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
-        "name": "27-cct (enable-bri-temperature)",
+        "g": "fe7b496470c355d2",
+        "name": "enable+bri+temp",
         "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgbw-d3-02_27/controls/CCT brightness",
-            "/devices/wb-mrgbw-d3-02_27/controls/CCT enable",
-            "/devices/wb-mrgbw-d3-02_27/controls/CCT temperature"
-        ],
+        "channel": [],
         "outputAtStartup": true,
-        "x": 810,
-        "y": 1000,
+        "x": 440,
+        "y": 920,
         "wires": [
             [
-                "7da813aaba2060cd"
+                "05c59dc537291849"
             ]
         ]
     },
     {
-        "id": "7da813aaba2060cd",
+        "id": "05c59dc537291849",
         "type": "function",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
+        "g": "fe7b496470c355d2",
         "name": "to homekit",
-        "func": "var isOn = parseInt(msg.payload[\"/devices/wb-mrgbw-d3-02_27/controls/CCT enable\"]);\nvar bri = parseInt(msg.payload[\"/devices/wb-mrgbw-d3-02_27/controls/CCT brightness\"]);\nvar ct = parseInt(msg.payload[\"/devices/wb-mrgbw-d3-02_27/controls/CCT temperature\"]);\nlet ctHomekit = convertRange(ct, [0, 100], [140, 500]);\nctHomekit = 500 - ctHomekit + 140;\n\nvar newMsg = {};\nnewMsg.payload_in = msg.payload;\nnewMsg.payload = {\n    \"Brightness\": bri,\n    \"On\":isOn,\n    \"ColorTemperature\": ctHomekit\n};\n\nreturn newMsg;\n\n\nfunction convertRange(value, r1, r2) {\n    var val = Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);\n    if (val < r2[0]) val = r2[0];\n    if (val > r2[1]) val = r2[1];\n    return val;\n}",
+        "func": "//на входе должно быть три топика enable/brightness/temperature\n\n\nlet isOn = 0;\nlet bri = 100;\nlet ct = 50;\n\nfor (var i in msg.data_array) {\n    var item = msg.data_array[i];\n    if ((item.topic).split('enable').length > 1) {\n        isOn = parseInt(item.payload);\n    } else if ((item.topic).split('brightness').length > 1) {\n        bri = parseInt(item.payload);\n    } else if ((item.topic).split('temperature').length > 1) {\n        ct = parseInt(item.payload);\n    }\n}\n\nlet ctHomekit = convertRange(ct, [0, 100], [140, 500]);\nctHomekit = 500 - ctHomekit + 140;\n\nvar newMsg = {};\nnewMsg.payload_in = msg.payload;\nnewMsg.payload = {\n    \"Brightness\": bri,\n    \"On\":isOn,\n    \"ColorTemperature\": ctHomekit\n};\n\nreturn newMsg;\n\n\nfunction convertRange(value, r1, r2) {\n    var val = Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);\n    if (val < r2[0]) val = r2[0];\n    if (val > r2[1]) val = r2[1];\n    return val;\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 975,
-        "y": 1000,
+        "x": 575,
+        "y": 920,
         "wires": [
             [
-                "6457f76af9b4b969"
+                "73fff3c48321a9a0"
             ]
         ],
         "l": false
     },
     {
-        "id": "6457f76af9b4b969",
+        "id": "73fff3c48321a9a0",
         "type": "homekit-service",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
+        "g": "fe7b496470c355d2",
         "isParent": true,
         "hostType": "0",
         "bridge": "99f95ec8.0cb0c",
@@ -111,97 +107,91 @@
         "characteristicProperties": "{\"Brightness\":{\"maxValue\":100,\"minValue\":0,\"minStep\":1},\"ColorTemperature\":{}}",
         "waitForSetupMsg": false,
         "outputs": 2,
-        "x": 1080,
-        "y": 1000,
+        "x": 680,
+        "y": 920,
         "wires": [
             [
-                "2fe95eb52c10ce69"
+                "2a4886740902f305"
             ],
             []
         ]
     },
     {
-        "id": "2fe95eb52c10ce69",
+        "id": "2a4886740902f305",
         "type": "function",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
+        "g": "fe7b496470c355d2",
         "name": "from homekit",
-        "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"Brightness\" in msg.payload) {\n    msg.payload = msg.payload.Brightness;\n    return [null, msg, null]\n} else if (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n    return [msg, null, null];\n} else if (\"ColorTemperature\" in msg.payload) {\n    msg.payload = msg.payload.ColorTemperature;\n    msg.payload = 100 - convertRange(msg.payload, [140, 500], [0, 100]);\n    return [null, null, msg];\n}\nreturn null;\n\n\nfunction convertRange(value, r1, r2) {\n    var val = Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);\n    if (val < r2[0]) val = r2[0];\n    if (val > r2[1]) val = r2[1];\n    return val;\n}",
+        "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"Brightness\" in msg.payload) {\n    return [\n        { \"payload\": msg.payload.Brightness > 0 ? 1 : 0 },\n        msg.payload.Brightness>0?{ \"payload\": msg.payload.Brightness}:null, \n        null\n    ];\n} else if (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n    return [msg, null, null];\n} else if (\"ColorTemperature\" in msg.payload) {\n    msg.payload = msg.payload.ColorTemperature;\n    msg.payload = 100 - convertRange(msg.payload, [140, 500], [0, 100]);\n    return [null, null, msg];\n}\nreturn null;\n\n\nfunction convertRange(value, r1, r2) {\n    var val = Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);\n    if (val < r2[0]) val = r2[0];\n    if (val > r2[1]) val = r2[1];\n    return val;\n}",
         "outputs": 3,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1195,
-        "y": 1000,
+        "x": 795,
+        "y": 920,
         "wires": [
             [
-                "e2c0db646be3d6a9"
+                "d691fe050d85674f"
             ],
             [
-                "e08c13f7bbb92501"
+                "25583856d25311a2"
             ],
             [
-                "13bc3eaea5094620"
+                "a84a9f8e9b3edafb"
             ]
         ],
         "l": false
     },
     {
-        "id": "e2c0db646be3d6a9",
+        "id": "d691fe050d85674f",
         "type": "wirenboard-out",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
-        "name": "27-cct-on",
+        "g": "fe7b496470c355d2",
+        "name": "cct enable",
         "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgbw-d3-02_27/controls/CCT enable"
-        ],
+        "channel": [],
         "command": "/on",
         "commandType": "wb_cmd",
         "payload": "payload",
         "payloadType": "msg",
         "rbe": false,
-        "x": 1380,
-        "y": 940,
+        "x": 990,
+        "y": 860,
         "wires": []
     },
     {
-        "id": "e08c13f7bbb92501",
+        "id": "25583856d25311a2",
         "type": "wirenboard-out",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
-        "name": "27-cct-bri",
+        "g": "fe7b496470c355d2",
+        "name": "cct brightness",
         "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgbw-d3-02_27/controls/CCT brightness"
-        ],
+        "channel": [],
         "command": "/on",
         "commandType": "wb_cmd",
         "payload": "payload",
         "payloadType": "msg",
         "rbe": false,
-        "x": 1380,
-        "y": 1000,
+        "x": 1000,
+        "y": 920,
         "wires": []
     },
     {
-        "id": "13bc3eaea5094620",
+        "id": "a84a9f8e9b3edafb",
         "type": "wirenboard-out",
         "z": "d60a5ec574524af9",
-        "g": "d76d38a267cfa5c2",
-        "name": "27-cct-ct",
+        "g": "fe7b496470c355d2",
+        "name": "cct temperature",
         "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgbw-d3-02_27/controls/CCT temperature"
-        ],
+        "channel": [],
         "command": "/on",
         "commandType": "wb_cmd",
         "payload": "payload",
         "payloadType": "msg",
         "rbe": false,
-        "x": 1380,
-        "y": 1060,
+        "x": 1000,
+        "y": 980,
         "wires": []
     },
     {

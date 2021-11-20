@@ -1,0 +1,186 @@
+[
+    {
+        "id": "42b43af7.371674",
+        "type": "group",
+        "z": "d60a5ec574524af9",
+        "name": "Любое реле",
+        "style": {
+            "fill": "#ffffbf",
+            "fill-opacity": "0.5",
+            "label": true
+        },
+        "nodes": [
+            "77068f59.157e7",
+            "ddd6cda0.2253f",
+            "6ecc2af2.ac6774",
+            "9bf450c8.5a408",
+            "81066ae8.fbce58"
+        ],
+        "env": [],
+        "x": 214,
+        "y": 739,
+        "w": 752,
+        "h": 82
+    },
+    {
+        "id": "77068f59.157e7",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "42b43af7.371674",
+        "name": "Channel",
+        "server": "e72d9d72.a206",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 880,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "ddd6cda0.2253f",
+        "type": "wirenboard-in",
+        "z": "d60a5ec574524af9",
+        "g": "42b43af7.371674",
+        "name": "Channel",
+        "server": "e72d9d72.a206",
+        "channel": [],
+        "outputAtStartup": true,
+        "x": 300,
+        "y": 780,
+        "wires": [
+            [
+                "9bf450c8.5a408"
+            ]
+        ]
+    },
+    {
+        "id": "6ecc2af2.ac6774",
+        "type": "homekit-service",
+        "z": "d60a5ec574524af9",
+        "g": "42b43af7.371674",
+        "isParent": true,
+        "hostType": "0",
+        "bridge": "99f95ec8.0cb0c",
+        "accessoryId": "",
+        "parentService": "",
+        "name": "Люстра",
+        "serviceName": "Lightbulb",
+        "topic": "",
+        "filter": false,
+        "manufacturer": "Гостиная, люстра",
+        "model": "relay",
+        "serialNo": "22-k3",
+        "firmwareRev": "",
+        "hardwareRev": "",
+        "softwareRev": "",
+        "cameraConfigVideoProcessor": "ffmpeg",
+        "cameraConfigSource": "",
+        "cameraConfigStillImageSource": "",
+        "cameraConfigMaxStreams": 2,
+        "cameraConfigMaxWidth": 1280,
+        "cameraConfigMaxHeight": 720,
+        "cameraConfigMaxFPS": 10,
+        "cameraConfigMaxBitrate": 300,
+        "cameraConfigVideoCodec": "libx264",
+        "cameraConfigAudioCodec": "libfdk_aac",
+        "cameraConfigAudio": false,
+        "cameraConfigPacketSize": 1316,
+        "cameraConfigVerticalFlip": false,
+        "cameraConfigHorizontalFlip": false,
+        "cameraConfigMapVideo": "0:0",
+        "cameraConfigMapAudio": "0:1",
+        "cameraConfigVideoFilter": "scale=1280:720",
+        "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+        "cameraConfigDebug": false,
+        "cameraConfigSnapshotOutput": "disabled",
+        "cameraConfigInterfaceName": "",
+        "characteristicProperties": "{}",
+        "waitForSetupMsg": false,
+        "outputs": 2,
+        "x": 580,
+        "y": 780,
+        "wires": [
+            [
+                "81066ae8.fbce58"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "9bf450c8.5a408",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "42b43af7.371674",
+        "name": "",
+        "func": "msg.payload = {\"On\":parseInt(msg.payload)};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 455,
+        "y": 780,
+        "wires": [
+            [
+                "6ecc2af2.ac6774"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "81066ae8.fbce58",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "42b43af7.371674",
+        "name": "",
+        "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 755,
+        "y": 780,
+        "wires": [
+            [
+                "77068f59.157e7"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "e72d9d72.a206",
+        "type": "wirenboard-server",
+        "name": "WirenBoard",
+        "host": "192.168.1.3",
+        "mqtt_port": "",
+        "mqtt_username": "",
+        "mqtt_password": ""
+    },
+    {
+        "id": "99f95ec8.0cb0c",
+        "type": "homekit-bridge",
+        "bridgeName": "Node-red",
+        "pinCode": "111-11-111",
+        "port": "",
+        "allowInsecureRequest": false,
+        "manufacturer": "NRCHKB",
+        "model": "1.2.0",
+        "serialNo": "Default Serial Number",
+        "firmwareRev": "1.2.0",
+        "hardwareRev": "1.2.0",
+        "softwareRev": "1.2.0",
+        "customMdnsConfig": false,
+        "mdnsMulticast": true,
+        "mdnsInterface": "",
+        "mdnsPort": "",
+        "mdnsIp": "",
+        "mdnsTtl": "",
+        "mdnsLoopback": true,
+        "mdnsReuseAddr": true,
+        "allowMessagePassthrough": true
+    }
+]

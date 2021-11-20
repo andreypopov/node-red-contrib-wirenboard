@@ -1,49 +1,141 @@
 [
     {
-        "id": "efafb19ad9a0bf6e",
+        "id": "0931ad84ac322f51",
         "type": "group",
         "z": "d60a5ec574524af9",
         "name": "WB-RGBW 1-channel",
         "style": {
             "fill": "#ffffbf",
-            "label": true,
-            "fill-opacity": "0.5"
+            "fill-opacity": "0.5",
+            "label": true
         },
         "nodes": [
-            "141d9d9f5d350d73",
-            "6f454a2f32f36fcf",
-            "1b7c2161eb3f9ab2",
-            "27c85eb4fc50fc3e",
-            "2f4d491ad4152da9",
-            "9c190eabe592f57f",
-            "e586ba9bf73eb4f6",
-            "74a7f241740d6b36",
-            "88b7c5fa3fe565bc",
-            "fc479964a0636e92",
-            "91e80284194dfb61",
-            "3a656746e7cda095"
+            "4691b70a9cafba4f",
+            "2b0cc42f31f11108",
+            "5a620189aa7202ba",
+            "5703f9cffc81e0d4",
+            "e1983889e70a2ad7",
+            "5df4c0e869eaf5d6"
         ],
         "env": [],
-        "x": 334,
-        "y": 1099,
-        "w": 1152,
-        "h": 162
+        "x": 274,
+        "y": 979,
+        "w": 772,
+        "h": 142
     },
     {
-        "id": "141d9d9f5d350d73",
+        "id": "4691b70a9cafba4f",
+        "type": "wirenboard-in",
+        "z": "d60a5ec574524af9",
+        "g": "0931ad84ac322f51",
+        "name": "Enable+Brightness",
+        "server": "e72d9d72.a206",
+        "channel": [],
+        "outputAtStartup": true,
+        "x": 390,
+        "y": 1040,
+        "wires": [
+            [
+                "e1983889e70a2ad7"
+            ]
+        ]
+    },
+    {
+        "id": "2b0cc42f31f11108",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "0931ad84ac322f51",
+        "name": "Brightness",
+        "server": "e72d9d72.a206",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 950,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "5a620189aa7202ba",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "0931ad84ac322f51",
+        "name": "Enable",
+        "server": "e72d9d72.a206",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 930,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "5703f9cffc81e0d4",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "0931ad84ac322f51",
+        "name": "from Homekit",
+        "func": "if (msg.hap.context === undefined) {\n    return [null, null];\n}\n\nlet msgOn = null;\nlet msgBri = null;\n\nif (\"Brightness\" in msg.payload) {\n    if (msg.payload.Brightness > 0) {\n        msgOn = { \"payload\": 1 };\n        msgBri = { \"payload\": msg.payload.Brightness };\n        return [msgOn, msgBri]\n    } else {\n        msgOn = { \"payload\": 0 };\n        return [msgOn, msgBri];\n    }\n\n} else if (\"On\" in msg.payload) {\n    msgOn = { \"payload\": msg.payload.On ? 1 : 0};\n    return [msgOn, msgBri];\n}\n\nreturn [null, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 815,
+        "y": 1040,
+        "wires": [
+            [
+                "5a620189aa7202ba"
+            ],
+            [
+                "2b0cc42f31f11108"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "e1983889e70a2ad7",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "0931ad84ac322f51",
+        "name": "to Homekit",
+        "func": "//на входе должно быть два топика с enable и brightness\n\nlet isOn = 0;\nlet bri = 100;\n\nfor (var i in msg.data_array) {\n    var item = msg.data_array[i];\n    if ((item.topic).split('enable').length > 1) {\n        isOn = parseInt(item.payload);\n    } else if ((item.topic).split('brightness').length > 1) {\n        bri = parseInt(item.payload);\n    }\n}\n\nvar newMsg = {};\nnewMsg.payload = {\n    \"On\": isOn,\n    \"Brightness\": bri\n};\n\nreturn newMsg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 535,
+        "y": 1040,
+        "wires": [
+            [
+                "5df4c0e869eaf5d6"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "5df4c0e869eaf5d6",
         "type": "homekit-service",
         "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
+        "g": "0931ad84ac322f51",
         "isParent": true,
+        "hostType": "0",
         "bridge": "99f95ec8.0cb0c",
+        "accessoryId": "",
         "parentService": "",
-        "name": "Bulb",
+        "name": "Световые линии",
         "serviceName": "Lightbulb",
         "topic": "",
         "filter": false,
-        "manufacturer": "Default Manufacturer",
-        "model": "Default Model",
-        "serialNo": "Default Serial Number",
+        "manufacturer": "Тамбур, световые линии",
+        "model": "rgbw",
+        "serialNo": "171-w",
         "firmwareRev": "",
         "hardwareRev": "",
         "softwareRev": "",
@@ -71,240 +163,23 @@
         "characteristicProperties": "{    \"Brightness\":{        \"maxValue\": 100,        \"minValue\": 0,        \"minStep\": 1    }}",
         "waitForSetupMsg": false,
         "outputs": 2,
-        "x": 970,
-        "y": 1140,
+        "x": 670,
+        "y": 1040,
         "wires": [
             [
-                "1b7c2161eb3f9ab2"
+                "5703f9cffc81e0d4"
             ],
             []
         ]
     },
     {
-        "id": "6f454a2f32f36fcf",
-        "type": "function",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "",
-        "func": "var newMsg = {};\nnewMsg.payload = {\n    \"Brightness\":msg.payload\n};\n\nreturn newMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 855,
-        "y": 1140,
-        "wires": [
-            [
-                "141d9d9f5d350d73"
-            ]
-        ],
-        "l": false
-    },
-    {
-        "id": "1b7c2161eb3f9ab2",
-        "type": "function",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "",
-        "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"Brightness\" in msg.payload) {\n    msg.payload = msg.payload.Brightness;\n    return [null, msg]\n} else if (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n    return [msg, null];\n\n}\nreturn null;",
-        "outputs": 2,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "x": 1075,
-        "y": 1140,
-        "wires": [
-            [
-                "27c85eb4fc50fc3e"
-            ],
-            [
-                "27c85eb4fc50fc3e",
-                "9c190eabe592f57f"
-            ]
-        ],
-        "l": false
-    },
-    {
-        "id": "27c85eb4fc50fc3e",
-        "type": "function",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "",
-        "func": "msg.payload = msg.payload>0?1:0;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 1235,
-        "y": 1140,
-        "wires": [
-            [
-                "91e80284194dfb61"
-            ]
-        ],
-        "l": false
-    },
-    {
-        "id": "2f4d491ad4152da9",
-        "type": "function",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "",
-        "func": "var newMsg = {};\nnewMsg.payload = {\n    \"On\":msg.payload>0\n};\n\nreturn newMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 855,
-        "y": 1220,
-        "wires": [
-            [
-                "141d9d9f5d350d73"
-            ]
-        ],
-        "l": false
-    },
-    {
-        "id": "9c190eabe592f57f",
-        "type": "switch",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "gt",
-                "v": "0",
-                "vt": "num"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 1235,
-        "y": 1220,
-        "wires": [
-            [
-                "3a656746e7cda095"
-            ]
-        ],
-        "l": false
-    },
-    {
-        "id": "e586ba9bf73eb4f6",
-        "type": "switch",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "gt",
-                "v": "0",
-                "vt": "num"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 555,
-        "y": 1180,
-        "wires": [
-            [
-                "74a7f241740d6b36"
-            ]
-        ],
-        "l": false
-    },
-    {
-        "id": "74a7f241740d6b36",
-        "type": "wirenboard-get",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "Brightness",
-        "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgb_172/controls/Brightness W",
-            "/devices/wb-mrgb_29/controls/Brightness W"
-        ],
-        "x": 670,
-        "y": 1180,
-        "wires": [
-            [
-                "6f454a2f32f36fcf"
-            ]
-        ]
-    },
-    {
-        "id": "88b7c5fa3fe565bc",
-        "type": "wirenboard-in",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "Enable",
-        "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgb_29/controls/Enable W"
-        ],
-        "outputAtStartup": true,
-        "x": 410,
-        "y": 1220,
-        "wires": [
-            [
-                "2f4d491ad4152da9",
-                "e586ba9bf73eb4f6"
-            ]
-        ]
-    },
-    {
-        "id": "fc479964a0636e92",
-        "type": "wirenboard-in",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "Brightness",
-        "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgb_29/controls/Brightness W"
-        ],
-        "outputAtStartup": true,
-        "x": 420,
-        "y": 1140,
-        "wires": [
-            [
-                "6f454a2f32f36fcf"
-            ]
-        ]
-    },
-    {
-        "id": "91e80284194dfb61",
-        "type": "wirenboard-out",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "Enable",
-        "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgb_29/controls/Enable W"
-        ],
-        "command": "/on",
-        "commandType": "wb_cmd",
-        "payload": "payload",
-        "payloadType": "msg",
-        "x": 1370,
-        "y": 1140,
-        "wires": []
-    },
-    {
-        "id": "3a656746e7cda095",
-        "type": "wirenboard-out",
-        "z": "d60a5ec574524af9",
-        "g": "efafb19ad9a0bf6e",
-        "name": "Brightness",
-        "server": "e72d9d72.a206",
-        "channel": [
-            "/devices/wb-mrgb_29/controls/Brightness W"
-        ],
-        "command": "/on",
-        "commandType": "wb_cmd",
-        "payload": "payload",
-        "payloadType": "msg",
-        "x": 1390,
-        "y": 1220,
-        "wires": []
+        "id": "e72d9d72.a206",
+        "type": "wirenboard-server",
+        "name": "WirenBoard",
+        "host": "192.168.1.3",
+        "mqtt_port": "",
+        "mqtt_username": "",
+        "mqtt_password": ""
     },
     {
         "id": "99f95ec8.0cb0c",
@@ -328,14 +203,5 @@
         "mdnsLoopback": true,
         "mdnsReuseAddr": true,
         "allowMessagePassthrough": true
-    },
-    {
-        "id": "e72d9d72.a206",
-        "type": "wirenboard-server",
-        "name": "WirenBoard",
-        "host": "192.168.1.3",
-        "mqtt_port": "",
-        "mqtt_username": "",
-        "mqtt_password": ""
     }
 ]
