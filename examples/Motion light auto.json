@@ -1,13 +1,39 @@
 [
     {
+        "id": "0de6ec80e4198cfd",
+        "type": "group",
+        "z": "d60a5ec574524af9",
+        "name": "WB-MSW v3 - Свет по движению",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "db84e4c6.009fe8",
+            "286906cd.0a292a",
+            "786a5d17.972364",
+            "f9406c0.1f56e98",
+            "643c0628.2090d8",
+            "ce16b2ab.0f1ba",
+            "95490f04.d54cb",
+            "bef3a2f7.6fff3",
+            "6e72570f.9f8ee8"
+        ],
+        "env": [],
+        "x": 174,
+        "y": 679,
+        "w": 992,
+        "h": 162
+    },
+    {
         "id": "db84e4c6.009fe8",
         "type": "wirenboard-get",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "lux",
         "server": "",
         "channel": [],
-        "x": 530,
-        "y": 820,
+        "x": 610,
+        "y": 800,
         "wires": [
             [
                 "286906cd.0a292a"
@@ -17,7 +43,8 @@
     {
         "id": "286906cd.0a292a",
         "type": "switch",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "<5",
         "property": "payload",
         "propertyType": "msg",
@@ -31,18 +58,19 @@
         "checkall": "true",
         "repair": false,
         "outputs": 1,
-        "x": 650,
-        "y": 820,
+        "x": 730,
+        "y": 800,
         "wires": [
             [
-                "cc1497a3.279608"
+                "6e72570f.9f8ee8"
             ]
         ]
     },
     {
         "id": "786a5d17.972364",
         "type": "wirenboard-out",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "Bulb",
         "server": "",
         "channel": [],
@@ -50,14 +78,16 @@
         "commandType": "wb_cmd",
         "payload": "payload",
         "payloadType": "msg",
-        "x": 1410,
-        "y": 780,
+        "rbe": true,
+        "x": 1090,
+        "y": 760,
         "wires": []
     },
     {
         "id": "f9406c0.1f56e98",
         "type": "switch",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": ">50",
         "property": "payload",
         "propertyType": "msg",
@@ -71,8 +101,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 1,
-        "x": 370,
-        "y": 820,
+        "x": 450,
+        "y": 800,
         "wires": [
             [
                 "db84e4c6.009fe8"
@@ -82,13 +112,14 @@
     {
         "id": "643c0628.2090d8",
         "type": "wirenboard-in",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "Current motion",
         "server": "",
         "channel": [],
         "outputAtStartup": true,
-        "x": 200,
-        "y": 820,
+        "x": 280,
+        "y": 800,
         "wires": [
             [
                 "f9406c0.1f56e98"
@@ -98,13 +129,14 @@
     {
         "id": "ce16b2ab.0f1ba",
         "type": "wirenboard-in",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "Max Motion",
         "server": "",
         "channel": [],
         "outputAtStartup": true,
-        "x": 210,
-        "y": 740,
+        "x": 290,
+        "y": 720,
         "wires": [
             [
                 "95490f04.d54cb"
@@ -114,7 +146,8 @@
     {
         "id": "95490f04.d54cb",
         "type": "switch",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "<20",
         "property": "math.max",
         "propertyType": "msg",
@@ -128,33 +161,19 @@
         "checkall": "true",
         "repair": false,
         "outputs": 1,
-        "x": 370,
-        "y": 740,
+        "x": 450,
+        "y": 720,
         "wires": [
             [
-                "502db638.cc99d8"
-            ]
-        ]
-    },
-    {
-        "id": "502db638.cc99d8",
-        "type": "wirenboard-get",
-        "z": "7bd3a6f8.fd7df8",
-        "name": "Bulb",
-        "server": "",
-        "channel": [],
-        "x": 810,
-        "y": 740,
-        "wires": [
-            [
-                "10ca088d.ae3d47"
+                "bef3a2f7.6fff3"
             ]
         ]
     },
     {
         "id": "bef3a2f7.6fff3",
         "type": "change",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "=0",
         "rules": [
             {
@@ -170,8 +189,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1190,
-        "y": 740,
+        "x": 870,
+        "y": 720,
         "wires": [
             [
                 "786a5d17.972364"
@@ -179,74 +198,10 @@
         ]
     },
     {
-        "id": "cc1497a3.279608",
-        "type": "wirenboard-get",
-        "z": "7bd3a6f8.fd7df8",
-        "name": "Bulb",
-        "server": "",
-        "channel": [],
-        "x": 810,
-        "y": 820,
-        "wires": [
-            [
-                "9a8137ea.7c7108"
-            ]
-        ]
-    },
-    {
-        "id": "9a8137ea.7c7108",
-        "type": "switch",
-        "z": "7bd3a6f8.fd7df8",
-        "name": "0?",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "0",
-                "vt": "num"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 930,
-        "y": 820,
-        "wires": [
-            [
-                "6e72570f.9f8ee8"
-            ]
-        ]
-    },
-    {
-        "id": "10ca088d.ae3d47",
-        "type": "switch",
-        "z": "7bd3a6f8.fd7df8",
-        "name": ">0?",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "gt",
-                "v": "0",
-                "vt": "num"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 930,
-        "y": 740,
-        "wires": [
-            [
-                "bef3a2f7.6fff3"
-            ]
-        ]
-    },
-    {
         "id": "6e72570f.9f8ee8",
         "type": "change",
-        "z": "7bd3a6f8.fd7df8",
+        "z": "d60a5ec574524af9",
+        "g": "0de6ec80e4198cfd",
         "name": "=1",
         "rules": [
             {
@@ -262,8 +217,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1190,
-        "y": 820,
+        "x": 870,
+        "y": 800,
         "wires": [
             [
                 "786a5d17.972364"
