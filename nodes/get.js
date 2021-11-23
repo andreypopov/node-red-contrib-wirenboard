@@ -33,7 +33,7 @@ module.exports = function(RED) {
                         if (typeof(message_in.topic) == 'object') {
                             for (var i in message_in.topic) {
                                 var topic = message_in.topic[i];
-                                if (typeof(topic) == 'string' && topic in node.server.devices_values) {
+                                if (typeof(topic) == 'string' && topic in node.server.devices) {
                                     channels.push(topic);
                                 }
                             }
@@ -47,12 +47,13 @@ module.exports = function(RED) {
                         var hasData = false;
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
-                            message_in.elementId = WirenboardHelper.generateElementId(message_in.topic);
-                            if (message_in.topic in node.server.devices_errors) {
-                                result = node.server.devices_values[message_in.topic]; //last valid value
+                            message_in = Object.assign(message_in, node.server.devices[message_in.topic]);
+
+                            if (node.server.devices[message_in.topic].error) {
+                                result = node.server.devices[message_in.topic].payload; //last valid value
                                 hasData = false;
-                            } else if (message_in.topic in node.server.devices_values) {
-                                result = node.server.devices_values[message_in.topic];
+                            } else if (message_in.topic in node.server.devices) {
+                                result = node.server.devices[message_in.topic].payload;
                                 hasData = true;
                             } else {
                                 result = null;
@@ -66,29 +67,27 @@ module.exports = function(RED) {
                         }
 
 
-                        // function difference(objOld, objNew) {
-                        //     var changes = {};
-                        //     if (objNew) {
-                        //         for (var index in objNew) {
-                        //             if (!(index in objOld) || objOld[index] !== objNew[index]) changes[index] = objNew[index];
-                        //         }
-                        //     }
-                        //     return changes;
-                        // }
-                        // message_in.payload_diff = difference(node.diff, result);
-                        // node.diff = result;
-
-
                         message_in.payload_in = message_in.payload;
                         message_in.payload = result;
                         node.send(message_in);
 
                         if (hasData) {
-                            node.status({
-                                fill: "green",
-                                shape: "dot",
-                                text: channels.length === 1 ? result : "ok"
-                            });
+                            if (channels.length === 1) {
+                                let textSuffix = WirenboardHelper.statusUpdatedAt(node.server, message_in.topic);
+                                node.status({
+                                    fill: "green",
+                                    shape: "dot",
+                                    text: result+(textSuffix?' '+textSuffix:'')
+                                });
+                            } else {
+                                node.status({
+                                    fill: "green",
+                                    shape: "dot",
+                                    text: "ok"
+                                });
+                            }
+
+
                         } else {
                             node.status({
                                 fill: "red",
@@ -107,8 +106,6 @@ module.exports = function(RED) {
                         });
                     }
                 });
-
-
 
             } else {
                 node.status({

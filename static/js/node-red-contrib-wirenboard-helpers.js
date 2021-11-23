@@ -35,6 +35,9 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             disabled = '';
                             nameSuffix = '';
 
+                            if (!('device_friendly_name' in value)) {
+                                return;
+                            }
 
                             // selected = typeof(itemName) == 'string' && value.topic == itemName;
 
@@ -76,7 +79,6 @@ function WB_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                         if (typeof(itemName) === 'object') {
                             for (var index in itemName) {
-                                console.log(itemName[index]);
                                 selectedItemElement.multipleSelect('check', itemName[index]);
                             }
                         } else {

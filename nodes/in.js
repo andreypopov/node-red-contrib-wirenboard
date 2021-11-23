@@ -11,6 +11,7 @@ module.exports = function(RED) {
             node.config = config;
             node.firstMsg = true;
             node.is_subscribed = false;
+            node.statusTimer = null;
             node.cleanTimer = null;
             node.meta = {};
             node.server = RED.nodes.getNode(node.config.server);
@@ -80,8 +81,8 @@ module.exports = function(RED) {
                         node.status({
                             fill: "green",
                             shape: "dot",
-                            text: (data.topic in node.server.devices_values)
-                                ? node.server.devices_values[data.topic]
+                            text: (data.topic in node.server.devices)
+                                ? node.server.devices[data.topic].payload
                                 : "node-red-contrib-wirenboard/in:status.connected"
                         });
                     }
@@ -115,10 +116,9 @@ module.exports = function(RED) {
                 text: "node-red-contrib-wirenboard/in:status.connected"
             });
 
-
             //meta errors
             for (var i in node.config.channel) {
-                if (node.config.channel[i] in node.server.devices_errors) {
+                if (node.config.channel[i] in node.server.devices && node.server.devices[node.config.channel[i]].error) {
                     node.onMetaError({topic:node.config.channel[i], payload:true});
                 }
             }
@@ -129,12 +129,21 @@ module.exports = function(RED) {
 
             if (node.hasChannel(data.topic)) {
                 clearTimeout(node.cleanTimer);
+                clearTimeout(node.statusTimer);
 
                 node.status({
                     fill: "green",
                     shape: "dot",
                     text: data.payload
                 });
+                node.statusTimer = setTimeout(function () {
+                    let textSuffix = WirenboardHelper.statusUpdatedAt(node.server, data.topic);
+                    node.status({
+                        fill: "green",
+                        shape: "ring",
+                        text: data.payload+(textSuffix?' '+textSuffix:'')
+                    });
+                }, 3000);
 
                 if (node.isSingleChannelMode()) {
                     if (node.firstMsg && !node.config.outputAtStartup) {
@@ -142,12 +151,7 @@ module.exports = function(RED) {
                         return;
                     }
 
-                    node.send({
-                        payload: data.payload,
-                        topic: data.topic,
-                        elementId: WirenboardHelper.generateElementId(data.topic),
-                        meta: data.topic in node.meta?node.meta[data.topic]:null
-                    });
+                    node.send(node.server.devices[data.topic]);
                 } else {
                     var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
 
@@ -160,11 +164,7 @@ module.exports = function(RED) {
                         payload: data_array.data,
                         data_array: data_array.data_full,
                         math: data_array.math,
-                        event: {
-                            payload: data.payload,
-                            topic:data.topic,
-                            elementId: WirenboardHelper.generateElementId(data.topic)
-                        }
+                        event: node.server.devices[data.topic]
                     });
 
                     node.cleanTimer = setTimeout(function () {

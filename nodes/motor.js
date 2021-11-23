@@ -80,12 +80,12 @@ module.exports = function(RED) {
                 timeEnd = node.config.max_running_time;
             }
 
-            if (node.config.contact_close && node.config.contact_close in node.server.devices_values) {
-                if (parseInt(node.server.devices_values[node.config.contact_close])) { //is closed
+            if (node.config.contact_close && node.config.contact_close in node.server.devices) {
+                if (parseInt(node.server.devices[node.config.contact_close].payload)) { //is closed
                     node.percent = 0;
                 }
-            } else if (node.config.contact_open && node.config.contact_open in node.server.devices_values) {
-                if (parseInt(node.server.devices_values[node.config.contact_open])) { //is opened
+            } else if (node.config.contact_open && node.config.contact_open in node.server.devices) {
+                if (parseInt(node.server.devices[node.config.contact_open].payload)) { //is opened
                     node.percent = 100;
                 }
             }

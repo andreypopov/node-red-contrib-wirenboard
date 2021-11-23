@@ -10,10 +10,8 @@ module.exports = function (RED) {
             node.config = n;
             node.connection = false;
             node.topic = '/devices/#';
-            node.items = undefined;
-            node.devices_values = [];
-            node.devices_meta = [];
-            node.devices_errors = {};
+            node.devices = {};
+            node.devices_names = {};
             node.errorTimers = {};
             node.on('close', () => this.onClose());
             node.setMaxListeners(0);
@@ -58,20 +56,19 @@ module.exports = function (RED) {
             var node = this;
             node.log('MQTT Unsubscribe from mqtt topic: ' + node.topic);
             node.mqtt.unsubscribe(node.topic, function (err) {});
-            node.devices_values = [];
+            node.devices = {};
         }
 
         getTopicByElementId(elementId) {
             var result = undefined;
             var node = this;
-            if (node.items.length) {
-                for (var i in node.items) {
-                   if (node.items[i].elementId == elementId) {
-                       result = node.items[i].topic;
-                       break;
-                   }
-                }
+            for (var topic in node.devices) {
+               if (node.devices[topic].elementId == elementId) {
+                   result = topic;
+                   break;
+               }
             }
+
 
             return result;
         }
@@ -80,13 +77,12 @@ module.exports = function (RED) {
             var node = this;
 
             // Sort of singleton construct
-            if (forceRefresh || node.items === undefined) {
+            if (forceRefresh || !Object.keys(node.devices).length) {
                 node.log('Refreshing devices');
                 var that = this;
-                that.devices = [];
-                that.items = [];
+                that.devices = {};
+                that.devices_names = {};
                 that.end = false;
-
 
                 var options = {
                     port: node.config.mqtt_port||1883,
@@ -115,75 +111,78 @@ module.exports = function (RED) {
                     if (message.toString() == 'end_reading_items_list') {
                         //client.unsubscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {})
                         client.end(true);
-
-                        if (!that.items.length) {
+                        that.devices_names = {};
+// console.log(node.devices);
+                        if (!Object.keys(that.devices).length) {
                             RED.log.warn("wirenboard: error code #0026: No items, check your settings");
                         } else {
-                            that.items = (that.items).sort(function (a, b) {
-                                var aSize = a.device_name;
-                                var bSize = b.device_name;
-                                var aLow = a.control_name;
-                                var bLow = b.control_name;
-                                if (aSize == bSize) {
-                                    return (aLow < bLow) ? -1 : (aLow > bLow) ? 1 : 0;
-                                } else {
-                                    return (aSize < bSize) ? -1 : 1;
+                            //filter devices
+                            for (var topic in that.devices) {
+                                if (!('topic' in that.devices[topic])) {
+                                    delete(that.devices[topic]);
                                 }
-                            })
+                            }
+                            // that.items = (that.items).sort(function (a, b) {
+                            //     var aSize = a.device_name;
+                            //     var bSize = b.device_name;
+                            //     var aLow = a.control_name;
+                            //     var bLow = b.control_name;
+                            //     if (aSize == bSize) {
+                            //         return (aLow < bLow) ? -1 : (aLow > bLow) ? 1 : 0;
+                            //     } else {
+                            //         return (aSize < bSize) ? -1 : 1;
+                            //     }
+                            // })
                         }
 
                         if (!that.end) {
                             that.end = true;
 
                             if (typeof(callback) === "function") {
-                                callback(that.items);
+                                callback(that.devices);
                             }
                         }
-                        return node.items;
+                        return node.devices;
                     } else {
                         //parse topic
                         var topicParts = topic.split('/');
                         var deviceName = topicParts[2];
+                        // let deviceTopic = '/devices/'+deviceName+'/controls/'+controlName;
 
                         //meta device name
                         if (topicParts[3] === 'meta' && topicParts[4] === 'name') {
-                            that.devices[deviceName] = {'friendly_name': message.toString(), 'controls': []}
+                            that.devices_names[deviceName] = message.toString();
 
                         //meta controls
-                        } else if (topicParts[3] === 'controls' && topicParts[5] === 'meta' && deviceName in that.devices) {
+                        } else if (topicParts[3] === 'controls' && topicParts[5] === 'meta') {
+                            let controlName = topicParts[4];
+                            let metaName = topicParts[6];
+                            let deviceTopic = '/devices/'+deviceName+'/controls/'+controlName;
+                            if (!(deviceTopic in node.devices)) node.devices[deviceTopic] = {};
+                            if (!('meta' in node.devices[deviceTopic])) node.devices[deviceTopic].meta = {};
+                            node.devices[deviceTopic].meta[metaName] = message.toString();
+                        } else if (topicParts[3] === 'controls') {
                             var controlName = topicParts[4];
-                            if (typeof(that.devices[deviceName]['controls'][controlName]) == 'undefined')
-                                that.devices[deviceName]['controls'][controlName] = {};
-
-                            that.devices[deviceName]['controls'][controlName][topicParts[6]] = message.toString();
-                            //devices
-                        } else if (topicParts[3] === 'controls' && deviceName in that.devices) {
-                            var controlName = topicParts[4];
-                            that.items.push({
-                                topic: topic,
-                                elementId: WirenboardHelper.generateElementId(topic),
-                                message: message.toString(),
-                                control_name: controlName,
-                                device_name: deviceName,
-                                device_friendly_name: typeof(that.devices[deviceName]['friendly_name']) != 'undefined' ? that.devices[deviceName]['friendly_name'] : deviceName,
-                                meta: that.devices[deviceName]['controls'][controlName]
-                            });
+                            if (!(topic in node.devices)) node.devices[topic] = {};
+                            that.devices[topic].topic = topic;
+                            that.devices[topic].elementId = WirenboardHelper.generateElementId(topic);
+                            that.devices[topic].payload = message.toString();
+                            that.devices[topic].control_name = controlName;
+                            that.devices[topic].device_name = deviceName;
+                            if (deviceName in that.devices_names) {
+                                that.devices[topic].device_friendly_name = that.devices_names[deviceName];
+                            }
                         }
                     }
                 })
 
-                // if (!Object.keys(node.items).length) {
-                    //node.emit('onConnectError');
-                // }
-
             } else {
                 node.log('Using cached devices');
                 if (typeof(callback) === "function") {
-                    callback(node.items);
+                    callback(node.devices);
                 }
-                return node.items;
+                return node.devices;
             }
-
         }
 
         parseMetaData(topic, message) {
@@ -193,10 +192,22 @@ module.exports = function (RED) {
             var deviceName = topicParts[2];
             var controlName = topicParts[4];
             let deviceTopic = '/devices/'+deviceName+'/controls/'+controlName;
+            if (!(deviceTopic in node.devices)) { //no such device
+                return false;
+            }
 
             //meta topic
             if (topicParts[3] === 'controls' && topicParts[5] === 'meta') {
+                //devices/wb-msw-v3_37/controls/Buzzer/meta
+                if (topicParts.length != 7) return false;
+
+                //devices/wb-mrgbw-d3-02_172/controls/R (LED strip 2) enable/meta/type
                 var metaName = topicParts[6];
+
+                //save meta
+                if (!('meta' in node.devices[deviceTopic])) node.devices[deviceTopic].meta = {};
+                node.devices[deviceTopic].meta[metaName] = message.toString();
+
                 if (metaName === 'error') {
                     if (message.toString()) {
                         if (deviceTopic in node.errorTimers) {
@@ -205,7 +216,7 @@ module.exports = function (RED) {
                         }
                         node.errorTimers[deviceTopic] = setTimeout(function(){
                             node.log('Read Error: '+deviceTopic)
-                            node.devices_errors[deviceTopic] = true;
+                            node.devices[deviceTopic].error = true;
                             node.emit('onMetaError', {topic:deviceTopic, payload:true});
                         }, 60000);
                     } else {
@@ -214,8 +225,8 @@ module.exports = function (RED) {
                             clearTimeout(node.errorTimers[deviceTopic]);
                             delete node.errorTimers[deviceTopic];
                         }
-                        if (deviceTopic in node.devices_errors) {
-                            delete node.devices_errors[deviceTopic];
+                        if (node.devices[deviceTopic].error) {
+                            node.devices[deviceTopic].error = false;
                             node.emit('onMetaError', {topic:deviceTopic, payload:false});
                         }
                     }
@@ -226,10 +237,7 @@ module.exports = function (RED) {
                 if (deviceTopic in node.errorTimers) {
                     clearTimeout(node.errorTimers[deviceTopic]);
                     delete node.errorTimers[deviceTopic];
-
-                    if (deviceTopic in node.devices_errors) {
-                        delete node.devices_errors[deviceTopic];
-                    }
+                    node.devices[deviceTopic].error = false;
                     node.emit('onMetaError', {topic:deviceTopic, payload:false});
                     // node.log('New value! clean error: '+deviceTopic)
                 }
@@ -295,7 +303,16 @@ module.exports = function (RED) {
         onMQTTMessage(topic, message) {
             var node = this;
             var messageString = message.toString();
-            node.devices_values[topic] = messageString;
+
+            if (!(topic in node.devices)) node.devices[topic] = {};
+            node.devices[topic].change = {
+                'old':'payload' in node.devices[topic]?node.devices[topic].payload:null,
+                'new':messageString,
+                'updated_at': 'change' in node.devices[topic]?new Date().getTime():null
+            };
+            node.devices[topic].payload = messageString;
+            node.devices[topic].topic = topic;
+
             node.emit('onMQTTMessage', {topic:topic, payload:messageString});
 
             node.parseMetaData(topic, message);

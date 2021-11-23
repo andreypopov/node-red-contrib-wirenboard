@@ -32,7 +32,7 @@ module.exports = function(RED) {
                         if (typeof(message.topic) == 'object') {
                             for (var i in message.topic) {
                                 var topic = message.topic[i];
-                                if (typeof(topic) == 'string' && topic in node.server.devices_values) {
+                                if (typeof(topic) == 'string' && topic in node.server.devices) {
                                     channels.push(topic);
                                 }
                             }
@@ -108,7 +108,7 @@ module.exports = function(RED) {
 
                             var updateStatus = false;
                             for (var i in channels) {
-                                if (channels[i] in node.server.devices_errors) {
+                                if (node.server.devices[channels[i]]) {
                                     node.status({
                                         fill: "red",
                                         shape: "dot",
@@ -116,7 +116,7 @@ module.exports = function(RED) {
                                     });
                                 }
 
-                                var lastValue = channels[i] in node.server.devices_values?node.server.devices_values[channels[i]].toString():null;
+                                var lastValue = channels[i] in node.server.devices?node.server.devices[channels[i]].payload.toString():null;
 
                                 if (node.config.payloadType === 'wb_payload' && payload === 'toggle') {
                                     payload = parseInt(lastValue)?0:1;
