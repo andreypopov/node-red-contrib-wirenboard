@@ -47,14 +47,17 @@ module.exports = function(RED) {
                         var hasData = false;
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
-                            message_in = Object.assign(message_in, node.server.devices[message_in.topic]);
 
-                            if (node.server.devices[message_in.topic].error) {
-                                result = node.server.devices[message_in.topic].payload; //last valid value
-                                hasData = false;
-                            } else if (message_in.topic in node.server.devices) {
+                            if (message_in.topic in node.server.devices) {
+                                message_in = Object.assign(message_in, node.server.devices[message_in.topic]);
+
                                 result = node.server.devices[message_in.topic].payload;
                                 hasData = true;
+
+                                if (node.server.devices[message_in.topic].error) {
+                                    result = node.server.devices[message_in.topic].payload; //last valid value
+                                    hasData = false;
+                                }
                             } else {
                                 result = null;
                             }

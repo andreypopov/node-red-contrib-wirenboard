@@ -34,7 +34,7 @@ module.exports = function (RED) {
                 port: node.config.mqtt_port||1883,
                 username: node.config.mqtt_username||null,
                 password: node.config.mqtt_password||null,
-                clientId:"NodeRed-"+node.id
+                clientId:"NodeRed-"+node.id+"-"+(Math.random() + 1).toString(36).substring(7)
             };
             return mqtt.connect('mqtt://' + node.config.host, options);
         }
