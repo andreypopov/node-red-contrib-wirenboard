@@ -108,7 +108,8 @@ module.exports = function(RED) {
 
                             var updateStatus = false;
                             for (var i in channels) {
-                                if (node.server.devices[channels[i]]) {
+                                var device = node.server.getDeviceByTopic(channels[i]);
+                                if ('error' in device && device.error) {
                                     node.status({
                                         fill: "red",
                                         shape: "dot",
@@ -116,7 +117,7 @@ module.exports = function(RED) {
                                     });
                                 }
 
-                                var lastValue = channels[i] in node.server.devices?node.server.devices[channels[i]].payload.toString():null;
+                                var lastValue = device?device.payload.toString():null;
 
                                 if (node.config.payloadType === 'wb_payload' && payload === 'toggle') {
                                     payload = parseInt(lastValue)?0:1;
