@@ -47,15 +47,13 @@ module.exports = function(RED) {
                         var hasData = false;
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
-
-                            if (message_in.topic in node.server.devices) {
-                                message_in = Object.assign(message_in, node.server.devices[message_in.topic]);
-
-                                result = node.server.devices[message_in.topic].payload;
+                            var device = node.server.getDeviceByTopic(message_in.topic);
+                            if (device) {
+                                message_in = Object.assign(message_in, device);
+                                result = device.payload;
                                 hasData = true;
-
-                                if (node.server.devices[message_in.topic].error) {
-                                    result = node.server.devices[message_in.topic].payload; //last valid value
+                                if (device.error) {
+                                    result = device.payload; //last valid value
                                     hasData = false;
                                 }
                             } else {
@@ -63,9 +61,12 @@ module.exports = function(RED) {
                             }
                         } else {
                             var data_array = WirenboardHelper.prepareDataArray(node.server, channels);
+
                             hasData = data_array.is_data;
                             result = data_array.data;
-                            message_in.data_array = data_array.data_full;
+
+
+                            message_in.data_array = data_array;
                             message_in.math = data_array.math;
                         }
 

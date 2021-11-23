@@ -59,6 +59,18 @@ module.exports = function (RED) {
             node.devices = {};
         }
 
+        getDeviceByTopic(topic) {
+            var result = null;
+            var node = this;
+            if (topic in node.devices) {
+                result = {};
+                Object.assign(result, node.devices[topic]);
+            }
+
+            return result;
+        }
+
+
         getTopicByElementId(elementId) {
             var result = undefined;
             var node = this;
@@ -68,7 +80,6 @@ module.exports = function (RED) {
                    break;
                }
             }
-
 
             return result;
         }

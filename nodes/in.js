@@ -78,12 +78,11 @@ module.exports = function(RED) {
                         });
 
                     } else {
+                        var device = node.server.getDeviceByTopic(data.topic);
                         node.status({
                             fill: "green",
                             shape: "dot",
-                            text: (data.topic in node.server.devices)
-                                ? node.server.devices[data.topic].payload
-                                : "node-red-contrib-wirenboard/in:status.connected"
+                            text: (device) ? device.payload : "node-red-contrib-wirenboard/in:status.connected"
                         });
                     }
                 }
@@ -118,8 +117,10 @@ module.exports = function(RED) {
 
             //meta errors
             for (var i in node.config.channel) {
-                if (node.config.channel[i] in node.server.devices && node.server.devices[node.config.channel[i]].error) {
-                    node.onMetaError({topic:node.config.channel[i], payload:true});
+                var topic = node.config.channel[i];
+                var device = node.server.getDeviceByTopic(topic);
+                if (device && 'error' in device &&  device.error) {
+                    node.onMetaError({topic:topic, payload:true});
                 }
             }
         }
@@ -150,11 +151,9 @@ module.exports = function(RED) {
                         node.firstMsg = false;
                         return;
                     }
-
-                    node.send(node.server.devices[data.topic]);
+                    node.send(node.server.getDeviceByTopic(data.topic));
                 } else {
                     var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
-
                     if (node.firstMsg && !node.config.outputAtStartup && data_array.has_null) {
                         return;
                     }
@@ -164,7 +163,7 @@ module.exports = function(RED) {
                         payload: data_array.data,
                         data_array: data_array.data_full,
                         math: data_array.math,
-                        event: node.server.devices[data.topic]
+                        event: node.server.getDeviceByTopic(data.topic)
                     });
 
                     node.cleanTimer = setTimeout(function () {
