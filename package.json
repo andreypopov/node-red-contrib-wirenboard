@@ -37,5 +37,5 @@
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
-  "version": "3.7.5"
+  "version": "3.7.6"
 }

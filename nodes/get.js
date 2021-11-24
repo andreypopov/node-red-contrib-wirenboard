@@ -66,7 +66,7 @@ module.exports = function(RED) {
                             result = data_array.data;
 
 
-                            message_in.data_array = data_array;
+                            message_in.data_array = data_array.data_full;
                             message_in.math = data_array.math;
                         }
 
