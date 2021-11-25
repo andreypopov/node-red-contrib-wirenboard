@@ -109,6 +109,7 @@ module.exports = function(RED) {
                             var updateStatus = false;
                             for (var i in channels) {
                                 var device = node.server.getDeviceByTopic(channels[i]);
+                                if (!device) return;
                                 if ('error' in device && device.error) {
                                     node.status({
                                         fill: "red",
