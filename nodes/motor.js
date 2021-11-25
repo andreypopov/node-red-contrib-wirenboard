@@ -198,7 +198,7 @@ module.exports = function(RED) {
                     if (isClose && node.contact_close_flag != null) {
                         if (node.config.extra_close_push_delay && node.config.extra_close_push_time) {
                             setTimeout(function () {
-                                node.close();
+                                node.closeCurtain();
 
                                 setTimeout(function () {
                                     node.percent = 0;
@@ -217,7 +217,7 @@ module.exports = function(RED) {
             this.move(false);
         }
 
-        close() {
+        closeCurtain() {
             this.move(true);
         }
 
