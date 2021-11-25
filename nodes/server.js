@@ -229,7 +229,7 @@ module.exports = function (RED) {
                             node.log('Read Error: '+deviceTopic)
                             node.devices[deviceTopic].error = true;
                             node.emit('onMetaError', {topic:deviceTopic, payload:true});
-                        }, 60000);
+                        }, 60000*3);
                     } else {
                         // node.log('Error was removed! clean error: '+deviceTopic)
                         if (deviceTopic in node.errorTimers) {

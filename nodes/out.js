@@ -109,26 +109,27 @@ module.exports = function(RED) {
                             var updateStatus = false;
                             for (var i in channels) {
                                 var device = node.server.getDeviceByTopic(channels[i]);
-                                if (!device) return;
-                                if ('error' in device && device.error) {
-                                    node.status({
-                                        fill: "red",
-                                        shape: "dot",
-                                        text: "node-red-contrib-wirenboard/out:status.no_connection"
-                                    });
-                                }
+                                if (device) {
+                                    if ('error' in device && device.error) {
+                                        node.status({
+                                            fill: "red",
+                                            shape: "dot",
+                                            text: "node-red-contrib-wirenboard/out:status.no_connection"
+                                        });
+                                    }
 
-                                var lastValue = device?device.payload.toString():null;
+                                    var lastValue = device ? device.payload.toString() : null;
 
-                                if (node.config.payloadType === 'wb_payload' && payload === 'toggle') {
-                                    payload = parseInt(lastValue)?0:1;
-                                }
+                                    if (node.config.payloadType === 'wb_payload' && payload === 'toggle') {
+                                        payload = parseInt(lastValue) ? 0 : 1;
+                                    }
 
-                                if (!rbe || (rbe && lastValue !== payload.toString())) {
-                                    node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
-                                    node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain: true});
-                                    updateStatus = true;
-                                    node.last_change = new Date().getTime();
+                                    if (!rbe || (rbe && lastValue !== payload.toString())) {
+                                        node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
+                                        node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain: true});
+                                        updateStatus = true;
+                                        node.last_change = new Date().getTime();
+                                    }
                                 }
                             }
 
