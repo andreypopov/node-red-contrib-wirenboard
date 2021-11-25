@@ -43,19 +43,19 @@ module.exports = function(RED) {
                     //homekit format
                     if (typeof(message_in.payload) == "object") {
                         if ("TargetPosition" in message_in.payload) {
-                            node.go(message_in.payload.TargetPosition);
+                            node.goCurtain(message_in.payload.TargetPosition);
                         }
                     } else {
                         if ("open" === message_in.payload) {
-                            node.go(100);
+                            node.goCurtain(100);
                         } else if ("close" === message_in.payload) {
-                            node.go(0);
+                            node.goCurtain(0);
                         } else if ("stop" === message_in.payload) {
-                            node.stop();
+                            node.stopCurtain();
                         } else if ("toggle" === message_in.payload) {
-                            node.go(node.percent > 0?0:100);
+                            node.goCurtain(node.percent > 0?0:100);
                         } else if (parseInt(message_in.payload) >= 0 && parseInt(message_in.payload) <= 100) {
-                            node.go(message_in.payload);
+                            node.goCurtain(message_in.payload);
                         }
                     }
                 });
@@ -70,7 +70,7 @@ module.exports = function(RED) {
 
         }
 
-        go(percent) {
+        goCurtain(percent) {
             var node = this;
             percent = parseInt(percent);
 
@@ -100,7 +100,7 @@ module.exports = function(RED) {
 
             if (percent === node.percent) return;
 
-            node.move(percent<node.percent);
+            node.moveCurtain(percent<node.percent);
 
             node.send({
                 payload: {
@@ -135,11 +135,11 @@ module.exports = function(RED) {
             //disable
             node.runningTimer = setTimeout(function () {
                 node.percent = percent;
-                node.stop();
+                node.stopCurtain();
             }, timeEnd);
         }
 
-        stop() {
+        stopCurtain() {
             var node = this;
 
             clearTimeout(node.runningTimer);
@@ -191,18 +191,18 @@ module.exports = function(RED) {
 
                 if (isClose) {
                     node.percent = 0;
-                    node.stop();
+                    node.stopCurtain();
                 }
 
                 if (node.contact_close_flag !== isClose) {
                     if (isClose && node.contact_close_flag != null) {
                         if (node.config.extra_close_push_delay && node.config.extra_close_push_time) {
                             setTimeout(function () {
-                                node.close();
+                                node.closeCurtain();
 
                                 setTimeout(function () {
                                     node.percent = 0;
-                                    node.stop();
+                                    node.stopCurtain();
                                 }, node.config.extra_close_push_time);
 
                             }, node.config.extra_close_push_delay);
@@ -213,15 +213,15 @@ module.exports = function(RED) {
             }
         }
 
-        open() {
-            this.move(false);
+        openCurtain() {
+            this.moveCurtain(false);
         }
 
-        close() {
-            this.move(true);
+        closeCurtain() {
+            this.moveCurtain(true);
         }
 
-        move(direction) {
+        moveCurtain(direction) {
             var node = this;
 
             if (node.config.inverse) direction = !direction;
