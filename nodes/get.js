@@ -18,6 +18,7 @@ module.exports = function(RED) {
 
             if (node.server)  {
                 node.on('input', function (message_in) {
+                    message_in.payload_in = message_in.payload;
                     clearTimeout(node.cleanTimer);
 
                     var channels = [];
@@ -70,8 +71,6 @@ module.exports = function(RED) {
                             message_in.math = data_array.math;
                         }
 
-
-                        message_in.payload_in = message_in.payload;
                         message_in.payload = result;
                         node.send(message_in);
 
