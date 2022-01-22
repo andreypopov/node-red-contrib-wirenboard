@@ -9,7 +9,6 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.cleanTimer = null;
-            node.is_subscribed = false;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);

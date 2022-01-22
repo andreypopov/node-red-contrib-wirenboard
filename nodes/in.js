@@ -10,12 +10,10 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
             node.firstMsg = true;
-            node.is_subscribed = false;
             node.statusTimer = null;
             node.cleanTimer = null;
             node.meta = {};
             node.server = RED.nodes.getNode(node.config.server);
-
             if (typeof(node.config.channel) == 'string') node.config.channel = [node.config.channel]; //for compatible
 
             node.status({}); //clean
@@ -131,6 +129,7 @@ module.exports = function(RED) {
             if (node.hasChannel(data.topic)) {
                 clearTimeout(node.cleanTimer);
                 clearTimeout(node.statusTimer);
+                let timeout = 0;
 
                 node.status({
                     fill: "green",
@@ -147,28 +146,41 @@ module.exports = function(RED) {
                 }, 3000);
 
                 if (node.isSingleChannelMode()) {
-                    if (node.firstMsg && !node.config.outputAtStartup) {
+                    if (node.firstMsg) {
+                        timeout = 1000; //hotfix, delay for the first message
                         node.firstMsg = false;
-                        return;
+                        if (!node.config.outputAtStartup) {
+                            return;
+                        }
                     }
-                    node.send(node.server.getDeviceByTopic(data.topic));
+
+                    setTimeout(function() {
+                        node.send(node.server.getDeviceByTopic(data.topic));
+                    }, timeout);
                 } else {
                     var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);
-                    if (node.firstMsg && !node.config.outputAtStartup && data_array.has_null) {
-                        return;
+                    let timeout = 0;
+
+                    if (node.firstMsg && data_array.has_null) {
+                        return; //not full data, waiting for other topics
+                    } else if (node.firstMsg && !data_array.has_null) {
+                        node.firstMsg = false;
+                        timeout = 1000; //hotfix, delay for the first message
+                        if (!node.config.outputAtStartup) {
+                            return;
+                        }
                     }
-                    node.firstMsg = false;
 
-                    node.send({
-                        payload: data_array.data,
-                        data_array: data_array.data_full,
-                        math: data_array.math,
-                        event: node.server.getDeviceByTopic(data.topic)
-                    });
+                    setTimeout(function(){
+                        node.send({
+                            payload: data_array.data,
+                            data_array: data_array.data_full,
+                            math: data_array.math,
+                            event: node.server.getDeviceByTopic(data.topic)
+                        });
+                    }, timeout);
 
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
+
                 }
             }
         }

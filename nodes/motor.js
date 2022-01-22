@@ -11,7 +11,6 @@ module.exports = function(RED) {
             node.cleanTimer = null;
             node.runningTimer = null;
             node.runningInterval = null;
-            node.is_subscribed = false;
             node.percent = 0; //close by default
             node.contact_open_flag = null;
             node.contact_close_flag = null;
