@@ -32,14 +32,14 @@
       "server": "nodes/server.js",
       "api": "api.js"
     },
-    "version": ">=2.0.0",
-    "engines": {
-      "node": ">=12.0.0"
-    }
+    "version": ">=2.0.0"
+  },
+  "engines": {
+    "node": ">=12.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
-  "version": "3.7.12"
+  "version": "3.7.13"
 }

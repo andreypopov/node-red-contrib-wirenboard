@@ -1,0 +1,811 @@
+[
+    {
+        "id": "2a57c088308a2ebd",
+        "type": "group",
+        "z": "7a00cef3.f3996",
+        "name": "",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "519043b6.a28a5c",
+            "5df6b66e.bde478",
+            "d085e1ba.a134",
+            "a8f34be7.843718",
+            "10f7c6c.3d57039",
+            "5abfb491.5cec5c",
+            "7f79f726.113da8",
+            "39f773b.5a5a68c",
+            "2475ecb2.022fc4",
+            "5d3af83d.ed8f78",
+            "d9078e96.414ae",
+            "a6139aac.a10938",
+            "1c145874.589248",
+            "3747e025.da8a2"
+        ],
+        "x": 1534,
+        "y": 1219,
+        "w": 1412,
+        "h": 222
+    },
+    {
+        "id": "519043b6.a28a5c",
+        "type": "wirenboard-button",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "Кнопка окна",
+        "server": "e72d9d72.a206",
+        "channel": "/devices/wb-gpio/controls/EXT3_IN1",
+        "eventTypes": [
+            "LongPress",
+            "LongPressRelease",
+            "Click",
+            "DoubleClick"
+        ],
+        "longPressDelay": "1500",
+        "longPressRange": false,
+        "longpressTimerValueMin": "",
+        "longpressTimerValueMax": "",
+        "longpressTimerValueStep": "",
+        "longpressTimerChangeDelayMs": "",
+        "doubleClickDelay": 600,
+        "x": 1630,
+        "y": 1300,
+        "wires": [
+            [
+                "5df6b66e.bde478"
+            ]
+        ]
+    },
+    {
+        "id": "5df6b66e.bde478",
+        "type": "switch",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "event",
+        "property": "event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "click",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "doubleclick",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "longpress",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "longpress_release",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 1830,
+        "y": 1300,
+        "wires": [
+            [
+                "a8f34be7.843718"
+            ],
+            [
+                "10f7c6c.3d57039"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "d085e1ba.a134",
+        "type": "wirenboard-motor",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "server": "e72d9d72.a206",
+        "channel": "/devices/wb-mio-gpio_102:2/controls/ON4",
+        "channel_dir": "/devices/wb-mio-gpio_102:2/controls/DIR4",
+        "contact_close": {
+            "length": 0,
+            "prevObject": {
+                "length": 0,
+                "prevObject": {
+                    "0": {
+                        "location": {
+                            "ancestorOrigins": {},
+                            "href": "http://192.168.1.2:1880/#flow/7a00cef3.f3996",
+                            "origin": "http://192.168.1.2:1880",
+                            "protocol": "http:",
+                            "host": "192.168.1.2:1880",
+                            "hostname": "192.168.1.2",
+                            "port": "1880",
+                            "pathname": "/",
+                            "search": "",
+                            "hash": "#flow/7a00cef3.f3996"
+                        },
+                        "jQuery351088343404638661731": {
+                            "events": {
+                                "mouseup": [
+                                    {
+                                        "type": "mouseup",
+                                        "origType": "mouseup",
+                                        "guid": 3,
+                                        "namespace": ""
+                                    }
+                                ],
+                                "click": [
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 36193,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 36205,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 36217,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 36227,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 36608,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 36995,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 38274,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 38284,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 38296,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 38306,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 38692,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 39073,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 44435,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 44445,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 44462,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 50401,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 50409,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 51455,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 51463,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 62150,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 62158,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 80367,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 80377,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 80387,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 80402,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 80528,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 80538,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 82227,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 82237,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 82249,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 82259,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 82645,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 83026,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 104072,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 104082,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 104094,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 104104,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 104490,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 104871,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 106316,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 106328,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 144072,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 144084,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 147075,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 147087,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 148506,
+                                        "namespace": ""
+                                    },
+                                    {
+                                        "type": "click",
+                                        "origType": "click",
+                                        "data": null,
+                                        "guid": 148518,
+                                        "namespace": ""
+                                    }
+                                ]
+                            },
+                            "focusin": 3
+                        },
+                        "jQuery351088343404638661732": {
+                            "uiDialogInstances": []
+                        }
+                    },
+                    "length": 1
+                }
+            }
+        },
+        "max_running_time": "50000",
+        "inverse": true,
+        "extra_close_push_delay": "",
+        "extra_close_push_time": "",
+        "x": 2450,
+        "y": 1380,
+        "wires": [
+            [
+                "7f79f726.113da8",
+                "5d3af83d.ed8f78",
+                "a6139aac.a10938",
+                "1c145874.589248"
+            ]
+        ]
+    },
+    {
+        "id": "a8f34be7.843718",
+        "type": "change",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "toggle",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "toggle",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1990,
+        "y": 1260,
+        "wires": [
+            [
+                "3747e025.da8a2"
+            ]
+        ]
+    },
+    {
+        "id": "10f7c6c.3d57039",
+        "type": "change",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "stop",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "stop",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1990,
+        "y": 1300,
+        "wires": [
+            [
+                "3747e025.da8a2"
+            ]
+        ]
+    },
+    {
+        "id": "5abfb491.5cec5c",
+        "type": "link in",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "links": [
+            "7d247696.ca8c38"
+        ],
+        "x": 2215,
+        "y": 1300,
+        "wires": [
+            [
+                "3747e025.da8a2"
+            ]
+        ]
+    },
+    {
+        "id": "7f79f726.113da8",
+        "type": "change",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "homekit",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 2355,
+        "y": 1300,
+        "wires": [
+            [
+                "39f773b.5a5a68c"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "39f773b.5a5a68c",
+        "type": "homekit-service",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "isParent": true,
+        "hostType": "0",
+        "bridge": "99f95ec8.0cb0c",
+        "accessoryId": "",
+        "parentService": "",
+        "name": "Штора",
+        "serviceName": "WindowCovering",
+        "topic": "",
+        "filter": false,
+        "manufacturer": "Детская, Штора",
+        "model": "1.2.0",
+        "serialNo": "102:2-4",
+        "firmwareRev": "1.2.0",
+        "hardwareRev": "1.2.0",
+        "softwareRev": "1.2.0",
+        "cameraConfigVideoProcessor": "ffmpeg",
+        "cameraConfigSource": "",
+        "cameraConfigStillImageSource": "",
+        "cameraConfigMaxStreams": 2,
+        "cameraConfigMaxWidth": 1280,
+        "cameraConfigMaxHeight": 720,
+        "cameraConfigMaxFPS": 10,
+        "cameraConfigMaxBitrate": 300,
+        "cameraConfigVideoCodec": "libx264",
+        "cameraConfigAudioCodec": "libfdk_aac",
+        "cameraConfigAudio": false,
+        "cameraConfigPacketSize": 1316,
+        "cameraConfigVerticalFlip": false,
+        "cameraConfigHorizontalFlip": false,
+        "cameraConfigMapVideo": "0:0",
+        "cameraConfigMapAudio": "0:1",
+        "cameraConfigVideoFilter": "scale=1280:720",
+        "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+        "cameraConfigDebug": false,
+        "cameraConfigSnapshotOutput": "disabled",
+        "cameraConfigInterfaceName": "",
+        "characteristicProperties": "{}",
+        "waitForSetupMsg": false,
+        "outputs": 2,
+        "x": 2460,
+        "y": 1300,
+        "wires": [
+            [
+                "2475ecb2.022fc4"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "2475ecb2.022fc4",
+        "type": "function",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "func": "if (msg.hap.session === undefined) {\n    return null;\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2575,
+        "y": 1300,
+        "wires": [
+            [
+                "3747e025.da8a2"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "5d3af83d.ed8f78",
+        "type": "link out",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "SVG",
+        "links": [
+            "b0c0bc61.75af4",
+            "504137f3.abc448"
+        ],
+        "x": 2710,
+        "y": 1360,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "d9078e96.414ae",
+        "type": "wirenboard-out",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "server": "e72d9d72.a206",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 2780,
+        "y": 1400,
+        "wires": []
+    },
+    {
+        "id": "a6139aac.a10938",
+        "type": "function",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "func": "if (\"position\" in msg.payload) {\n    msg.topic = \"/devices/child_roller/position\";\n    msg.payload = msg.payload.position;\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2675,
+        "y": 1400,
+        "wires": [
+            [
+                "d9078e96.414ae"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "1c145874.589248",
+        "type": "change",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "blinds_position",
+                "pt": "flow",
+                "to": "payload.position",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 2790,
+        "y": 1320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3747e025.da8a2",
+        "type": "function",
+        "z": "7a00cef3.f3996",
+        "g": "2a57c088308a2ebd",
+        "name": "",
+        "func": "var windowPos = flow.get('window_position'); //если нет значения, считаем, что открыто\nnode.status({\"text\":windowPos});\n\nvar homekitMsg = {\"payload\":{\"ObstructionDetected\":windowPos > 50}};\n\n//окно открыто более 50%, штору нельзя двигать вообще\nif (windowPos > 50) {\n    return [null, homekitMsg];\n}\n\nreturn [msg, homekitMsg];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2295,
+        "y": 1380,
+        "wires": [
+            [
+                "d085e1ba.a134"
+            ],
+            [
+                "39f773b.5a5a68c"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "e72d9d72.a206",
+        "type": "wirenboard-server",
+        "name": "WirenBoard",
+        "host": "192.168.1.3",
+        "mqtt_port": "",
+        "mqtt_username": "",
+        "mqtt_password": ""
+    },
+    {
+        "id": "99f95ec8.0cb0c",
+        "type": "homekit-bridge",
+        "bridgeName": "Node-red",
+        "pinCode": "111-11-111",
+        "port": "",
+        "allowInsecureRequest": false,
+        "manufacturer": "NRCHKB",
+        "model": "1.2.0",
+        "serialNo": "Default Serial Number",
+        "firmwareRev": "1.2.0",
+        "hardwareRev": "1.2.0",
+        "softwareRev": "1.2.0",
+        "customMdnsConfig": false,
+        "mdnsMulticast": true,
+        "mdnsInterface": "",
+        "mdnsPort": "",
+        "mdnsIp": "",
+        "mdnsTtl": "",
+        "mdnsLoopback": true,
+        "mdnsReuseAddr": true,
+        "allowMessagePassthrough": true
+    }
+]
