@@ -35,11 +35,11 @@
     "version": ">=2.0.0"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
-  "version": "3.7.15"
+  "version": "3.7.16"
 }
