@@ -3,25 +3,20 @@
     "name": "Andrey Popov",
     "email": "andrey_popov@me.com"
   },
-  "bugs": {
-    "url": "https://github.com/andreypopov/node-red-contrib-wirenboard/issues/"
-  },
-  "bundleDependencies": false,
+  "name": "node-red-contrib-wirenboard",
+  "description": "Wirenboard connectivity nodes for node-red",
+  "version": "3.7.16",
   "dependencies": {
     "mqtt": "^4.2.6",
     "multiple-select": "^1.5.2",
     "request": "^2.88.2"
   },
-  "deprecated": false,
-  "description": "Wiren Board connectivity nodes for node-red",
-  "homepage": "https://github.com/andreypopov/node-red-contrib-wirenboard",
   "keywords": [
     "wirenboard",
     "wb",
     "node-red"
   ],
-  "license": "GPL-3.0",
-  "name": "node-red-contrib-wirenboard",
+  "license": "GPL",
   "node-red": {
     "nodes": {
       "in": "nodes/in.js",
@@ -34,12 +29,15 @@
     },
     "version": ">=2.0.0"
   },
-  "engines": {
-    "node": ">=14"
+  "homepage": "https://github.com/andreypopov/node-red-contrib-wirenboard",
+  "bugs": {
+    "url": "https://github.com/andreypopov/node-red-contrib-wirenboard/issues/"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-wirenboard.git"
   },
-  "version": "3.7.16"
+  "engines": {
+    "node": ">=14"
+  }
 }
