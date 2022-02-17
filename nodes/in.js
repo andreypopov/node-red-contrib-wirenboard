@@ -127,21 +127,28 @@ module.exports = function(RED) {
             var node = this;
 
             if (node.hasChannel(data.topic)) {
+                let device = node.server.getDeviceByTopic(data.topic);
                 clearTimeout(node.cleanTimer);
                 clearTimeout(node.statusTimer);
                 let timeout = 0;
+                let payloadText =  WirenboardHelper.formatStatusValue(data.payload, device.meta);
+                let textSuffix = WirenboardHelper.statusUpdatedAtSimple();
 
                 node.status({
                     fill: "green",
                     shape: "dot",
-                    text: data.payload
+                    text: payloadText
                 });
                 node.statusTimer = setTimeout(function () {
-                    let textSuffix = WirenboardHelper.statusUpdatedAt(node.server, data.topic);
+
+                    //todo: meta loads after value, this fixes unit on start
+                    device = node.server.getDeviceByTopic(data.topic);
+                    payloadText =  WirenboardHelper.formatStatusValue(data.payload, device.meta);
+
                     node.status({
                         fill: "green",
                         shape: "ring",
-                        text: data.payload+(textSuffix?' '+textSuffix:'')
+                        text: payloadText+(textSuffix?' '+textSuffix:'')
                     });
                 }, 3000);
 

@@ -124,6 +124,8 @@ module.exports = function(RED) {
                                         payload = parseInt(lastValue) ? 0 : 1;
                                     }
 
+                                    payload = WirenboardHelper.formatValue(payload, node.server.devices[channels[i]].meta);
+
                                     if (!rbe || (rbe && lastValue !== payload.toString())) {
                                         node.log('Published to mqtt topic: ' + (channels[i] + command) + ' : ' + payload.toString());
                                         node.server.mqtt.publish(channels[i] + command, payload.toString(), {retain: true});

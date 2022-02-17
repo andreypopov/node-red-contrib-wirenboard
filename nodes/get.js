@@ -9,6 +9,7 @@ module.exports = function(RED) {
 
             var node = this;
             node.config = config;
+            node.statusTimer = null;
             node.cleanTimer = null;
             node.server = RED.nodes.getNode(node.config.server);
             node.diff = {};
@@ -19,6 +20,7 @@ module.exports = function(RED) {
                 node.on('input', function (message_in) {
                     message_in.payload_in = message_in.payload;
                     clearTimeout(node.cleanTimer);
+                    clearTimeout(node.statusTimer);
 
                     var channels = [];
 
@@ -44,16 +46,20 @@ module.exports = function(RED) {
 
                     if (typeof (channels) == 'object'  && channels.length) {
                         var result = {};
+                        let resultFormatted = '';
                         var hasData = false;
                         if (channels.length === 1) {
                             message_in.topic = channels[0];
                             var device = node.server.getDeviceByTopic(message_in.topic);
                             if (device) {
                                 message_in = Object.assign(message_in, device);
-                                result = device.payload;
+                                result =  device.payload;
+                                resultFormatted = WirenboardHelper.formatStatusValue(device.payload, device.meta);
+
                                 hasData = true;
                                 if (device.error) {
                                     result = device.payload; //last valid value
+                                    resultFormatted = WirenboardHelper.formatStatusValue(device.payload, device.meta);
                                     hasData = false;
                                 }
                             } else {
@@ -64,6 +70,7 @@ module.exports = function(RED) {
 
                             hasData = data_array.is_data;
                             result = data_array.data;
+                            resultFormatted = 'ok';
 
 
                             message_in.data_array = data_array.data_full;
@@ -71,24 +78,31 @@ module.exports = function(RED) {
                         }
 
                         message_in.payload = result;
+                        // message_in.payload_formatted = resultFormatted;
                         node.send(message_in);
 
                         if (hasData) {
+                            let textSuffix = WirenboardHelper.statusUpdatedAtSimple();
                             if (channels.length === 1) {
-                                let textSuffix = WirenboardHelper.statusUpdatedAt(node.server, message_in.topic);
                                 node.status({
                                     fill: "green",
                                     shape: "dot",
-                                    text: result+(textSuffix?' '+textSuffix:'')
+                                    text: resultFormatted
                                 });
                             } else {
                                 node.status({
                                     fill: "green",
                                     shape: "dot",
-                                    text: "ok"
+                                    text: resultFormatted
                                 });
                             }
-
+                            node.statusTimer = setTimeout(function () {
+                                node.status({
+                                    fill: "green",
+                                    shape: "ring",
+                                    text: resultFormatted+(textSuffix?' '+textSuffix:'')
+                                });
+                            }, 3000);
 
                         } else {
                             node.status({
@@ -96,10 +110,10 @@ module.exports = function(RED) {
                                 shape: "dot",
                                 text: "node-red-contrib-wirenboard/get:status.no_connection"
                             });
+                            node.cleanTimer = setTimeout(function () {
+                                node.status({}); //clean
+                            }, 3000);
                         }
-                        node.cleanTimer = setTimeout(function () {
-                            node.status({}); //clean
-                        }, 3000);
                     } else {
                         node.status({
                             fill: "red",

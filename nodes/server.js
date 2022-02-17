@@ -226,9 +226,11 @@ module.exports = function (RED) {
                             delete node.errorTimers[deviceTopic];
                         }
                         node.errorTimers[deviceTopic] = setTimeout(function(){
-                            node.log('Read Error: '+deviceTopic)
-                            node.devices[deviceTopic].error = true;
-                            node.emit('onMetaError', {topic:deviceTopic, payload:true});
+                            if (node.devices && 'deviceTopic' in node.devices) {
+                                node.log('Read Error: ' + deviceTopic)
+                                node.devices[deviceTopic].error = true;
+                                node.emit('onMetaError', {topic: deviceTopic, payload: true});
+                            }
                         }, 60000*3);
                     } else {
                         // node.log('Error was removed! clean error: '+deviceTopic)

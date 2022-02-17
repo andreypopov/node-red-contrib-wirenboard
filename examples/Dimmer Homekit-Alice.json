@@ -1,0 +1,297 @@
+[
+    {
+        "id": "e5f42ff002f899d3",
+        "type": "group",
+        "z": "d60a5ec574524af9",
+        "name": "",
+        "style": {
+            "fill": "#ffffbf",
+            "fill-opacity": "0.5",
+            "label": true
+        },
+        "nodes": [
+            "9c057a2a3b3a22d5",
+            "73d386499b56320a",
+            "82ca7f1960d85f3b",
+            "e51670ee3a2e06eb",
+            "4ac68ce7227bd32f",
+            "65d40e82b0df6e65",
+            "cbd845996bb7f181",
+            "cefc39e5496860f8"
+        ],
+        "x": 154,
+        "y": 719,
+        "w": 912,
+        "h": 202
+    },
+    {
+        "id": "ada11320275d291d",
+        "type": "subflow",
+        "name": "WB Converter",
+        "info": "",
+        "category": "Wiren Board",
+        "in": [
+            {
+                "x": 100,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 320,
+                "y": 160,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 320,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9",
+                        "port": 1
+                    }
+                ]
+            },
+            {
+                "x": 320,
+                "y": 280,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9",
+                        "port": 2
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#5fb408",
+        "icon": "node-red/function.svg"
+    },
+    {
+        "id": "adf89a37928df6f9",
+        "type": "function",
+        "z": "ada11320275d291d",
+        "name": "to Homekit",
+        "func": "//функция работает с wb-mr6c, wb-mdm3, wb-led\n//конвертирует данные для хомкит и алисы\n\nlet isOn = null;\nlet bri = null;\nlet msgHomekit = null;\nlet msgAliceOn = null;\nlet msgAliceBri = null\n\n///получение данных\nif (!(\"data_array\" in msg)) { //если выбран один топик\n    msg.data_array = [msg];\n} \nfor (var i in msg.data_array) {\n    var item = msg.data_array[i];\n    if ((item.topic).split('enable').length > 1 || (item.topic).split('/K').length > 1 || ((item.topic).split('/Channel').length > 1 && (item.topic).split('Brightness').length == 1)) {\n        isOn = parseInt(item.payload);\n    } else if ((item.topic).split('brightness').length > 1 || ((item.topic).split('/Channel').length > 1 && (item.topic).split('Brightness').length > 1)) {\n        bri = parseInt(item.payload);\n    }\n}\n\nif (null !== isOn || null !== bri) {\n    msgHomekit = {\"payload\":{}}\n}\nif (null !== isOn) {\n    msgHomekit.payload.On = isOn;\n    msgAliceOn = { \"payload\": isOn ? true : false };\n}\nif (null !== bri) {\n    msgHomekit.payload.Brightness = bri;\n    msgAliceBri = { \"payload\": bri };\n}\n\n//инициализация алисы при старте, временный фикс\nlet aliceStatus = global.get('alice_status') || false;\nif (!aliceStatus) {\n    setTimeout(function () {\n        node.send([null, msgAliceOn, msgAliceBri]);\n        node.warn('Отправлено в: ' + item.topic);\n    }, 5000);\n    msgAliceOn = null;\n    msgAliceBri = null;\n    node.warn('Отложить: ' + item.topic);\n}\n\nreturn [msgHomekit, msgAliceOn, msgAliceBri];\n\n",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 215,
+        "y": 220,
+        "wires": [
+            [],
+            [],
+            []
+        ],
+        "l": false
+    },
+    {
+        "id": "9c057a2a3b3a22d5",
+        "type": "homekit-service",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "isParent": true,
+        "hostType": "0",
+        "bridge": "",
+        "accessoryId": "",
+        "parentService": "",
+        "name": "Диммер",
+        "serviceName": "Lightbulb",
+        "topic": "",
+        "filter": false,
+        "manufacturer": "wirenboard",
+        "model": "rgbw",
+        "serialNo": "29-g",
+        "firmwareRev": "",
+        "hardwareRev": "",
+        "softwareRev": "",
+        "cameraConfigVideoProcessor": "ffmpeg",
+        "cameraConfigSource": "",
+        "cameraConfigStillImageSource": "",
+        "cameraConfigMaxStreams": 2,
+        "cameraConfigMaxWidth": 1280,
+        "cameraConfigMaxHeight": 720,
+        "cameraConfigMaxFPS": 10,
+        "cameraConfigMaxBitrate": 300,
+        "cameraConfigVideoCodec": "libx264",
+        "cameraConfigAudioCodec": "libfdk_aac",
+        "cameraConfigAudio": false,
+        "cameraConfigPacketSize": 1316,
+        "cameraConfigVerticalFlip": false,
+        "cameraConfigHorizontalFlip": false,
+        "cameraConfigMapVideo": "0:0",
+        "cameraConfigMapAudio": "0:1",
+        "cameraConfigVideoFilter": "scale=1280:720",
+        "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+        "cameraConfigDebug": false,
+        "cameraConfigSnapshotOutput": "disabled",
+        "cameraConfigInterfaceName": "",
+        "characteristicProperties": "{    \"Brightness\":{        \"maxValue\": 100,        \"minValue\": 0,        \"minStep\": 1    }}",
+        "waitForSetupMsg": false,
+        "outputs": 2,
+        "x": 500,
+        "y": 760,
+        "wires": [
+            [
+                "4ac68ce7227bd32f"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "73d386499b56320a",
+        "type": "wirenboard-in",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "name": "Dimmer on+bri",
+        "server": "",
+        "channel": [],
+        "outputAtStartup": true,
+        "x": 260,
+        "y": 820,
+        "wires": [
+            [
+                "65d40e82b0df6e65"
+            ]
+        ]
+    },
+    {
+        "id": "82ca7f1960d85f3b",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "name": "Диммер, on",
+        "server": "",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 970,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "e51670ee3a2e06eb",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "name": "Диммер, bri",
+        "server": "",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 970,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "4ac68ce7227bd32f",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "name": "from Homekit",
+        "func": "if (msg.hap.session === undefined) {\n    return [null, null];\n}\n\nlet msgOn = null;\nlet msgBri = null;\n\nif (\"Brightness\" in msg.payload) {\n    if (msg.payload.Brightness > 0) {\n        msgOn = { \"payload\": 1 };\n        msgBri = { \"payload\": msg.payload.Brightness };\n        return [msgOn, msgBri]\n    } else {\n        msgOn = { \"payload\": 0 };\n        return [msgOn, msgBri];\n    }\n\n} else if (\"On\" in msg.payload) {\n    msgOn = { \"payload\": msg.payload.On ? 1 : 0};\n    return [msgOn, msgBri];\n}\n\nreturn [null, null];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 715,
+        "y": 760,
+        "wires": [
+            [
+                "82ca7f1960d85f3b"
+            ],
+            [
+                "e51670ee3a2e06eb"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "65d40e82b0df6e65",
+        "type": "subflow:ada11320275d291d",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "name": "",
+        "x": 395,
+        "y": 820,
+        "wires": [
+            [
+                "9c057a2a3b3a22d5"
+            ],
+            [
+                "cbd845996bb7f181"
+            ],
+            [
+                "cefc39e5496860f8"
+            ]
+        ],
+        "inputLabels": [
+            "WB in"
+        ],
+        "outputLabels": [
+            "homekit",
+            "alice: On",
+            "alice: Bri"
+        ],
+        "l": false
+    },
+    {
+        "id": "cbd845996bb7f181",
+        "type": "On_Off",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "device": "",
+        "name": "Добавить новый alice-device...",
+        "retrievable": true,
+        "response": false,
+        "x": 600,
+        "y": 820,
+        "wires": [
+            [
+                "82ca7f1960d85f3b"
+            ]
+        ]
+    },
+    {
+        "id": "cefc39e5496860f8",
+        "type": "Range",
+        "z": "d60a5ec574524af9",
+        "g": "e5f42ff002f899d3",
+        "device": "",
+        "name": "Добавить новый alice-device...",
+        "instance": "brightness",
+        "unit": "unit.percent",
+        "min": "0",
+        "max": 100,
+        "precision": 1,
+        "response": false,
+        "retrievable": true,
+        "x": 610,
+        "y": 880,
+        "wires": [
+            [
+                "e51670ee3a2e06eb"
+            ]
+        ]
+    }
+]

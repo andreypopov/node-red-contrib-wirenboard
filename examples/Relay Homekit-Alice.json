@@ -1,0 +1,260 @@
+[
+    {
+        "id": "082fca132d8bebed",
+        "type": "group",
+        "z": "d60a5ec574524af9",
+        "name": "",
+        "style": {
+            "fill": "#ffffbf",
+            "fill-opacity": "0.5",
+            "label": true
+        },
+        "nodes": [
+            "6d54176bd80c94e6",
+            "41ae6ee951106bf8",
+            "99e81db9a2f0d5cb",
+            "72da9abebb8eb538",
+            "d8a42dba254509a0",
+            "765524842af775c5"
+        ],
+        "x": 214,
+        "y": 559,
+        "w": 752,
+        "h": 142
+    },
+    {
+        "id": "ada11320275d291d",
+        "type": "subflow",
+        "name": "WB Converter",
+        "info": "",
+        "category": "Wiren Board",
+        "in": [
+            {
+                "x": 100,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 320,
+                "y": 160,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 320,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9",
+                        "port": 1
+                    }
+                ]
+            },
+            {
+                "x": 320,
+                "y": 280,
+                "wires": [
+                    {
+                        "id": "adf89a37928df6f9",
+                        "port": 2
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#5fb408",
+        "icon": "node-red/function.svg"
+    },
+    {
+        "id": "adf89a37928df6f9",
+        "type": "function",
+        "z": "ada11320275d291d",
+        "name": "to Homekit",
+        "func": "//функция работает с wb-mr6c, wb-mdm3, wb-led\n//конвертирует данные для хомкит и алисы\n\nlet isOn = null;\nlet bri = null;\nlet msgHomekit = null;\nlet msgAliceOn = null;\nlet msgAliceBri = null\n\n///получение данных\nif (!(\"data_array\" in msg)) { //если выбран один топик\n    msg.data_array = [msg];\n} \nfor (var i in msg.data_array) {\n    var item = msg.data_array[i];\n    if ((item.topic).split('enable').length > 1 || (item.topic).split('/K').length > 1 || ((item.topic).split('/Channel').length > 1 && (item.topic).split('Brightness').length == 1)) {\n        isOn = parseInt(item.payload);\n    } else if ((item.topic).split('brightness').length > 1 || ((item.topic).split('/Channel').length > 1 && (item.topic).split('Brightness').length > 1)) {\n        bri = parseInt(item.payload);\n    }\n}\n\nif (null !== isOn || null !== bri) {\n    msgHomekit = {\"payload\":{}}\n}\nif (null !== isOn) {\n    msgHomekit.payload.On = isOn;\n    msgAliceOn = { \"payload\": isOn ? true : false };\n}\nif (null !== bri) {\n    msgHomekit.payload.Brightness = bri;\n    msgAliceBri = { \"payload\": bri };\n}\n\n//инициализация алисы при старте, временный фикс\nlet aliceStatus = global.get('alice_status') || false;\nif (!aliceStatus) {\n    setTimeout(function () {\n        node.send([null, msgAliceOn, msgAliceBri]);\n        node.warn('Отправлено в: ' + item.topic);\n    }, 5000);\n    msgAliceOn = null;\n    msgAliceBri = null;\n    node.warn('Отложить: ' + item.topic);\n}\n\nreturn [msgHomekit, msgAliceOn, msgAliceBri];\n\n",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 215,
+        "y": 220,
+        "wires": [
+            [],
+            [],
+            []
+        ],
+        "l": false
+    },
+    {
+        "id": "6d54176bd80c94e6",
+        "type": "wirenboard-in",
+        "z": "d60a5ec574524af9",
+        "g": "082fca132d8bebed",
+        "name": "Реле",
+        "server": "",
+        "channel": [],
+        "outputAtStartup": true,
+        "x": 290,
+        "y": 620,
+        "wires": [
+            [
+                "d8a42dba254509a0"
+            ]
+        ]
+    },
+    {
+        "id": "41ae6ee951106bf8",
+        "type": "wirenboard-out",
+        "z": "d60a5ec574524af9",
+        "g": "082fca132d8bebed",
+        "name": "Реле",
+        "server": "",
+        "channel": [],
+        "command": "/on",
+        "commandType": "wb_cmd",
+        "payload": "payload",
+        "payloadType": "msg",
+        "rbe": false,
+        "x": 890,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "99e81db9a2f0d5cb",
+        "type": "homekit-service",
+        "z": "d60a5ec574524af9",
+        "g": "082fca132d8bebed",
+        "isParent": true,
+        "hostType": "0",
+        "bridge": "",
+        "accessoryId": "",
+        "parentService": "",
+        "name": "Лампочка",
+        "serviceName": "Lightbulb",
+        "topic": "",
+        "filter": false,
+        "manufacturer": "wirenboard",
+        "model": "relay",
+        "serialNo": "22-4",
+        "firmwareRev": "",
+        "hardwareRev": "",
+        "softwareRev": "",
+        "cameraConfigVideoProcessor": "ffmpeg",
+        "cameraConfigSource": "",
+        "cameraConfigStillImageSource": "",
+        "cameraConfigMaxStreams": 2,
+        "cameraConfigMaxWidth": 1280,
+        "cameraConfigMaxHeight": 720,
+        "cameraConfigMaxFPS": 10,
+        "cameraConfigMaxBitrate": 300,
+        "cameraConfigVideoCodec": "libx264",
+        "cameraConfigAudioCodec": "libfdk_aac",
+        "cameraConfigAudio": false,
+        "cameraConfigPacketSize": 1316,
+        "cameraConfigVerticalFlip": false,
+        "cameraConfigHorizontalFlip": false,
+        "cameraConfigMapVideo": "0:0",
+        "cameraConfigMapAudio": "0:1",
+        "cameraConfigVideoFilter": "scale=1280:720",
+        "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+        "cameraConfigDebug": false,
+        "cameraConfigSnapshotOutput": "disabled",
+        "cameraConfigInterfaceName": "",
+        "characteristicProperties": "{}",
+        "waitForSetupMsg": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 600,
+        "wires": [
+            [
+                "72da9abebb8eb538"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "72da9abebb8eb538",
+        "type": "function",
+        "z": "d60a5ec574524af9",
+        "g": "082fca132d8bebed",
+        "name": "",
+        "func": "if (msg.hap.session === undefined) {\n    return null;\n}\n\nif (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 695,
+        "y": 600,
+        "wires": [
+            [
+                "41ae6ee951106bf8"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "d8a42dba254509a0",
+        "type": "subflow:ada11320275d291d",
+        "z": "d60a5ec574524af9",
+        "g": "082fca132d8bebed",
+        "name": "",
+        "x": 395,
+        "y": 620,
+        "wires": [
+            [
+                "99e81db9a2f0d5cb"
+            ],
+            [
+                "765524842af775c5"
+            ],
+            []
+        ],
+        "inputLabels": [
+            "WB in"
+        ],
+        "outputLabels": [
+            "homekit",
+            "alice: On",
+            "alice: Bri"
+        ],
+        "l": false
+    },
+    {
+        "id": "765524842af775c5",
+        "type": "On_Off",
+        "z": "d60a5ec574524af9",
+        "g": "082fca132d8bebed",
+        "device": "b5b8734a54a4a443",
+        "name": "Комната:Лампочка",
+        "retrievable": true,
+        "response": false,
+        "x": 640,
+        "y": 660,
+        "wires": [
+            [
+                "41ae6ee951106bf8"
+            ]
+        ]
+    },
+    {
+        "id": "b5b8734a54a4a443",
+        "type": "alice-device",
+        "service": "",
+        "name": "Лампочка",
+        "description": "",
+        "room": "Комната",
+        "dtype": "devices.types.light"
+    }
+]
