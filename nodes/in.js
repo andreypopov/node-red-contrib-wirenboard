@@ -143,7 +143,8 @@ module.exports = function(RED) {
 
                     //todo: meta loads after value, this fixes unit on start
                     device = node.server.getDeviceByTopic(data.topic);
-                    payloadText =  WirenboardHelper.formatStatusValue(data.payload, device.meta);
+                    let meta = device && 'meta' in device?device.meta:null;
+                    payloadText =  WirenboardHelper.formatStatusValue(data.payload, meta);
 
                     node.status({
                         fill: "green",
