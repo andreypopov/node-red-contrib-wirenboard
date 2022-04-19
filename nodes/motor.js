@@ -12,6 +12,7 @@ module.exports = function(RED) {
             node.runningTimer = null;
             node.runningInterval = null;
             node.percent = 0; //close by default
+            node.dir = null;
             node.contact_open_flag = null;
             node.contact_close_flag = null;
             //homekit: 0 close, 100 open
@@ -52,7 +53,13 @@ module.exports = function(RED) {
                         } else if ("stop" === message_in.payload) {
                             node.stopCurtain();
                         } else if ("toggle" === message_in.payload) {
-                            node.goCurtain(node.percent > 0?0:100);
+                            if (node.percent === 0) {
+                                node.goCurtain(100);
+                            } else if (node.percent === 100) {
+                                node.goCurtain(0);
+                            } else {
+                                node.goCurtain(node.dir?0:100);
+                            }
                         } else if (parseInt(message_in.payload) >= 0 && parseInt(message_in.payload) <= 100) {
                             node.goCurtain(message_in.payload);
                         }
@@ -95,7 +102,7 @@ module.exports = function(RED) {
                 }
             }
 
-            // console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
+            console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
 
             if (percent === node.percent) return;
 
@@ -225,6 +232,7 @@ module.exports = function(RED) {
 
             if (node.config.inverse) direction = !direction;
             direction = direction?"1":"0";
+            node.dir = parseInt(direction);
 
             node.server.mqtt.publish(node.config.channel_dir + '/on', direction);
             node.log('Published to mqtt topic: ' + node.config.channel_dir + '/on : ' + direction);
