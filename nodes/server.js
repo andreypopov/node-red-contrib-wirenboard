@@ -105,7 +105,7 @@ module.exports = function (RED) {
 
 
                 client.on('connect', function () {
-                    client.subscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {
+                    client.subscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/#', '/tmp/items_list'], function (err) {
                         if (!err) {
                             client.publish('/tmp/items_list', 'end_reading_items_list')
                         } else {
@@ -172,6 +172,7 @@ module.exports = function (RED) {
                             if (!(deviceTopic in node.devices)) node.devices[deviceTopic] = {};
                             if (!('meta' in node.devices[deviceTopic])) node.devices[deviceTopic].meta = {};
                             node.devices[deviceTopic].meta[metaName] = message.toString();
+                            // console.log(deviceTopic);
                         } else if (topicParts[3] === 'controls') {
                             var controlName = topicParts[4];
                             if (!(topic in node.devices)) node.devices[topic] = {};

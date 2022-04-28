@@ -102,7 +102,7 @@ module.exports = function(RED) {
                 }
             }
 
-            console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
+            // console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
 
             if (percent === node.percent) return;
 
@@ -234,12 +234,19 @@ module.exports = function(RED) {
             direction = direction?"1":"0";
             node.dir = parseInt(direction);
 
+            //disable - we need it to save module, enable after small timeout
+            node.server.mqtt.publish(node.config.channel + '/on', "0");
+            node.log('Published to mqtt topic: ' + node.config.channel + '/on : 0');
+
+            //set direction
             node.server.mqtt.publish(node.config.channel_dir + '/on', direction);
             node.log('Published to mqtt topic: ' + node.config.channel_dir + '/on : ' + direction);
 
             //enable
-            node.server.mqtt.publish(node.config.channel + '/on', "1");
-            node.log('Published to mqtt topic: ' + node.config.channel + '/on : 1');
+            setTimeout(()=>{
+                node.server.mqtt.publish(node.config.channel + '/on', "1");
+                node.log('Published to mqtt topic: ' + node.config.channel + '/on : 1');
+            }, 100);
         }
 
         onConnectError(status = null) {
