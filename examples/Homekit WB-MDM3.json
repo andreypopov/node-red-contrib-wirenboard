@@ -1,18 +1,165 @@
 [
   {
-    "id": "77409e95.861da",
+    "id": "1d211ac5e838fd5c",
+    "type": "group",
+    "z": "d60a5ec574524af9",
+    "name": "",
+    "style": {
+      "fill": "#ffffbf",
+      "fill-opacity": "0.5",
+      "label": true
+    },
+    "nodes": [
+      "a9e025ebfd210e7a",
+      "94fbdd31689bd738",
+      "2b7ce7e0f03bf85d",
+      "ee239f3ee2a21068",
+      "1911d1ebda37245a",
+      "739ac1c3a4c357a9",
+      "42f8a7bf8e41cd86",
+      "ba3b2a9092a31810"
+    ],
+    "x": 144,
+    "y": 979,
+    "w": 832,
+    "h": 202
+  },
+  {
+    "id": "a334579c98b5335e",
+    "type": "subflow",
+    "name": "WB Converter",
+    "info": "",
+    "category": "Wiren Board",
+    "in": [
+      {
+        "x": 100,
+        "y": 220,
+        "wires": [
+          {
+            "id": "f4161c30446aca43"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 540,
+        "y": 160,
+        "wires": [
+          {
+            "id": "f4161c30446aca43",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 550,
+        "y": 220,
+        "wires": [
+          {
+            "id": "f4161c30446aca43",
+            "port": 1
+          }
+        ]
+      },
+      {
+        "x": 560,
+        "y": 280,
+        "wires": [
+          {
+            "id": "f4161c30446aca43",
+            "port": 2
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#5fb408",
+    "inputLabels": [
+      "from wirenboard"
+    ],
+    "outputLabels": [
+      "homekit",
+      "alice on/off",
+      "alice brightness"
+    ],
+    "icon": "node-red/function.svg"
+  },
+  {
+    "id": "f4161c30446aca43",
+    "type": "function",
+    "z": "a334579c98b5335e",
+    "name": "to Homekit",
+    "func": "//функция работает с wb-mr6c, wb-mdm3, wb-led\n//конвертирует данные для хомкит и алисы\n\nlet isOn = null;\nlet bri = null;\nlet msgHomekit = null;\nlet msgAliceOn = null;\nlet msgAliceBri = null\n\n///получение данных\nif (!(\"data_array\" in msg)) { //если выбран один топик\n    msg.data_array = [msg];\n} \nfor (var i in msg.data_array) {\n    var item = msg.data_array[i];\n\n    if ((/Channel.*Brightness$/).test(item.topic)) { //led bri\n        bri = parseInt(item.payload);\n    } else if ((/Channel.*\\)$/).test(item.topic)) { //led on\n        isOn = parseInt(item.payload)?true:false;\n    } else if ((/K\\d+$/).test(item.topic)) { //mdm3 on\n        isOn = parseInt(item.payload) ? true : false;\n    } else if ((/Channel\\s\\d+$/).test(item.topic)) { //mdm3 on\n        bri = parseInt(item.payload);\n    } else if ((/enable/).test(item.topic)) { //relay on\n        isOn = parseInt(item.payload);\n    }\n\n    if (bri === 0) {\n        bri = null;\n    }\n}\n\nif (null !== isOn || null !== bri) {\n    msgHomekit = {\"payload\":{}}\n}\nif (null !== isOn) {\n    msgHomekit.payload.On = isOn;\n    msgAliceOn = { \"payload\": isOn };\n}\nif (null !== bri) {\n    msgHomekit.payload.Brightness = bri;\n    msgAliceBri = { \"payload\": bri };\n}\n\n//инициализация алисы при старте, временный фикс\n// let aliceStatus = global.get('alice_status') || false;\n// if (!aliceStatus) {\n//     setTimeout(function () {\n//         node.send([null, msgAliceOn, msgAliceBri]);\n//         node.warn('Отправлено в: ' + item.topic);\n//     }, 5000);\n//     msgAliceOn = null;\n//     msgAliceBri = null;\n//     node.warn('Отложить: ' + item.topic);\n// }\n\nreturn [msgHomekit, msgAliceOn, msgAliceBri];\n\n",
+    "outputs": 3,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 395,
+    "y": 220,
+    "wires": [
+      [],
+      [],
+      []
+    ],
+    "l": false
+  },
+  {
+    "id": "a9e025ebfd210e7a",
+    "type": "wirenboard-out",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
+    "name": "mdm3 bri",
+    "server": "",
+    "channel": [],
+    "command": "/on",
+    "commandType": "wb_cmd",
+    "payload": "payload",
+    "payloadType": "msg",
+    "rbe": false,
+    "x": 880,
+    "y": 1140,
+    "wires": []
+  },
+  {
+    "id": "94fbdd31689bd738",
+    "type": "wirenboard-in",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
+    "name": "mdm3 on+bri",
+    "server": "",
+    "channel": [],
+    "outputAtStartup": true,
+    "x": 240,
+    "y": 1080,
+    "wires": [
+      [
+        "ba3b2a9092a31810"
+      ]
+    ]
+  },
+  {
+    "id": "2b7ce7e0f03bf85d",
     "type": "homekit-service",
-    "z": "7bd3a6f8.fd7df8",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
     "isParent": true,
+    "hostType": "0",
     "bridge": "",
+    "accessoryId": "",
     "parentService": "",
-    "name": "Bulb",
+    "name": "Светильник",
     "serviceName": "Lightbulb",
     "topic": "",
     "filter": false,
-    "manufacturer": "Default Manufacturer",
-    "model": "Default Model",
-    "serialNo": "Default Serial Number",
+    "manufacturer": "Люыстра",
+    "model": "dimmer",
+    "serialNo": "mdm3",
+    "firmwareRev": "",
+    "hardwareRev": "",
+    "softwareRev": "",
     "cameraConfigVideoProcessor": "ffmpeg",
     "cameraConfigSource": "",
     "cameraConfigStillImageSource": "",
@@ -34,145 +181,125 @@
     "cameraConfigDebug": false,
     "cameraConfigSnapshotOutput": "disabled",
     "cameraConfigInterfaceName": "",
-    "characteristicProperties": "{\n    \"Brightness\":{\n        \"maxValue\": 100,\n        \"minValue\": 0,\n        \"minStep\": 1\n    }\n}",
-    "x": 470,
-    "y": 200,
+    "characteristicProperties": "{    \"Brightness\":{        \"maxValue\": 100,        \"minValue\": 0,        \"minStep\": 1    }}",
+    "waitForSetupMsg": false,
+    "outputs": 2,
+    "x": 540,
+    "y": 1020,
     "wires": [
       [
-        "42fb14da.3b1d4c",
-        "5813d9f5.075ea8"
+        "1911d1ebda37245a"
       ],
       []
     ]
   },
   {
-    "id": "9dd3380b.ad0928",
-    "type": "wirenboard-in",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "Channel 1",
-    "server": "",
-    "channel": [],
-    "outputAtStartup": true,
-    "x": 220,
-    "y": 260,
-    "wires": [
-      [
-        "3fef09ab.b9c5a6"
-      ]
-    ]
-  },
-  {
-    "id": "3fef09ab.b9c5a6",
-    "type": "function",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "",
-    "func": "var characteristic = {};\ncharacteristic.On = parseInt(msg.payload)?1:0;\ncharacteristic.Brightness = parseInt(msg.payload);\n\nmsg.payload = characteristic;\nreturn msg;",
-    "outputs": 1,
-    "noerr": 0,
-    "x": 315,
-    "y": 260,
-    "wires": [
-      [
-        "77409e95.861da"
-      ]
-    ],
-    "l": false
-  },
-  {
-    "id": "5813d9f5.075ea8",
-    "type": "function",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "",
-    "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (msg.payload['Brightness'] !== undefined) {\n    msg.payload = msg.payload.Brightness;\n} else {\n    return null;\n}\n\nreturn msg;",
-    "outputs": 1,
-    "noerr": 0,
-    "x": 615,
-    "y": 260,
-    "wires": [
-      [
-        "7657d623.e01348"
-      ]
-    ],
-    "l": false
-  },
-  {
-    "id": "7657d623.e01348",
+    "id": "ee239f3ee2a21068",
     "type": "wirenboard-out",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "Channel 1",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
+    "name": "mdm3 on",
     "server": "",
     "channel": [],
     "command": "/on",
     "commandType": "wb_cmd",
     "payload": "payload",
     "payloadType": "msg",
-    "x": 720,
-    "y": 260,
+    "rbe": false,
+    "x": 890,
+    "y": 1080,
     "wires": []
   },
   {
-    "id": "42fb14da.3b1d4c",
+    "id": "1911d1ebda37245a",
     "type": "function",
-    "z": "7bd3a6f8.fd7df8",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
     "name": "",
-    "func": "if (msg.hap.context === undefined) {\n    return null;\n}\n\nif (\"On\" in msg.payload) {\n    msg.payload = msg.payload.On?1:0;\n} else {\n    return null;\n}\nreturn msg;\n",
-    "outputs": 1,
+    "func": "if (msg.hap.session === undefined) {\n    return null;\n}\n\nlet msgOn = null;\nlet msgBri = null;\n\nif (\"On\" in msg.payload) {\n    msgOn = {'payload' : msg.payload.On?1:0};\n} else if (\"Brightness\" in msg.payload) {\n    msgBri = {'payload' : msg.payload.Brightness};\n}\n\nreturn [msgOn, msgBri];\n",
+    "outputs": 2,
     "noerr": 0,
-    "x": 615,
-    "y": 200,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 725,
+    "y": 1020,
     "wires": [
       [
-        "919f4f14.fe268"
+        "ee239f3ee2a21068"
+      ],
+      [
+        "a9e025ebfd210e7a"
       ]
     ],
     "l": false
   },
   {
-    "id": "6a2eecbd.9a3914",
-    "type": "function",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "",
-    "func": "var newMsg = {};\nnewMsg.payload = {\n    \"On\":parseInt(msg.payload)>0\n};\n\nreturn newMsg;\n",
-    "outputs": 1,
-    "noerr": 0,
-    "x": 315,
-    "y": 200,
+    "id": "739ac1c3a4c357a9",
+    "type": "Range",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
+    "device": "",
+    "name": "Добавить новый alice-device...",
+    "instance": "brightness",
+    "unit": "unit.percent",
+    "min": "0",
+    "max": 100,
+    "precision": 1,
+    "response": false,
+    "retrievable": true,
+    "x": 640,
+    "y": 1140,
     "wires": [
       [
-        "77409e95.861da"
-      ]
-    ],
-    "l": false
-  },
-  {
-    "id": "71f64cb2.d54af4",
-    "type": "wirenboard-in",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "K1",
-    "server": "",
-    "channel": [],
-    "outputAtStartup": true,
-    "x": 230,
-    "y": 200,
-    "wires": [
-      [
-        "6a2eecbd.9a3914"
+        "a9e025ebfd210e7a"
       ]
     ]
   },
   {
-    "id": "919f4f14.fe268",
-    "type": "wirenboard-out",
-    "z": "7bd3a6f8.fd7df8",
-    "name": "K1",
-    "server": "",
-    "channel": [],
-    "command": "/on",
-    "commandType": "wb_cmd",
-    "payload": "payload",
-    "payloadType": "msg",
-    "x": 710,
-    "y": 200,
-    "wires": []
+    "id": "42f8a7bf8e41cd86",
+    "type": "On_Off",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
+    "device": "",
+    "name": "Добавить новый alice-device...",
+    "retrievable": true,
+    "response": false,
+    "x": 630,
+    "y": 1080,
+    "wires": [
+      [
+        "ee239f3ee2a21068"
+      ]
+    ]
+  },
+  {
+    "id": "ba3b2a9092a31810",
+    "type": "subflow:a334579c98b5335e",
+    "z": "d60a5ec574524af9",
+    "g": "1d211ac5e838fd5c",
+    "name": "",
+    "x": 365,
+    "y": 1080,
+    "wires": [
+      [
+        "2b7ce7e0f03bf85d"
+      ],
+      [
+        "42f8a7bf8e41cd86"
+      ],
+      [
+        "739ac1c3a4c357a9"
+      ]
+    ],
+    "inputLabels": [
+      "WB in"
+    ],
+    "outputLabels": [
+      "homekit",
+      "alice: On",
+      "alice: Bri"
+    ],
+    "l": false
   }
 ]
