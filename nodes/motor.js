@@ -15,6 +15,7 @@ module.exports = function(RED) {
             node.dir = null;
             node.contact_open_flag = null;
             node.contact_close_flag = null;
+            node.message_in = null;
             //homekit: 0 close, 100 open
 
             node.status({});
@@ -36,6 +37,7 @@ module.exports = function(RED) {
                 }
 
                 node.on('input', function (message_in) {
+                    node.message_in = message_in;
                     clearTimeout(node.cleanTimer);
                     clearTimeout(node.runningTimer);
                     clearInterval(node.runningInterval);
@@ -121,7 +123,8 @@ module.exports = function(RED) {
                     CurrentPosition: node.percent,
                     PositionState: percent>node.percent?0:1,
                     TargetPosition: percent
-                }
+                },
+                message_in: node.message_in
             });
 
             node.runningInterval = setInterval(function () {
@@ -167,7 +170,8 @@ module.exports = function(RED) {
                     CurrentPosition: node.percent,
                     PositionState: 2,
                     TargetPosition: node.percent
-                }
+                },
+                message_in: node.message_in
             });
 
             node.nodeStatus("node-red-contrib-wirenboard/motor:status.stopped");
