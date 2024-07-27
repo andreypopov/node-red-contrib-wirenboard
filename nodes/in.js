@@ -163,7 +163,14 @@ module.exports = function(RED) {
                     }
 
                     setTimeout(function() {
-                        node.send(node.server.getDeviceByTopic(data.topic));
+                        let device = node.server.getDeviceByTopic(data.topic);
+                        if (node.config.filter) {
+                            if (device.change.old === device.change.new) {
+                                return;
+                            }
+                        }
+
+                        node.send(device);
                     }, timeout);
                 } else {
                     var data_array = WirenboardHelper.prepareDataArray(node.server, node.config.channel);

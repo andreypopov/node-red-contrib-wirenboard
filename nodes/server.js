@@ -12,6 +12,7 @@ module.exports = function (RED) {
             node.topic = '/devices/#';
             node.devices = {};
             node.devices_names = {};
+            node.devices_meta = {};
             node.errorTimers = {};
             node.on('close', () => this.onClose());
             node.setMaxListeners(0);
@@ -70,7 +71,6 @@ module.exports = function (RED) {
             return result;
         }
 
-
         getTopicByElementId(elementId) {
             var result = undefined;
             var node = this;
@@ -105,7 +105,7 @@ module.exports = function (RED) {
 
 
                 client.on('connect', function () {
-                    client.subscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/#', '/tmp/items_list'], function (err) {
+                    client.subscribe(['/devices/+/meta', '/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/#', '/tmp/items_list'], function (err) {
                         if (!err) {
                             client.publish('/tmp/items_list', 'end_reading_items_list')
                         } else {
@@ -123,7 +123,7 @@ module.exports = function (RED) {
                         //client.unsubscribe(['/devices/+/meta/name', '/devices/+/controls/+/meta/+', '/devices/+/controls/+', '/tmp/items_list'], function (err) {})
                         client.end(true);
                         that.devices_names = {};
-// console.log(node.devices);
+
                         if (!Object.keys(that.devices).length) {
                             RED.log.warn("wirenboard: error code #0026: No items, check your settings");
                         } else {
@@ -155,26 +155,66 @@ module.exports = function (RED) {
                         }
                         return node.devices;
                     } else {
-                        //parse topic
-                        var topicParts = topic.split('/');
-                        var deviceName = topicParts[2];
-                        // let deviceTopic = '/devices/'+deviceName+'/controls/'+controlName;
+                        let deviceName = '';
+                        let controlName = '';
 
-                        //meta device name
-                        if (topicParts[3] === 'meta' && topicParts[4] === 'name') {
-                            that.devices_names[deviceName] = message.toString();
+                        //Find meta info: /devices/+/controls/+/meta
+                        //Example: /devices/wb-led_27/controls/Channel 4 Brightness/meta
+                        const controlMetaRegex = /^\/devices\/([^/]+)\/controls\/([^/]+)\/meta$/;
+                        const controlMetaMatches = topic.match(controlMetaRegex);
+                        if (controlMetaMatches) {
+                            deviceName = controlMetaMatches[1]; // wb-led_27
+                            controlName = controlMetaMatches[2]; // Channel 4 Brightness
+                            let deviceTopic = '/devices/' + deviceName + '/controls/' + controlName;
+                            if (!(deviceTopic in node.devices)) node.devices[deviceTopic] = {};
+                            if (!('control_meta' in node.devices[deviceTopic])) node.devices[deviceTopic].control_meta = {};
+                            node.devices[deviceTopic].control_meta = JSON.parse(message.toString());
+                            return;
+                        }
 
-                        //meta controls
-                        } else if (topicParts[3] === 'controls' && topicParts[5] === 'meta') {
-                            let controlName = topicParts[4];
-                            let metaName = topicParts[6];
-                            let deviceTopic = '/devices/'+deviceName+'/controls/'+controlName;
+                        //todo: for compatibility, use control_meta
+                        //Find meta info: /devices/+/controls/+/meta
+                        //Example: /devices/wb-led_27/controls/Channel 4 Brightness/meta/readonly
+                        const metaRegex = /^\/devices\/([^/]+)\/controls\/([^/]+)\/meta\/([^/]+)\/$/;
+                        const metaMatches = topic.match(metaRegex);
+                        if (metaMatches) {
+                            deviceName = metaMatches[1]; // wb-led_27
+                            controlName = metaMatches[2]; // Channel 4 Brightness
+                            let metaName = metaMatches[3]; // readonly
+                            let deviceTopic = '/devices/' + deviceName + '/controls/' + controlName;
                             if (!(deviceTopic in node.devices)) node.devices[deviceTopic] = {};
                             if (!('meta' in node.devices[deviceTopic])) node.devices[deviceTopic].meta = {};
                             node.devices[deviceTopic].meta[metaName] = message.toString();
-                            // console.log(deviceTopic);
-                        } else if (topicParts[3] === 'controls') {
-                            var controlName = topicParts[4];
+                            return;
+                        }
+
+                        //Find meta of device: /devices/+/meta
+                        //Example: /devices/wb-led_27/meta
+                        const metaDeviceRegex = /^\/devices\/([^/]+)\/meta$/;
+                        const metaDeviceMatches = topic.match(metaDeviceRegex);
+                        if (metaDeviceMatches) {
+                            deviceName = metaDeviceMatches[1]; // wb-led_27
+                            that.devices_meta[deviceName] = JSON.parse(message.toString());
+                            return;
+                        }
+
+                        //Find meta name of device: /devices/+/meta/name
+                        //Example: /devices/wb-led_27/meta/name
+                        const metaNameDeviceRegex = /^\/devices\/([^/]+)\/meta\/name$/;
+                        const metaNameDeviceMatches = topic.match(metaNameDeviceRegex);
+                        if (metaNameDeviceMatches) {
+                            deviceName = metaNameDeviceMatches[1]; // wb-led_27
+                            that.devices_names[deviceName] = message.toString();
+                            return;
+                        }
+
+                        //Find device controls data: /devices/+/controls/#
+                        //Example: /devices/wb-led_27/controls/CCT1
+                        const controlsRegex = /^\/devices\/([^/]+)\/controls\/([^/]+)$/;
+                        const controlsMatches = topic.match(controlsRegex);
+                        if (controlsMatches) {
+                            deviceName = controlsMatches[1]; // wb-led_27
+                            controlName = controlsMatches[2]; // Channel 4 Brightness
                             if (!(topic in node.devices)) node.devices[topic] = {};
                             that.devices[topic].topic = topic;
                             that.devices[topic].elementId = WirenboardHelper.generateElementId(topic);
@@ -184,6 +224,10 @@ module.exports = function (RED) {
                             if (deviceName in that.devices_names) {
                                 that.devices[topic].device_friendly_name = that.devices_names[deviceName];
                             }
+                            if (deviceName in that.devices_meta) {
+                                that.devices[topic].device_meta = that.devices_meta[deviceName];
+                            }
+                            return;
                         }
                     }
                 })
@@ -315,12 +359,17 @@ module.exports = function (RED) {
         }
 
         onMQTTMessage(topic, message) {
+            //ignore empty buffer, case when wirenboard serial is restarted
+            if (!message.length) {
+                return;
+            }
+
             var node = this;
             var messageString = message.toString();
 
             if (!(topic in node.devices)) node.devices[topic] = {};
             node.devices[topic].change = {
-                'old':'payload' in node.devices[topic]?node.devices[topic].payload:null,
+                'old':'payload' in node.devices[topic]?node.devices[topic].payload:messageString,
                 'new':messageString,
                 'updated_at': 'change' in node.devices[topic]?new Date().getTime():null
             };

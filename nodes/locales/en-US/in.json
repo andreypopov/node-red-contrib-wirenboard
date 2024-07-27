@@ -8,7 +8,9 @@
         "start_output": "Start Output",
         "start_output_help": "Send value on start",
         "error_output": "Errors Output",
-        "error_output_help": ""
+        "error_output_help": "",
+        "filter_output": "Filter",
+        "filter_output_help": "Output only changes"
     },
     "placeholder": {
         "name": "Name"

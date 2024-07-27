@@ -23,6 +23,10 @@
         <input type="checkbox" id="node-input-outputAtStartup" checked="checked" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.start_output_help"></span></input>
     </div>
     <div class="form-row">
+        <label for='node-input-filter' class="l-width"><i class="fa fa-filter" aria-hidden="true"></i></i> <span data-i18n="label.filter_output"></span></label>
+        <input type="checkbox" id="node-input-filter" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.filter_output_help"></span></input>
+    </div>
+    <div class="form-row">
         <label for='node-input-outputError' class="l-width"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></i> <span data-i18n="label.error_output"></span></label>
         <input type="checkbox" id="node-input-outputError" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.error_output_help"></span></input>
     </div>
@@ -47,6 +51,10 @@
             outputAtStartup: {
                 value: true,
                 required: true
+            },
+            filter: {
+                value: false,
+                required: false
             }
         },
         inputs: 0,
