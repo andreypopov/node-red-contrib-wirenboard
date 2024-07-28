@@ -1,0 +1,18 @@
+<script type="text/x-red" data-help-name="wirenboard-out">
+    <p>Отправить mqtt сообщение в определенный канал.</p>
+    <h3>Конфигурация</h3>
+    <dl class="message-properties">
+        <dt class="optional">Имя <span class="property-type">string</span></dt><dd>Выберите любое имя для идентификации вашего узла.</dd>
+        <dt>Сервер <span class="property-type">object</span></dt><dd>Выберите экземпляр сервера wirenboard для использования.</dd>
+        <dt>Канал <span class="property-type">string</span></dt><dd>Выберите канал(ы) для прослушивания.</dd>
+        <dt class="optional">RBE <span class="property-type">boolean</span></dt><dd>Проверить текущее значение в MQTT и отправить, если оно отличается от payload.</dd>
+    </dl>
+    <h3>Команды</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt><dd>Отправить команду по топику, работает только с пустым значением настройки Channel.</dd>
+    </dl>
+    <h3>WB Payload</h3>
+    <ul>
+        <li><b>Переключить:</b> изменить значение между 0 и 1</li>
+    </ul>
+</script>

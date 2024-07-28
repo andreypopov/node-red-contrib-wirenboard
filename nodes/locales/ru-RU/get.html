@@ -1,0 +1,23 @@
+<script type="text/x-red" data-help-name="wirenboard-get">
+    <p>Этот узел читает mqtt сообщение из определенного канала.</p>
+    <h3>Конфигурация</h3>
+    <dl class="message-properties">
+        <dt class="optional">Имя <span class="property-type">string</span></dt><dd>Выберите любое имя для идентификации вашего узла.</dd>
+        <dt>Сервер <span class="property-type">object</span></dt><dd>Выберите экземпляр сервера wirenboard для использования.</dd>
+        <dt>Канал <span class="property-type">string</span></dt><dd>Выберите канал(ы) для прослушивания.</dd>
+    </dl>
+
+    <h3>Выходы</h3>
+    <h5>Выход</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt><dd>текущее значение</dd>
+        <dt>payload_in<span class="property-type">object</span></dt><dd>входной payload</dd>
+        <dt>topic<span class="property-type">string</span></dt><dd>имя mqtt топика</dd>
+        <dt>math<span class="property-type">object</span></dt><dd>сумма, среднее, минимум, максимум, количество возвращаемых значений</dd>
+    </dl>
+
+    <h3>Команды</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt><dd>отправить команду по топику, работает только с пустым значением настройки Channel</dd>
+    </dl>
+</script>

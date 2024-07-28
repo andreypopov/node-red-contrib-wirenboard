@@ -1,0 +1,18 @@
+<script type="text/x-red" data-help-name="wirenboard-in">
+    <p>Этот узел слушает mqtt сообщения, отправленные вашим wirenboard.</p>
+    <h3>Конфигурация</h3>
+    <dl class="message-properties">
+        <dt class="optional">Имя <span class="property-type">string</span></dt><dd>Выберите любое имя для идентификации вашего узла.</dd>
+        <dt>Сервер <span class="property-type">object</span></dt><dd>Выберите экземпляр сервера wirenboard для использования.</dd>
+        <dt>Канал <span class="property-type">string</span></dt><dd>Выберите канал(ы) для прослушивания.</dd>
+        <dt class="optional">Начальный вывод <span class="property-type">boolean</span></dt><dd>Состояние вывода при запуске.</dd>
+        <dt class="optional">Фильтр <span class="property-type">boolean</span></dt><dd>Выводить только изменения.</dd>
+    </dl>
+
+    <h3>Выходы</h3>
+    <h5>Выход</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt><dd>текущее значение</dd>
+<!--        <dt>meta<span class="property-type">object</span></dt><dd>Полные данные устройства или группы.</dd>-->
+    </dl>
+</script>

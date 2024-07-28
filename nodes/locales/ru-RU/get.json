@@ -1,0 +1,18 @@
+{
+    "label": {
+        "name": "Имя",
+        "server": "Сервер",
+        "channel": "Канал",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список устройств"
+    },
+    "placeholder": {
+        "name": "Имя"
+    },
+    "status": {
+        "no_server": "нет сервера",
+        "no_device": "нет устройства",
+        "no_value": "нет значения",
+        "no_connection": "нет подключения"
+    }
+}

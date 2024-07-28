@@ -1,0 +1,20 @@
+{
+    "label": {
+        "name": "Имя",
+        "host": "Хост",
+        "mqtt_port": "MQTT Порт",
+        "mqtt_username": "MQTT Имя пользователя",
+        "mqtt_password": "MQTT Пароль"
+    },
+    "placeholder": {
+        "name": "Имя"
+    },
+    "status": {
+        "no_server": "нет сервера",
+        "no_device": "нет устройства",
+        "no_connection": "нет подключения"
+    },
+    "tip": {
+        "deploy": "<b>Важно:</b> разверните узел сервера для получения списка каналов"
+    }
+}

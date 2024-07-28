@@ -1,0 +1,21 @@
+{
+    "label": {
+        "name": "Имя",
+        "server": "Сервер",
+        "channel": "Канал",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список устройств"
+    },
+    "placeholder": {
+        "name": "Имя"
+    },
+    "status": {
+        "no_server": "нет сервера",
+        "no_device": "нет устройства",
+        "no_connection": "нет подключения",
+        "connected": "подключено"
+    },
+    "tip": {
+        "works_with_dry_contact": "<b>Важно:</b> работает корректно только с модулями DI-DR/DI-WD"
+    }
+}

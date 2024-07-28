@@ -1,0 +1,32 @@
+{
+    "label": {
+        "name": "Имя",
+        "server": "Сервер",
+        "channel": "Канал",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список устройств",
+        "start_output": "Вывод",
+        "start_output_help": "Отправить значение при старте",
+        "error_output": "Вывод ошибок",
+        "error_output_help": "",
+        "filter_output": "Фильтр",
+        "filter_output_help": "Выводить только изменения"
+    },
+    "placeholder": {
+        "name": "Имя"
+    },
+    "status": {
+        "no_server": "нет сервера",
+        "no_device": "нет устройства",
+        "no_connection": "нет подключения",
+        "connected": "подключено"
+    },
+    "multiselect": {
+        "groups": "Группы света",
+        "devices": "Устройства",
+        "filter_devices": "Фильтровать устройства...",
+        "refresh": "Обновить список устройств",
+        "none_selected": "Ничего не выбрано",
+        "complete_payload": "Полный payload состояния"
+    }
+}

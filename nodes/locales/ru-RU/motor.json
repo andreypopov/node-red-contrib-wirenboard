@@ -1,0 +1,28 @@
+{
+    "label": {
+        "name": "Имя",
+        "server": "Сервер",
+        "channel": "ВКЛ",
+        "channel_dir": "НАПР",
+        "contact_close": "Датчик закрытия",
+        "contact_open": "Датчик открытия",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список устройств",
+        "max_running_time": "Полное время",
+        "extra_close_push_delay": "Задержка перед толчком",
+        "extra_close_push_time": "Время толчка"
+    },
+    "placeholder": {
+        "name": "Имя"
+    },
+    "status": {
+        "no_server": "нет сервера",
+        "no_device": "нет устройства",
+        "no_connection": "нет подключения",
+        "connected": "подключено",
+        "stopped": "остановлено",
+        "toggle": "переключить",
+        "opening": "открытие",
+        "closing": "закрытие"
+    }
+}
