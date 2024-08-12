@@ -106,9 +106,13 @@ module.exports = function(RED) {
 
             // console.log("From: "+node.percent+" to "+percent + '  -> '+timeEnd+'ms');
 
-            if (percent === node.percent) return;
+            //send status anyway
+            if (percent === node.percent) {
+                node.stopCurtain();
+                return;
+            }
 
-            node.moveCurtain(percent<node.percent);
+            node.moveCurtain(percent < node.percent);
 
             node.send({
                 payload: {
